@@ -2,9 +2,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
  */
-package ShopApp.services;
+package ShopApp.iservices;
 
 import ShopApp.dtos.UserDTO;
+import ShopApp.exception.DataNotFoudException;
 import ShopApp.models.User;
 
 /**
@@ -12,7 +13,7 @@ import ShopApp.models.User;
  * @author mac
  */
 public interface IUserService {
-    User createUser(UserDTO userDTO);
+    User createUser(UserDTO userDTO) throws DataNotFoudException;
     
     String login(String phone, String password);
 }

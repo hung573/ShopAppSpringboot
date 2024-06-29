@@ -6,7 +6,7 @@ package ShopApp.controllers;
 
 import ShopApp.dtos.UserDTO;
 import ShopApp.dtos.UserLoginDTO;
-import ShopApp.services.IUserService;
+import ShopApp.iservices.IUserService;
 import ShopApp.services.UserService;
 import jakarta.validation.Valid;
 import java.util.List;

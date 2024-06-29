@@ -4,6 +4,7 @@
  */
 package ShopApp.services;
 
+import ShopApp.iservices.ICategoryService;
 import ShopApp.dtos.CategoryDTO;
 import ShopApp.models.Category;
 import ShopApp.repositories.CategoryRepository;
