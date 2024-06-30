@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class ProductDTO {
     @NotEmpty(message = "Tên sản phẩm không được để tróng")
     @Size(min = 3, max = 300, message = "Tên sản phẩm không được dưới 3 ký tự và trên 300 ký tự")

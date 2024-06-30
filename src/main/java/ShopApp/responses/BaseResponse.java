@@ -20,7 +20,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @MappedSuperclass
-@Builder
 public class BaseResponse {
     @Column(name = "created_at")
     private LocalDateTime createdAt;

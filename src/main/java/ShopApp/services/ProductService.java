@@ -62,18 +62,9 @@ public class ProductService implements IProductServiec{
 
     @Override
     public Page<ProductResponse> getAllProduct(PageRequest pageRequest) {
-        DecimalFormat df = new DecimalFormat("#");
-        df.setMaximumFractionDigits(0);
         // page va limit sẽ được xử lý trên 
-        return productRepository.findAll(pageRequest).map(product ->
-                ProductResponse.builder()
-                    .id(product.getId())
-                    .name(product.getName())
-                    .price(product.getPrice())
-                    .description(product.getDescription())
-                    .thumbnail(product.getThumbnail())
-                    .nameCategory(product.getCategory().getName())
-                    .build());
+        return productRepository.findAll(pageRequest)
+                .map(ProductResponse::fromProduct);
     }
 
     @Override

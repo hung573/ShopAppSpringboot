@@ -6,6 +6,7 @@ package ShopApp.controllers;
 
 import ShopApp.dtos.ProductDTO;
 import ShopApp.dtos.ProductImageDTO;
+import ShopApp.exception.DataNotFoudException;
 import ShopApp.models.Product;
 import ShopApp.models.ProductImage;
 import static ShopApp.models.ProductImage.MAX_IMG_PER_PRODUCT;
@@ -13,6 +14,7 @@ import ShopApp.responses.ProductListResponse;
 import ShopApp.responses.ProductResponse;
 import ShopApp.iservices.IProductServiec;
 import ShopApp.services.ProductService;
+import com.github.javafaker.Faker;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -22,6 +24,8 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -75,8 +79,15 @@ public class ProductController {
                 .build());
     }
     @GetMapping("/{id}")
-    private ResponseEntity<String> getIdProduct(@PathVariable("id") long idProduct){
-        return ResponseEntity.ok("Get Successfully id: "+ idProduct);
+    private ResponseEntity<?> getIdProduct(@PathVariable("id") long idProduct){
+        Product product = new Product();
+        try {
+            product = productService.getProductById(idProduct);
+        } catch (DataNotFoudException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+        return ResponseEntity.ok(ProductResponse.fromProduct(product));
+
     }
     
     // thay doi cach upImg
@@ -191,12 +202,48 @@ public class ProductController {
     }
     
     @PutMapping("/update/{id}")
-    private ResponseEntity<String> updateProduct(@PathVariable("id") long idProduct){
-        return ResponseEntity.ok("Update Product Successfully id: "+ idProduct);
+    private ResponseEntity<?> updateProduct(@PathVariable("id") long idProduct, @Valid @RequestBody ProductDTO productDTO){
+        
+        try {
+            Product updateProduct = productService.updateProduct(idProduct, productDTO);
+            return ResponseEntity.ok(updateProduct);
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
     }
-    @DeleteMapping("/{id}")
+    
+    @DeleteMapping("/delete/{id}")
     private ResponseEntity<String> deleteProduct(@PathVariable("id") long idProduct){
-        return ResponseEntity.ok("Delete Product Successfully id: "+ idProduct);
+        try {
+            productService.deleteProduct(idProduct);
+            return ResponseEntity.ok("Delete Product Successfully id: "+ idProduct);
+        } catch (DataNotFoudException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+    
+//    @PostMapping("/genfakerProducts")
+    private ResponseEntity<?> genfakerProducts() {
+        Faker faker = new Faker();
+        for (int i = 0; i < 50; i++) {
+            try {
+                String productName = faker.commerce().productName();
+                if (productService.existsByName(productName)) {
+                    continue;
+                }
+                ProductDTO productDTO = ProductDTO.builder()
+                        .name(productName)
+                        .price((float) faker.number().numberBetween(10, 90_000_000))
+                        .description(faker.lorem().sentence())
+                        .thumbnail("")
+                        .categoryId((long) faker.number().numberBetween(2, 5))
+                        .build();
+                productService.createProduct(productDTO);
+            } catch (Exception ex) {
+                return ResponseEntity.badRequest().body(ex.getMessage());
+            }
+        }
+        return ResponseEntity.ok("Gen Faker Products Successfully");
     }
     
 
