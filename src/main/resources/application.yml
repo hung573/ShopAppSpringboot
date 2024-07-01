@@ -21,3 +21,10 @@ spring:
             max-request-size: 10MB
 api:
     prefix: /api/v1
+    
+jwt:
+    # 1h
+    expiration: 3600 
+    secretKey: WGBtsEm/cGzeh2xfNitX7F5fTZpCHdy1wp60rTzJOpA=
+    
+    

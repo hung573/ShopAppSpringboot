@@ -13,10 +13,16 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  *
@@ -29,7 +35,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 
-public class User extends BaseEntity{
+public class User extends BaseEntity implements UserDetails{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -61,4 +67,42 @@ public class User extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
+
+//  Quyền truy cập (áp dụng vào phân quyền roles)
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        
+        List<SimpleGrantedAuthority> authoritysList = new ArrayList<>();
+        authoritysList.add(new SimpleGrantedAuthority("ROLE_"+getRole().getName()));
+        return authoritysList;
+    }
+    
+//  theo hệ thống spring security trường username là duy nhất.
+    @Override
+    public String getUsername() {
+        return phoneNumber;
+    }
+    
+//  thời lượng đăng nhập
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+    
+//  không thể khoá
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+    
 }

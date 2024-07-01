@@ -20,8 +20,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,7 +40,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequiredArgsConstructor
 public class UserController {
     
-    private final IUserService userService;
+    private final UserService userService;
     
     @GetMapping("")
     private ResponseEntity<ListResponse> getAllUsers(@RequestParam("page") int page, @RequestParam("limit") int limit){
@@ -75,7 +77,7 @@ public class UserController {
                 return ResponseEntity.badRequest().body("Password nhập lại chưa chính xác!!!");
             }
             userService.createUser(userDTO);
-            return ResponseEntity.ok("Dang ky thanh cong");
+            return ResponseEntity.ok("Đăng ký thành công");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -91,7 +93,18 @@ public class UserController {
                 return ResponseEntity.badRequest().body(errormessage);
             }
             String token = userService.login(userLoginDTO.getPhoneNumber(), userLoginDTO.getPassword());
-            return ResponseEntity.ok("Dang nhap thanh cong !!! token" + token);
+            return ResponseEntity.ok(token);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    
+    @DeleteMapping("/delete/{id}")
+    private ResponseEntity<String> DeleteUser(@PathVariable("id") long id){
+        try {
+            
+            userService.deleteUser(id);
+            return ResponseEntity.ok("Đã xoá thành công userId: "+ id);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

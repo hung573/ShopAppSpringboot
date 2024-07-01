@@ -17,7 +17,9 @@ import org.springframework.data.domain.PageRequest;
 public interface IUserService {
     User createUser(UserDTO userDTO) throws DataNotFoudException;
     
-    String login(String phone, String password);
+    String login(String phone, String password) throws Exception;
     
     Page<User> getAllUser(PageRequest pageRequest);
+    
+    void deleteUser(long id) throws Exception
 }
