@@ -7,6 +7,8 @@ package ShopApp.iservices;
 import ShopApp.dtos.UserDTO;
 import ShopApp.exception.DataNotFoudException;
 import ShopApp.models.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 /**
  *
@@ -16,4 +18,6 @@ public interface IUserService {
     User createUser(UserDTO userDTO) throws DataNotFoudException;
     
     String login(String phone, String password);
+    
+    Page<User> getAllUser(PageRequest pageRequest);
 }

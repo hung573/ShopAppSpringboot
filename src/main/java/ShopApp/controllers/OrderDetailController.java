@@ -7,11 +7,15 @@ package ShopApp.controllers;
 import ShopApp.dtos.OrderDetailDTO;
 import ShopApp.iservices.IOrderDetailService;
 import ShopApp.models.OrderDetail;
+import ShopApp.responses.ListResponse;
 import ShopApp.responses.OrderDetailResponse;
 import ShopApp.services.OrderDetailService;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -34,6 +38,29 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequiredArgsConstructor
 public class OrderDetailController {
     private final OrderDetailService orderDetailService;
+    
+    @GetMapping("")
+     private ResponseEntity<ListResponse> getAllOrderDetails(@RequestParam("page") int page, @RequestParam("limit") int limit){
+        // Tạo Pageable từ page và limit
+        PageRequest pageRequest = PageRequest.of(page, limit,
+                Sort.by("id").ascending());
+        
+        Page<OrderDetailResponse> orderDetailsPage = orderDetailService.getAllOrderDetails(pageRequest);
+        // tong trang
+        int totalPages = orderDetailsPage.getTotalPages();
+        
+        List<OrderDetailResponse> orderDetails = orderDetailsPage.getContent();
+        
+        // Create response
+        ListResponse<OrderDetailResponse> orderDetailListResponse = ListResponse.<OrderDetailResponse>builder()
+                .items(orderDetails)
+                .page(page)
+                .totalPages(totalPages)
+                .build();
+
+        return ResponseEntity.ok(orderDetailListResponse);
+    }
+    
     @PostMapping("/add")
     private ResponseEntity<?> createOrderDetail(@Valid @RequestBody OrderDetailDTO orderDetailDTO, BindingResult result){
         try {

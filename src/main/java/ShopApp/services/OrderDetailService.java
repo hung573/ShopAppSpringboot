@@ -13,8 +13,11 @@ import ShopApp.models.Product;
 import ShopApp.repositories.OrderDetailRepository;
 import ShopApp.repositories.OrderRepository;
 import ShopApp.repositories.ProductRepository;
+import ShopApp.responses.OrderDetailResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 /**
@@ -85,6 +88,12 @@ public class OrderDetailService implements IOrderDetailService{
     @Override
     public List<OrderDetail> getAllByOrderId(long order_id) {
         return orderDetailRepository.findByOrderId(order_id);
+    }
+
+    @Override
+    public Page<OrderDetailResponse> getAllOrderDetails(PageRequest pageRequest) {
+        return orderDetailRepository.findAll(pageRequest)
+                .map(OrderDetailResponse::fromOrderDetail);
     }
     
 }

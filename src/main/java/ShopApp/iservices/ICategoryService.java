@@ -7,6 +7,8 @@ package ShopApp.iservices;
 import ShopApp.dtos.CategoryDTO;
 import ShopApp.models.Category;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 /**
  *
@@ -14,7 +16,7 @@ import java.util.List;
  */
 public interface ICategoryService {
     
-    List<Category> getAllCategories();
+    Page<Category> getAllCategories(PageRequest pageRequest);
     
     Category getCategoryById(long id);
     

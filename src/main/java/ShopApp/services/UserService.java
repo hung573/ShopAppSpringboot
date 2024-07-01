@@ -15,6 +15,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 /**
@@ -65,6 +67,11 @@ public class UserService implements IUserService{
     public String login(String phone, String password) {
         
         return null;
+    }
+
+    @Override
+    public Page<User> getAllUser(PageRequest pageRequest) {
+        return userRepository.findAll(pageRequest);
     }
     
 }

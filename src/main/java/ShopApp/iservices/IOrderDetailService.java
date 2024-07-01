@@ -6,7 +6,10 @@ package ShopApp.iservices;
 
 import ShopApp.dtos.OrderDetailDTO;
 import ShopApp.models.OrderDetail;
+import ShopApp.responses.OrderDetailResponse;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 /**
  *
@@ -23,4 +26,7 @@ public interface IOrderDetailService {
     void deleteOrderDetail(long id) throws Exception;
     
     List<OrderDetail> getAllByOrderId(long order_id);
+    
+    Page<OrderDetailResponse> getAllOrderDetails(PageRequest pageRequest);
+
 }

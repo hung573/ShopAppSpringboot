@@ -6,10 +6,14 @@ package ShopApp.controllers;
 
 import ShopApp.dtos.CategoryDTO;
 import ShopApp.models.Category;
+import ShopApp.responses.ListResponse;
 import ShopApp.services.CategoryService;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -35,10 +39,26 @@ public class CategoryController {
     private final CategoryService categoryServiec;
     
     @GetMapping("")
-    private ResponseEntity<List<Category>> getAllCategory(@RequestParam("page") int page, @RequestParam("limit") int limit){
+    private ResponseEntity<ListResponse> getAllCategory(@RequestParam("page") int page, @RequestParam("limit") int limit){
         
-        List<Category> categories = categoryServiec.getAllCategories();
-        return ResponseEntity.ok(categories);
+        // Tạo Pageable từ page và limit
+        PageRequest pageRequest = PageRequest.of(page, limit,
+                Sort.by("id").ascending());
+        
+        Page<Category> categoryPage = categoryServiec.getAllCategories(pageRequest);
+        // tong trang
+        int totalPages = categoryPage.getTotalPages();
+        
+        List<Category> categories = categoryPage.getContent();
+        
+        // Create response
+        ListResponse<Category> categoryListResponse = ListResponse.<Category>builder()
+                .items(categories)
+                .page(page)
+                .totalPages(totalPages)
+                .build();
+
+        return ResponseEntity.ok(categoryListResponse);
     }
     
     @PostMapping("/add")

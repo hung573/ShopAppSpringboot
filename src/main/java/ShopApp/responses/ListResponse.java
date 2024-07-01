@@ -18,8 +18,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ProductListResponse {
-    private List<ProductResponse> products;
+public class ListResponse<T> {
+    private List<T> items;
     private int page;
     private int totalPages;
 }

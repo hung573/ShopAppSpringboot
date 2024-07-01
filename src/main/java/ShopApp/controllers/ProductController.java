@@ -10,9 +10,9 @@ import ShopApp.exception.DataNotFoudException;
 import ShopApp.models.Product;
 import ShopApp.models.ProductImage;
 import static ShopApp.models.ProductImage.MAX_IMG_PER_PRODUCT;
-import ShopApp.responses.ProductListResponse;
 import ShopApp.responses.ProductResponse;
 import ShopApp.iservices.IProductServiec;
+import ShopApp.responses.ListResponse;
 import ShopApp.services.ProductService;
 import com.github.javafaker.Faker;
 import jakarta.validation.Valid;
@@ -60,7 +60,7 @@ public class ProductController {
     private final ProductService productService;
     
     @GetMapping("")
-    private ResponseEntity<ProductListResponse> getAllProduct(@RequestParam("page") int page, @RequestParam("limit") int limit){
+    private ResponseEntity<ListResponse> getAllProduct(@RequestParam("page") int page, @RequestParam("limit") int limit){
         
         // Tạo Pageable từ page và limit
         PageRequest pageRequest = PageRequest.of(page, limit,
@@ -71,12 +71,15 @@ public class ProductController {
         int totalPages = productPage.getTotalPages();
         List<ProductResponse> products = productPage.getContent();
         
-        return ResponseEntity.ok(ProductListResponse
-                .builder()
-                .products(products)
+         // Create response
+        ListResponse<ProductResponse> orderDetailListResponse = ListResponse
+                .<ProductResponse>builder()
+                .items(products)
                 .page(page)
                 .totalPages(totalPages)
-                .build());
+                .build();
+
+        return ResponseEntity.ok(orderDetailListResponse);
     }
     
     @GetMapping("/{id}")

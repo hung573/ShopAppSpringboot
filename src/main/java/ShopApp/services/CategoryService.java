@@ -10,6 +10,8 @@ import ShopApp.models.Category;
 import ShopApp.repositories.CategoryRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 /**
@@ -23,8 +25,8 @@ public class CategoryService implements ICategoryService{
     private final CategoryRepository categoryRepository;
     
     @Override
-    public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+    public Page<Category> getAllCategories(PageRequest pageRequest) {
+        return categoryRepository.findAll(pageRequest);
     }
 
     @Override

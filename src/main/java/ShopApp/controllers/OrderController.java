@@ -6,9 +6,13 @@ package ShopApp.controllers;
 import ShopApp.dtos.OrderDTO;
 import ShopApp.iservices.IOrderService;
 import ShopApp.models.Order;
+import ShopApp.responses.ListResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -33,6 +37,28 @@ public class OrderController {
     
     private final IOrderService orderService;
     
+    
+    @GetMapping("")
+    private ResponseEntity<ListResponse> getAllOrder(@RequestParam("page") int page, @RequestParam("limit") int limit){
+        // Tạo Pageable từ page và limit
+        PageRequest pageRequest = PageRequest.of(page, limit,
+                Sort.by("id").ascending());
+        
+        Page<Order> categoryPage = orderService.getAllOrders(pageRequest);
+        // tong trang
+        int totalPages = categoryPage.getTotalPages();
+        
+        List<Order> orders = categoryPage.getContent();
+        
+        // Create response
+        ListResponse<Order> orderListResponse = ListResponse.<Order>builder()
+                .items(orders)
+                .page(page)
+                .totalPages(totalPages)
+                .build();
+
+        return ResponseEntity.ok(orderListResponse);
+    }
     
     @PostMapping("/add")
     private ResponseEntity<?> addOerder(@Valid @RequestBody OrderDTO ortDTO, BindingResult result){

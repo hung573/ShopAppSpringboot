@@ -20,6 +20,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.annotation.Around;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 /**
@@ -89,6 +91,11 @@ public class OrderService implements IOrderService{
     @Override
     public List<Order> getAllByUserId(long user_id) {
         return orderRepository.findByUserId(user_id);
+    }
+
+    @Override
+    public Page<Order> getAllOrders(PageRequest pageRequest) {
+        return orderRepository.findAll(pageRequest);
     }
     
 }

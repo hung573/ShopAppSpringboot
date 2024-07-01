@@ -7,18 +7,25 @@ package ShopApp.controllers;
 import ShopApp.dtos.UserDTO;
 import ShopApp.dtos.UserLoginDTO;
 import ShopApp.iservices.IUserService;
+import ShopApp.models.User;
+import ShopApp.responses.ListResponse;
 import ShopApp.services.UserService;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 
 
@@ -32,6 +39,27 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class UserController {
     
     private final IUserService userService;
+    
+    @GetMapping("")
+    private ResponseEntity<ListResponse> getAllUsers(@RequestParam("page") int page, @RequestParam("limit") int limit){
+        PageRequest pageRequest = PageRequest.of(page, limit,
+                Sort.by("id").descending());
+        
+        Page<User> userPage = userService.getAllUser(pageRequest);
+        int totalPages = userPage.getTotalPages();
+        List<User> users = userPage.getContent();
+         // Create response
+        ListResponse<User> orderDetailListResponse = ListResponse
+                .<User>builder()
+                .items(users)
+                .page(page)
+                .totalPages(totalPages)
+                .build();
+
+        return ResponseEntity.ok(orderDetailListResponse);
+       
+          
+    }
     
     @PostMapping("/resigter")
     private ResponseEntity<?> resigter(@Valid @RequestBody UserDTO userDTO, BindingResult result){
