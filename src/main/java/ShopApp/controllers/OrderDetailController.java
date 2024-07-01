@@ -5,8 +5,13 @@
 package ShopApp.controllers;
 
 import ShopApp.dtos.OrderDetailDTO;
+import ShopApp.iservices.IOrderDetailService;
+import ShopApp.models.OrderDetail;
+import ShopApp.responses.OrderDetailResponse;
+import ShopApp.services.OrderDetailService;
 import jakarta.validation.Valid;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -26,8 +31,9 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @Controller
 @RequestMapping("${api.prefix}/order_details")
+@RequiredArgsConstructor
 public class OrderDetailController {
-    
+    private final OrderDetailService orderDetailService;
     @PostMapping("/add")
     private ResponseEntity<?> createOrderDetail(@Valid @RequestBody OrderDetailDTO orderDetailDTO, BindingResult result){
         try {
@@ -38,16 +44,23 @@ public class OrderDetailController {
                         .toList();
                 return ResponseEntity.badRequest().body(errormessage);
             }
-            return ResponseEntity.ok("Create OrderDetails Successfully");
+            OrderDetail orderDetail = new OrderDetail();
+            orderDetail = orderDetailService.creteOrderDetail(orderDetailDTO);
+            return ResponseEntity.ok(OrderDetailResponse.fromOrderDetail(orderDetail));
+//            return ResponseEntity.ok(orderDetail); // hiển thị kiểu chi tiết
+
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
     
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     private ResponseEntity<?> getOrderDetailId(@Valid @PathVariable("id") long id){
         try {
-            return ResponseEntity.ok("getOrderDetails with for id: "+ id);
+            OrderDetail orderDetail = new OrderDetail();
+            orderDetail = orderDetailService.getOrderDetailById(id);
+            return ResponseEntity.ok(OrderDetailResponse.fromOrderDetail(orderDetail));
+//          return ResponseEntity.ok(orderDetailService.getOrderDetailById(id)); // hiển thị kiểu chi tiết
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -55,8 +68,19 @@ public class OrderDetailController {
     
     // Lay ds orderDetails tu id Order
     @GetMapping("/order/{order_id}")
-    private ResponseEntity<?> ListOrderDetail(@Valid @PathVariable("order_id") long  orderId){
-        return ResponseEntity.ok("getOrderDetails with orderId: "+ orderId);
+    private ResponseEntity<?> ListOrderDetails(@Valid @PathVariable("order_id") long  orderId){
+        try {
+            List<OrderDetail> listOrderDetails = orderDetailService.getAllByOrderId(orderId);
+            List<OrderDetailResponse> orderResponses = listOrderDetails
+                    .stream()
+                    .map(OrderDetailResponse::fromOrderDetail)
+                    .toList();
+            return ResponseEntity.ok(orderResponses);
+//            return ResponseEntity.ok(orderResponses); // hiển thị kiểu chi tiết
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
     
     // Update OrderDetail
@@ -66,13 +90,20 @@ public class OrderDetailController {
             @Valid @RequestBody OrderDetailDTO orderDetailDTO,
             BindingResult result){
         try {
-            return ResponseEntity.ok("Update OrderDetail Successfully id: "+ id + ", "+orderDetailDTO);
+            OrderDetail orderDetail = new OrderDetail();
+            orderDetail = orderDetailService.updateOrderDetail(id, orderDetailDTO);
+            return ResponseEntity.ok(OrderDetailResponse.fromOrderDetail(orderDetail));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
     @DeleteMapping("/delete/{id}")
     private ResponseEntity<?> deleteOrderDetail(@PathVariable("id")long id){
-        return ResponseEntity.ok("Delete OrderDetail Successfully id: "+ id);
+        try {
+            orderDetailService.deleteOrderDetail(id);
+            return ResponseEntity.ok("Delete OrderDetail Successfully id: "+ id);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

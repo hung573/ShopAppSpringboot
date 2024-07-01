@@ -4,10 +4,23 @@
  */
 package ShopApp.iservices;
 
+import ShopApp.dtos.OrderDetailDTO;
+import ShopApp.models.OrderDetail;
+import java.util.List;
+
 /**
  *
  * @author mac
  */
 public interface IOrderDetailService {
     
+    OrderDetail creteOrderDetail (OrderDetailDTO orderDetailDTO) throws Exception;
+    
+    OrderDetail getOrderDetailById(long id) throws Exception;
+    
+    OrderDetail updateOrderDetail(long id, OrderDetailDTO orderDetailDTO) throws Exception;
+    
+    void deleteOrderDetail(long id) throws Exception;
+    
+    List<OrderDetail> getAllByOrderId(long order_id);
 }

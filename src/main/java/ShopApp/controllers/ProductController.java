@@ -57,7 +57,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class ProductController {
     
-    private final IProductServiec productService;
+    private final ProductService productService;
     
     @GetMapping("")
     private ResponseEntity<ProductListResponse> getAllProduct(@RequestParam("page") int page, @RequestParam("limit") int limit){
@@ -78,6 +78,7 @@ public class ProductController {
                 .totalPages(totalPages)
                 .build());
     }
+    
     @GetMapping("/{id}")
     private ResponseEntity<?> getIdProduct(@PathVariable("id") long idProduct){
         Product product = new Product();
@@ -169,8 +170,8 @@ public class ProductController {
             // luu file
             String fileName = storeFile(fileIMG);
             // luu vao doi tuong product trong DB lam sau
-            ProductImage productImage = productService.createProductImage(existingProduct.getId(),
-                    ProductImageDTO.builder()
+            ProductImage productImage = productService.createProductImage(
+                    existingProduct.getId(),ProductImageDTO.builder()
                             .imageUrl(fileName)
                             .build());
             productImages.add(productImage);

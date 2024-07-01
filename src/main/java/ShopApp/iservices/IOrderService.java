@@ -14,8 +14,12 @@ import java.util.List;
  */
 public interface IOrderService {
     Order creteOrder (OrderDTO orderDTO) throws Exception;
+    
     Order getOrderById(long id) throws Exception;
+    
     Order updateOrder(long id, OrderDTO orderDTO) throws Exception;
+    
     void deleteOrder(long id) throws Exception;
+    
     List<Order> getAllByUserId(long user_id);
 }
