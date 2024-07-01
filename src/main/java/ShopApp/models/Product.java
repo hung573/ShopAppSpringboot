@@ -47,4 +47,7 @@ public class Product extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
+    
+    @Column(name = "active")
+    private Boolean active;//thuộc về admin
 }

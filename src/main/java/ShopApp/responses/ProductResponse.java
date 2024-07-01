@@ -4,6 +4,7 @@
  */
 package ShopApp.responses;
 
+import ShopApp.models.Category;
 import ShopApp.models.Product;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

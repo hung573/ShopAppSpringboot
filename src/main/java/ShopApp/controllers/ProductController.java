@@ -222,7 +222,7 @@ public class ProductController {
         }
     }
     
-//    @PostMapping("/genfakerProducts")
+    @PostMapping("/genfakerProducts")
     private ResponseEntity<?> genfakerProducts() {
         Faker faker = new Faker();
         for (int i = 0; i < 50; i++) {

@@ -49,6 +49,7 @@ public class ProductService implements IProductServiec{
                 .thumbnail(productDTO.getThumbnail())
                 .description(productDTO.getDescription())
                 .category(existingCategory)
+                .active(true)
                 .build();
 
         return productRepository.save(newProduct);
@@ -87,7 +88,8 @@ public class ProductService implements IProductServiec{
     @Override
     public void deleteProduct(long id) throws DataNotFoudException{
         Product existingProduct = getProductById(id);
-        productRepository.delete(existingProduct);
+        existingProduct.setActive(false);
+        productRepository.save(existingProduct);
     }
 
     @Override

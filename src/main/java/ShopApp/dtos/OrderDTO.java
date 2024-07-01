@@ -7,6 +7,9 @@ package ShopApp.dtos;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -46,6 +49,9 @@ public class OrderDTO {
     
     @JsonProperty("shipping_method")
     private String shippingMethod;
+    
+    @JsonProperty("shipping_date")
+    private LocalDate shippingDate;
     
     @JsonProperty("shipping_address")
     private String shippingAddress;
