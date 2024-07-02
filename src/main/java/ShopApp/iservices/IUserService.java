@@ -5,6 +5,7 @@
 package ShopApp.iservices;
 
 import ShopApp.dtos.UserDTO;
+import ShopApp.dtos.UserUpdateDTO;
 import ShopApp.exception.DataNotFoudException;
 import ShopApp.models.User;
 import org.springframework.data.domain.Page;
@@ -15,11 +16,13 @@ import org.springframework.data.domain.PageRequest;
  * @author mac
  */
 public interface IUserService {
-    User createUser(UserDTO userDTO) throws DataNotFoudException;
+    User createUser(UserDTO userDTO) throws Exception;
+    
+    User updateUser(long id, UserUpdateDTO userUpdateDTO) throws Exception;
     
     String login(String phone, String password) throws Exception;
     
     Page<User> getAllUser(PageRequest pageRequest);
     
-    void deleteUser(long id) throws Exception
+    void deleteUser(long id) throws Exception;
 }

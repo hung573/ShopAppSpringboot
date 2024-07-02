@@ -6,6 +6,7 @@ package ShopApp.controllers;
 
 import ShopApp.dtos.UserDTO;
 import ShopApp.dtos.UserLoginDTO;
+import ShopApp.dtos.UserUpdateDTO;
 import ShopApp.iservices.IUserService;
 import ShopApp.models.User;
 import ShopApp.responses.ListResponse;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -77,7 +79,7 @@ public class UserController {
                 return ResponseEntity.badRequest().body("Password nhập lại chưa chính xác!!!");
             }
             userService.createUser(userDTO);
-            return ResponseEntity.ok("Đăng ký thành công");
+            return ResponseEntity.ok("Resigter thành công");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -102,9 +104,30 @@ public class UserController {
     @DeleteMapping("/delete/{id}")
     private ResponseEntity<String> DeleteUser(@PathVariable("id") long id){
         try {
-            
             userService.deleteUser(id);
             return ResponseEntity.ok("Đã xoá thành công userId: "+ id);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    
+    @PutMapping("/update/{id}")
+    private ResponseEntity<?> UpdateUser(@PathVariable("id") long id,
+            @Valid @RequestBody UserUpdateDTO userUpdateDTO,
+            BindingResult result){
+        try {
+            if (result.hasErrors()) {
+                List<String> errormessage = result.getFieldErrors()
+                        .stream()
+                        .map(FieldError::getDefaultMessage)
+                        .toList();
+                return ResponseEntity.badRequest().body(errormessage);
+            }
+            if (!userUpdateDTO.getPassword().equals(userUpdateDTO.getRetypePassword())) {
+                return ResponseEntity.badRequest().body("Password nhập lại chưa chính xác!!!");
+            }
+            userService.updateUser(id, userUpdateDTO);
+            return ResponseEntity.ok("Cập nhật thành công");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

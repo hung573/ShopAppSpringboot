@@ -11,6 +11,7 @@ import ShopApp.exception.DataNotFoudException;
 import ShopApp.models.Role;
 import ShopApp.models.User;
 import ShopApp.configurations.*;
+import ShopApp.dtos.UserUpdateDTO;
 
 import ShopApp.repositories.RoleRepository;
 import ShopApp.repositories.UserRepository;
@@ -26,7 +27,7 @@ import java.util.Optional;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-
+import org.springframework.web.client.HttpClientErrorException;
 
 /**
  *
@@ -34,55 +35,51 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
  */
 @Service
 @RequiredArgsConstructor
-public class UserService implements IUserService{
-    
+public class UserService implements IUserService {
+
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder; // inject vao
     private final JwtTokenUtil jwtTokenUtil;
     private final AuthenticationManager authManager;
-    
+
     @Override
-    public User createUser(UserDTO userDTO) {
+    public User createUser(UserDTO userDTO) throws Exception{
         User newUser = new User();
-        try {
-            String phone = userDTO.getPhoneNumber();
-            if (userRepository.existsByPhoneNumber(phone)) {
-                throw new DataIntegrityViolationException("Số điện thoại đã được đăng ký.");
-            }
-            newUser = User.builder()
-                    .fullName(userDTO.getFullName())
-                    .phoneNumber(userDTO.getPhoneNumber())
-                    .password(userDTO.getPassword())
-                    .address(userDTO.getAddress())
-                    .dateOfBirth(userDTO.getDateOfBirth())
-                    .facebookAccountId(userDTO.getFacebookAccountId())
-                    .googleAccountId(userDTO.getGoogleAccountId())
-                    .build();
-            Role role =roleRepository.findById(userDTO.getRoleId())
-                    .orElseThrow(() -> new DataNotFoudException("Role not found"));
-            newUser.setRole(role);
-            
-            // kiểm tra nếu có accountId, thì không yêu cầu password
-            if (userDTO.getFacebookAccountId() == 0 && userDTO.getGoogleAccountId() == 0) {
-                String password = userDTO.getPassword();
-                // password chua duoc ma hoa
-                String encodePassword = passwordEncoder.encode(password);
-                newUser.setPassword(encodePassword);
-            }
-        } catch (DataNotFoudException ex) {
-            Logger.getLogger(UserService.class.getName()).log(Level.SEVERE, null, ex);
+        String phone = userDTO.getPhoneNumber();
+        if (userRepository.existsByPhoneNumber(phone)) {
+            throw new DataIntegrityViolationException("Số điện thoại đã được đăng ký.");
+        }
+        long idrole_user = 2;
+        Role role = roleRepository.findById(idrole_user);
+        newUser = User.builder()
+                .fullName(userDTO.getFullName())
+                .phoneNumber(userDTO.getPhoneNumber())
+                .password(userDTO.getPassword())
+                .address(userDTO.getAddress())
+                .dateOfBirth(userDTO.getDateOfBirth())
+                .facebookAccountId(userDTO.getFacebookAccountId())
+                .googleAccountId(userDTO.getGoogleAccountId())
+                .role(role)
+                .build();
+        
+        // kiểm tra nếu có accountId, thì không yêu cầu password
+        if (userDTO.getFacebookAccountId() == 0 && userDTO.getGoogleAccountId() == 0) {
+            String password = userDTO.getPassword();
+            // password chua duoc ma hoa
+            String encodePassword = passwordEncoder.encode(password);
+            newUser.setPassword(encodePassword);
         }
         return userRepository.save(newUser);
     }
 
     @Override
-    public String login(String phoneNumber, String password) throws Exception{
+    public String login(String phoneNumber, String password) throws Exception {
         Optional<User> optionalUser = userRepository.findByPhoneNumber(phoneNumber);
         if (optionalUser.isEmpty()) {
             throw new DataNotFoudException("Tài khoản hoặc mật khậu không chính xác");
         }
-        
+
 //      return optionalUser.get(); 
         User user = optionalUser.get();
 //      check isActi Account
@@ -95,7 +92,6 @@ public class UserService implements IUserService{
                 throw new BadCredentialsException("Tài Khoản hoặc mật khẩu không chính xác");
             }
         }
-
 
 //      auth java spring security
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
@@ -113,9 +109,32 @@ public class UserService implements IUserService{
     public void deleteUser(long id) throws Exception {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoudException("Không tìm thấy User để xoá"));
-        
+
         user.setActive(false);
         userRepository.save(user);
     }
-    
+
+    @Override
+    public User updateUser(long id, UserUpdateDTO userUpdateDTO) throws Exception {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoudException("Không tìm thấy User để cập nhật"));
+
+        Role role = roleRepository.findById(userUpdateDTO.getRoleId())
+                .orElseThrow(() -> new DataNotFoudException("Role not found"));
+
+        user.setFullName(userUpdateDTO.getFullName());
+        user.setAddress(userUpdateDTO.getAddress());
+        user.setDateOfBirth(userUpdateDTO.getDateOfBirth());
+        user.setFacebookAccountId(user.getFacebookAccountId());
+        user.setGoogleAccountId(user.getGoogleAccountId());
+        user.setRole(role);
+
+        String password = userUpdateDTO.getPassword();
+        // password chua duoc ma hoa
+        String encodePassword = passwordEncoder.encode(password);
+        user.setPassword(encodePassword);
+
+        return userRepository.save(user);
+    }
+
 }

@@ -6,7 +6,6 @@ package ShopApp.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.sql.Date;
@@ -19,19 +18,14 @@ import lombok.NoArgsConstructor;
  *
  * @author mac
  */
-
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDTO {
-    @JsonProperty("fullname")
+public class UserUpdateDTO {
+     @JsonProperty("fullname")
     @NotBlank(message = "Số điện thoại không được để tróng")
     private String fullName;
-    
-    @JsonProperty("phone_number")
-    @NotBlank(message = "Số điện thoại không được để tróng")
-    private String phoneNumber;
     
     @NotBlank(message = "Địa chỉ không được để tróng")
     private String address;
@@ -53,8 +47,7 @@ public class UserDTO {
     @JsonProperty("google_account_id")
     private int googleAccountId;
     
-//    @JsonProperty("role_id")
-//    @NotNull(message = "Role is not null")
-//    private Long roleId;
-    
+    @JsonProperty("role_id")
+    @NotNull(message = "Role is not null")
+    private Long roleId;
 }

@@ -90,7 +90,7 @@ public class OrderController {
     }
     
     // Lấy ra chi tiết 1 order từ danh sách
-    @GetMapping("/{id}")
+    @GetMapping("/order/{id}")
     private ResponseEntity<?> getOrderId(@PathVariable("id") long id){
         try {
             Order order = orderService.getOrderById(id);
