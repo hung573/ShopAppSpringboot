@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserDTO {
     @JsonProperty("fullname")
-    @NotBlank(message = "Số điện thoại không được để tróng")
+    @NotBlank(message = "Họ và tên không được để tróng")
     private String fullName;
     
     @JsonProperty("phone_number")
