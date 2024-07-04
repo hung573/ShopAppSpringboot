@@ -4,6 +4,7 @@
  */
 package ShopApp.controllers;
 
+import ShopApp.components.LocalizationUtils;
 import ShopApp.dtos.ProductDTO;
 import ShopApp.dtos.ProductImageDTO;
 import ShopApp.exception.DataNotFoudException;
@@ -58,6 +59,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class ProductController {
     
     private final ProductService productService;
+    private final LocalizationUtils localizationUtils;
+
     
     @GetMapping("")
     private ResponseEntity<ListResponse> getAllProduct(@RequestParam("page") int page, @RequestParam("limit") int limit){

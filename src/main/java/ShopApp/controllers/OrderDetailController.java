@@ -4,6 +4,7 @@
  */
 package ShopApp.controllers;
 
+import ShopApp.components.LocalizationUtils;
 import ShopApp.dtos.OrderDetailDTO;
 import ShopApp.iservices.IOrderDetailService;
 import ShopApp.models.OrderDetail;
@@ -38,6 +39,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequiredArgsConstructor
 public class OrderDetailController {
     private final OrderDetailService orderDetailService;
+    private final LocalizationUtils localizationUtils;
+
     
     @GetMapping("")
      private ResponseEntity<ListResponse> getAllOrderDetails(@RequestParam("page") int page, @RequestParam("limit") int limit){

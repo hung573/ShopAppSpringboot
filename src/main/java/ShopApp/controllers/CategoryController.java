@@ -6,11 +6,18 @@ package ShopApp.controllers;
 
 import ShopApp.dtos.CategoryDTO;
 import ShopApp.models.Category;
+import ShopApp.responses.CategoryResponse;
 import ShopApp.responses.ListResponse;
 import ShopApp.services.CategoryService;
+import ShopApp.components.LocalizationUtils;
+import ShopApp.responses.MessageResponse;
+import ShopApp.utils.MessageKey;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Locale;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -26,6 +33,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.LocaleResolver;
 
 /**
  *
@@ -37,6 +45,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class CategoryController {
     
     private final CategoryService categoryServiec;
+    private final LocalizationUtils localizationUtils;
     
     @GetMapping("")
     private ResponseEntity<ListResponse> getAllCategory(@RequestParam("page") int page, @RequestParam("limit") int limit){
@@ -60,36 +69,96 @@ public class CategoryController {
 
         return ResponseEntity.ok(categoryListResponse);
     }
+    @GetMapping("/{id}")
+    private ResponseEntity<CategoryResponse> getIdCategory(@PathVariable("id") long idCategory){
+        try {
+            Category category = categoryServiec.getCategoryById(idCategory);
+            return ResponseEntity.ok(CategoryResponse.builder()
+                    .message(localizationUtils.getLocalizedMessage(MessageKey.GETID_SUCCESSFULLY))
+                    .category(category)
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(CategoryResponse.builder()
+                    .message(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND, e.getMessage()))
+                    .build());
+        }
+        
+    }
     
     @PostMapping("/add")
-    private ResponseEntity<?> addCategory(@Valid @RequestBody CategoryDTO categoryDTO, BindingResult result){
+    private ResponseEntity<CategoryResponse> addCategory(
+            @Valid @RequestBody CategoryDTO categoryDTO,
+            BindingResult result){
         
-        if (result.hasErrors()) {
+        try {
+            if (result.hasErrors()) {
             List<String> errormessage = result.getFieldErrors()
                     .stream()
                     .map(FieldError::getDefaultMessage)
                     .toList();
-            return ResponseEntity.badRequest().body(errormessage);
+            return ResponseEntity.badRequest().body(
+                    CategoryResponse.builder()
+                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, errormessage.get(0)))
+                        .build());
+            }
+            Category category = categoryServiec.createCategory(categoryDTO);
+            return ResponseEntity.ok(CategoryResponse.builder()
+                    .message(localizationUtils.getLocalizedMessage(MessageKey.ADD_SUCCESSFULLY))
+                    .category(category)
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                    CategoryResponse.builder()
+                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
+                        .build());
         }
-        categoryServiec.createCategory(categoryDTO);
-        return ResponseEntity.ok("Thêm mới thành công Category");
     }
     
-    @GetMapping("/{id}")
-    private ResponseEntity<Category> getIdCategory(@PathVariable("id") long idCategory){
-        Category category = categoryServiec.getCategoryById(idCategory);
-        return ResponseEntity.ok(category);
-    }
+
     
     @PutMapping("/update/{id}")
-    private ResponseEntity<String> updateCategory(@PathVariable("id") long idCategory,@ Valid @RequestBody CategoryDTO categoryDTO){
-        categoryServiec.updateCategory(idCategory, categoryDTO);
-        return ResponseEntity.ok("Cập nhật thành công Category Id: " + idCategory);
+    private ResponseEntity<CategoryResponse> updateCategory(
+            @PathVariable("id") long idCategory,
+            @Valid @RequestBody CategoryDTO categoryDTO,
+            BindingResult result){
+        
+        try {
+            if (result.hasErrors()) {
+                List<String> errormessage = result.getFieldErrors()
+                        .stream()
+                        .map(FieldError::getDefaultMessage)
+                        .toList();
+                return ResponseEntity.badRequest().body(
+                        CategoryResponse.builder()
+                            .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, errormessage.get(0)))
+                            .build());
+            }
+            Category category = categoryServiec.updateCategory(idCategory, categoryDTO);
+            return ResponseEntity.ok(CategoryResponse.builder()
+                    .message(localizationUtils.getLocalizedMessage(MessageKey.UPDATE_SUCCESSFULLY))
+                    .category(category)
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                        CategoryResponse.builder()
+                            .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
+                            .build());
+        }
     }
     
     @DeleteMapping("/{id}")
-    private ResponseEntity<String> deleteCategory(@PathVariable("id") long idCategory){
-        categoryServiec.deleteCategory(idCategory);
-        return ResponseEntity.ok("Xoá thành công Category Id: "+ idCategory);
+    private ResponseEntity<MessageResponse> deleteCategory(
+            @PathVariable("id") long idCategory){
+        try {
+            categoryServiec.deleteCategory(idCategory);
+            return ResponseEntity.ok(MessageResponse.builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKey.DELETE_SUCCESSFULLY))
+                .build());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                        MessageResponse.builder()
+                            .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
+                            .build());
+        }
     }
 }

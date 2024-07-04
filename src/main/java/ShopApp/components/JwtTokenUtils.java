@@ -29,7 +29,7 @@ import java.util.function.Function;
 @Component
 @RequiredArgsConstructor
 
-public class JwtTokenUtil {
+public class JwtTokenUtils {
     
     @Value("${jwt.expiration}")
     private int expiration; // thời gian token kết thúc, và phải được lưu trong biến moi trường trong file .yml

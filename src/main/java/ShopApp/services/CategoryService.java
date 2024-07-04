@@ -4,10 +4,13 @@
  */
 package ShopApp.services;
 
+import ShopApp.components.LocalizationUtils;
 import ShopApp.iservices.ICategoryService;
 import ShopApp.dtos.CategoryDTO;
+import ShopApp.exception.DataNotFoudException;
 import ShopApp.models.Category;
 import ShopApp.repositories.CategoryRepository;
+import ShopApp.utils.MessageKey;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,6 +26,8 @@ import org.springframework.stereotype.Service;
 public class CategoryService implements ICategoryService{
     
     private final CategoryRepository categoryRepository;
+    private final LocalizationUtils localizationUtils;
+
     
     @Override
     public Page<Category> getAllCategories(PageRequest pageRequest) {
@@ -30,13 +35,13 @@ public class CategoryService implements ICategoryService{
     }
 
     @Override
-    public Category getCategoryById(long id) {
+    public Category getCategoryById(long id) throws Exception{
         return categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category by id: "+ id +" not found"));
+                .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
     }
 
     @Override
-    public Category createCategory(CategoryDTO categoryDTO) {
+    public Category createCategory(CategoryDTO categoryDTO) throws Exception{
         Category newCategory = Category
                 .builder()
                 .name(categoryDTO.getName())
@@ -45,7 +50,7 @@ public class CategoryService implements ICategoryService{
     }
 
     @Override
-    public Category updateCategory(long id, CategoryDTO categoryDTO) {
+    public Category updateCategory(long id, CategoryDTO categoryDTO) throws Exception{
         Category newCategory = getCategoryById(id);
         newCategory.setName(categoryDTO.getName());
         categoryRepository.save(newCategory);
@@ -53,7 +58,7 @@ public class CategoryService implements ICategoryService{
     }
 
     @Override
-    public void deleteCategory(long id) {
+    public void deleteCategory(long id) throws Exception{
         // xoa cung
         Category category = getCategoryById(id);
         categoryRepository.delete(category);

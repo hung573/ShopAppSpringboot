@@ -18,11 +18,11 @@ public interface ICategoryService {
     
     Page<Category> getAllCategories(PageRequest pageRequest);
     
-    Category getCategoryById(long id);
+    Category getCategoryById(long id) throws Exception;
     
-    Category createCategory(CategoryDTO categoryDTO);
+    Category createCategory(CategoryDTO categoryDTO)throws Exception;
     
-    Category updateCategory(long id, CategoryDTO categoryDTO);
+    Category updateCategory(long id, CategoryDTO categoryDTO)throws Exception;
     
-    void deleteCategory(long id);
+    void deleteCategory(long id)throws Exception;
 }

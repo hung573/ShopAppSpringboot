@@ -55,52 +55,52 @@ public class WebSecurityConfig {
                             .permitAll()
                             
                             //Categories
-                            .requestMatchers(GET,String.format("%s/categories**", apiPrefix)).hasAnyRole(Role.USER, Role.ADMIN)
+                            .requestMatchers(GET,String.format("%s/categories/**", apiPrefix)).permitAll()
                             
-                            .requestMatchers(POST,String.format("%s/categories/**", apiPrefix)).hasRole( Role.ADMIN)
+                            .requestMatchers(POST,String.format("%s/categories/**", apiPrefix)).hasAnyRole(Role.ADMIN)
 
-                            .requestMatchers(PUT,String.format("%s/categories/**", apiPrefix)).hasRole( Role.ADMIN)
+                            .requestMatchers(PUT,String.format("%s/categories/**", apiPrefix)).hasAnyRole( Role.ADMIN)
 
-                            .requestMatchers(DELETE,String.format("%s/categories/**", apiPrefix)).hasRole( Role.ADMIN)
+                            .requestMatchers(DELETE,String.format("%s/categories/**", apiPrefix)).hasAnyRole( Role.ADMIN)
 
                             // Products
-                            .requestMatchers(GET,String.format("%s/products/**", apiPrefix)).hasAnyRole(Role.USER, Role.ADMIN)
+                            .requestMatchers(GET,String.format("%s/products/**", apiPrefix)).permitAll()
 
-                            .requestMatchers(POST,String.format("%s/products/**", apiPrefix)).hasRole( Role.ADMIN)
+                            .requestMatchers(POST,String.format("%s/products/**", apiPrefix)).hasAnyRole( Role.ADMIN)
 
-                            .requestMatchers(PUT,String.format("%s/products/**", apiPrefix)).hasRole( Role.ADMIN)
+                            .requestMatchers(PUT,String.format("%s/products/**", apiPrefix)).hasAnyRole( Role.ADMIN)
                             
-                            .requestMatchers(DELETE,String.format("%s/products/**", apiPrefix)).hasRole( Role.ADMIN)
+                            .requestMatchers(DELETE,String.format("%s/products/**", apiPrefix)).hasAnyRole( Role.ADMIN)
                             
                             // Users
-                            .requestMatchers(GET,String.format("%s/users/**", apiPrefix)).hasRole(Role.ADMIN)
+                            .requestMatchers(GET,String.format("%s/users/**", apiPrefix)).hasAnyRole(Role.ADMIN)
 
-                            .requestMatchers(PUT,String.format("%s/users/**", apiPrefix)).hasRole( Role.ADMIN)
+                            .requestMatchers(PUT,String.format("%s/users/**", apiPrefix)).hasAnyRole( Role.ADMIN)
                             
-                            .requestMatchers(DELETE,String.format("%s/users/**", apiPrefix)).hasRole( Role.ADMIN)
+                            .requestMatchers(DELETE,String.format("%s/users/**", apiPrefix)).hasAnyRole( Role.ADMIN)
                             
                             
                             // Orders
-                            .requestMatchers(POST,String.format("%s/orders/**", apiPrefix)).hasRole(Role.USER)
+                            .requestMatchers(POST,String.format("%s/orders/**", apiPrefix)).hasAnyRole(Role.USER)
                             
-                            .requestMatchers(GET,String.format("%s/orders/user_order/**", apiPrefix)).hasRole(Role.USER)
+                            .requestMatchers(GET,String.format("%s/orders/user_order/**", apiPrefix)).hasAnyRole(Role.USER)
                             
-                            .requestMatchers(GET,String.format("%s/orders/order/**", apiPrefix)).hasRole(Role.USER)
+                            .requestMatchers(GET,String.format("%s/orders/order/**", apiPrefix)).hasAnyRole(Role.USER)
                             
-                            .requestMatchers(GET,String.format("%s/orders**", apiPrefix)).hasRole(Role.ADMIN)
+                            .requestMatchers(GET,String.format("%s/orders**", apiPrefix)).hasAnyRole(Role.ADMIN)
 
-                            .requestMatchers(PUT,String.format("%s/orders/**", apiPrefix)).hasRole(Role.ADMIN)
+                            .requestMatchers(PUT,String.format("%s/orders/**", apiPrefix)).hasAnyRole(Role.ADMIN)
                             
-                            .requestMatchers(DELETE,String.format("%s/orders/**", apiPrefix)).hasRole(Role.ADMIN)
+                            .requestMatchers(DELETE,String.format("%s/orders/**", apiPrefix)).hasAnyRole(Role.ADMIN)
                             
                             // OrderDetails
-                            .requestMatchers(GET,String.format("%s/order_details/**", apiPrefix)).hasAnyRole(Role.USER, Role.ADMIN)
+                            .requestMatchers(GET,String.format("%s/order_details/**", apiPrefix)).permitAll()
 
                             .requestMatchers(POST,String.format("%s/order_details/**", apiPrefix)).hasRole(Role.USER)
 
-                            .requestMatchers(PUT,String.format("%s/order_details/**", apiPrefix)).hasAnyRole(Role.USER, Role.ADMIN)
+                            .requestMatchers(PUT,String.format("%s/order_details/**", apiPrefix)).permitAll()
                             
-                            .requestMatchers(DELETE,String.format("%s/order_details/**", apiPrefix)).hasAnyRole(Role.USER, Role.ADMIN)
+                            .requestMatchers(DELETE,String.format("%s/order_details/**", apiPrefix)).permitAll()
 
                             
                             .anyRequest().authenticated();

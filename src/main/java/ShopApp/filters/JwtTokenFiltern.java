@@ -4,7 +4,7 @@
  */
 package ShopApp.filters;
 
-import ShopApp.components.JwtTokenUtil;
+import ShopApp.components.JwtTokenUtils;
 import ShopApp.models.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -36,7 +36,7 @@ public class JwtTokenFiltern extends OncePerRequestFilter {
 
     private final UserDetailsService userDetailsService;
 
-    private final JwtTokenUtil jwtTokenUtil;
+    private final JwtTokenUtils jwtTokenUtil;
 
     @Value("${api.prefix}")
     private String apiPrefix;

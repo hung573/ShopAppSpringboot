@@ -23,8 +23,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserUpdateDTO {
-     @JsonProperty("fullname")
-    @NotBlank(message = "Số điện thoại không được để tróng")
+    @JsonProperty("fullname")
+    @NotBlank(message = "Họ và tên không được để tróng")
     private String fullName;
     
     @NotBlank(message = "Địa chỉ không được để tróng")
@@ -50,4 +50,10 @@ public class UserUpdateDTO {
     @JsonProperty("role_id")
     @NotNull(message = "Role is not null")
     private Long roleId;
+    
+    @JsonProperty("is_active")
+    @NotNull(message = "Active is not null")
+    private boolean active;
+    
+    
 }

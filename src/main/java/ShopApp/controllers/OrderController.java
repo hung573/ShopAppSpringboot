@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package ShopApp.controllers;
+import ShopApp.components.LocalizationUtils;
 import ShopApp.dtos.OrderDTO;
 import ShopApp.iservices.IOrderService;
 import ShopApp.models.Order;
@@ -36,6 +37,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class OrderController {
     
     private final IOrderService orderService;
+    private final LocalizationUtils localizationUtils;
+
     
     
     @GetMapping("")

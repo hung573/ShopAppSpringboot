@@ -4,7 +4,8 @@
  */
 package ShopApp.services;
 
-import ShopApp.components.JwtTokenUtil;
+import ShopApp.components.JwtTokenUtils;
+import ShopApp.components.LocalizationUtils;
 import ShopApp.iservices.IUserService;
 import ShopApp.dtos.UserDTO;
 import ShopApp.exception.DataNotFoudException;
@@ -15,6 +16,7 @@ import ShopApp.dtos.UserUpdateDTO;
 
 import ShopApp.repositories.RoleRepository;
 import ShopApp.repositories.UserRepository;
+import ShopApp.utils.MessageKey;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.RequiredArgsConstructor;
@@ -40,15 +42,16 @@ public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder; // inject vao
-    private final JwtTokenUtil jwtTokenUtil;
+    private final JwtTokenUtils jwtTokenUtil;
     private final AuthenticationManager authManager;
+    private final LocalizationUtils localizationUtils;
 
     @Override
     public User createUser(UserDTO userDTO) throws Exception{
         User newUser = new User();
         String phone = userDTO.getPhoneNumber();
         if (userRepository.existsByPhoneNumber(phone)) {
-            throw new DataIntegrityViolationException("Số điện thoại đã được đăng ký.");
+            throw new DataIntegrityViolationException(localizationUtils.getLocalizedMessage(MessageKey.PHONE_NUMBER_EXITS));
         }
         long idrole_user = 2;
         Role role = roleRepository.findById(idrole_user);
@@ -58,6 +61,7 @@ public class UserService implements IUserService {
                 .password(userDTO.getPassword())
                 .address(userDTO.getAddress())
                 .dateOfBirth(userDTO.getDateOfBirth())
+                .active(true)
                 .facebookAccountId(userDTO.getFacebookAccountId())
                 .googleAccountId(userDTO.getGoogleAccountId())
                 .role(role)
@@ -77,19 +81,19 @@ public class UserService implements IUserService {
     public String login(String phoneNumber, String password) throws Exception {
         Optional<User> optionalUser = userRepository.findByPhoneNumber(phoneNumber);
         if (optionalUser.isEmpty()) {
-            throw new DataNotFoudException("Tài khoản hoặc mật khậu không chính xác");
+            throw new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.PASSWORD_USERNAME_ISCONNECT));
         }
 
 //      return optionalUser.get(); 
         User user = optionalUser.get();
 //      check isActi Account
         if (user.isActive() == false) {
-            throw new BadCredentialsException("Tài khoản này hiện đang bị khoá");
+            throw new BadCredentialsException(localizationUtils.getLocalizedMessage(MessageKey.ACCOUNT_ISACTIVE));
         }
 //      checkpassword
         if (user.getFacebookAccountId() == 0 && user.getGoogleAccountId() == 0) {
             if (!passwordEncoder.matches(password, user.getPassword())) {
-                throw new BadCredentialsException("Tài Khoản hoặc mật khẩu không chính xác");
+                throw new BadCredentialsException(localizationUtils.getLocalizedMessage(MessageKey.PASSWORD_USERNAME_ISCONNECT));
             }
         }
 
@@ -108,7 +112,7 @@ public class UserService implements IUserService {
     @Override
     public void deleteUser(long id) throws Exception {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoudException("Không tìm thấy User để xoá"));
+                .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
 
         user.setActive(false);
         userRepository.save(user);
@@ -117,10 +121,10 @@ public class UserService implements IUserService {
     @Override
     public User updateUser(long id, UserUpdateDTO userUpdateDTO) throws Exception {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoudException("Không tìm thấy User để cập nhật"));
+                .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
 
         Role role = roleRepository.findById(userUpdateDTO.getRoleId())
-                .orElseThrow(() -> new DataNotFoudException("Role not found"));
+                .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.ROLE_NOTFOUND)));
 
         user.setFullName(userUpdateDTO.getFullName());
         user.setAddress(userUpdateDTO.getAddress());
@@ -128,6 +132,7 @@ public class UserService implements IUserService {
         user.setFacebookAccountId(user.getFacebookAccountId());
         user.setGoogleAccountId(user.getGoogleAccountId());
         user.setRole(role);
+        user.setActive(userUpdateDTO.isActive());
 
         String password = userUpdateDTO.getPassword();
         // password chua duoc ma hoa
