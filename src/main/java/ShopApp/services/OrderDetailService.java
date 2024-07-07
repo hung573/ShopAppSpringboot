@@ -4,6 +4,7 @@
  */
 package ShopApp.services;
 
+import ShopApp.components.LocalizationUtils;
 import ShopApp.dtos.OrderDetailDTO;
 import ShopApp.exception.DataNotFoudException;
 import ShopApp.iservices.IOrderDetailService;
@@ -14,6 +15,8 @@ import ShopApp.repositories.OrderDetailRepository;
 import ShopApp.repositories.OrderRepository;
 import ShopApp.repositories.ProductRepository;
 import ShopApp.responses.OrderDetailResponse;
+import ShopApp.utils.MessageKey;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -38,12 +41,16 @@ public class OrderDetailService implements IOrderDetailService{
     
     private final ProductService productService;
     
+    private final LocalizationUtils loaLocalizationUtils;
+    
     @Override
+    @Transactional
     public OrderDetail creteOrderDetail(OrderDetailDTO orderDetailDTO) throws Exception {
         Order order = orderRepository.findById(orderDetailDTO.getOrderId())
-                .orElseThrow(() -> new DataNotFoudException("Không tìm thấy Order Id hợp lệ: "+ orderDetailDTO.getOrderId()));
+                .orElseThrow(() -> new DataNotFoudException(loaLocalizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND, "Order Id")));
         Product product = productRepository.findById(orderDetailDTO.getProductId())
-                .orElseThrow(() -> new DataNotFoudException("Không tìm thấy Product Id hợp lệ: "+ orderDetailDTO.getProductId()));
+                .orElseThrow(() -> new DataNotFoudException(loaLocalizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND, "Product Id")));
+
         
         OrderDetail orderDetail = OrderDetail.builder()
                 .order(order)
@@ -59,10 +66,12 @@ public class OrderDetailService implements IOrderDetailService{
     @Override
     public OrderDetail getOrderDetailById(long id) throws Exception {
         return orderDetailRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoudException("Không tìm thấy OrderId: "+ id));
+                .orElseThrow(() -> new DataNotFoudException(loaLocalizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND, "Order Id")));
+
     }
 
     @Override
+    @Transactional
     public OrderDetail updateOrderDetail(long id, OrderDetailDTO orderDetailDTO) throws Exception {
         
         OrderDetail orderDetail = getOrderDetailById(id);
@@ -80,6 +89,7 @@ public class OrderDetailService implements IOrderDetailService{
     }
 
     @Override
+    @Transactional
     public void deleteOrderDetail(long id) throws Exception {
         OrderDetail orderDetail = getOrderDetailById(id);
         orderDetailRepository.delete(orderDetail);

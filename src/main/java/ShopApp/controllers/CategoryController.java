@@ -6,11 +6,11 @@ package ShopApp.controllers;
 
 import ShopApp.dtos.CategoryDTO;
 import ShopApp.models.Category;
-import ShopApp.responses.CategoryResponse;
 import ShopApp.responses.ListResponse;
 import ShopApp.services.CategoryService;
 import ShopApp.components.LocalizationUtils;
 import ShopApp.responses.MessageResponse;
+import ShopApp.responses.ObjectResponse;
 import ShopApp.utils.MessageKey;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -41,7 +41,7 @@ import org.springframework.web.servlet.LocaleResolver;
  */
 @Controller
 @RequestMapping("${api.prefix}/categories")
-@ RequiredArgsConstructor
+@RequiredArgsConstructor
 public class CategoryController {
     
     private final CategoryService categoryServiec;
@@ -70,15 +70,15 @@ public class CategoryController {
         return ResponseEntity.ok(categoryListResponse);
     }
     @GetMapping("/{id}")
-    private ResponseEntity<CategoryResponse> getIdCategory(@PathVariable("id") long idCategory){
+    private ResponseEntity<ObjectResponse> getIdCategory(@PathVariable("id") long idCategory){
         try {
             Category category = categoryServiec.getCategoryById(idCategory);
-            return ResponseEntity.ok(CategoryResponse.builder()
+            return ResponseEntity.ok(ObjectResponse.builder()
                     .message(localizationUtils.getLocalizedMessage(MessageKey.GETID_SUCCESSFULLY))
-                    .category(category)
+                    .items(category)
                     .build());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(CategoryResponse.builder()
+            return ResponseEntity.badRequest().body(ObjectResponse.builder()
                     .message(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND, e.getMessage()))
                     .build());
         }
@@ -86,7 +86,7 @@ public class CategoryController {
     }
     
     @PostMapping("/add")
-    private ResponseEntity<CategoryResponse> addCategory(
+    private ResponseEntity<ObjectResponse> addCategory(
             @Valid @RequestBody CategoryDTO categoryDTO,
             BindingResult result){
         
@@ -96,19 +96,17 @@ public class CategoryController {
                     .stream()
                     .map(FieldError::getDefaultMessage)
                     .toList();
-            return ResponseEntity.badRequest().body(
-                    CategoryResponse.builder()
+            return ResponseEntity.badRequest().body(ObjectResponse.builder()
                         .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, errormessage.get(0)))
                         .build());
             }
             Category category = categoryServiec.createCategory(categoryDTO);
-            return ResponseEntity.ok(CategoryResponse.builder()
+            return ResponseEntity.ok(ObjectResponse.builder()
                     .message(localizationUtils.getLocalizedMessage(MessageKey.ADD_SUCCESSFULLY))
-                    .category(category)
+                    .items(category)
                     .build());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(
-                    CategoryResponse.builder()
+            return ResponseEntity.badRequest().body(ObjectResponse.builder()
                         .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
                         .build());
         }
@@ -117,7 +115,7 @@ public class CategoryController {
 
     
     @PutMapping("/update/{id}")
-    private ResponseEntity<CategoryResponse> updateCategory(
+    private ResponseEntity<ObjectResponse> updateCategory(
             @PathVariable("id") long idCategory,
             @Valid @RequestBody CategoryDTO categoryDTO,
             BindingResult result){
@@ -129,18 +127,18 @@ public class CategoryController {
                         .map(FieldError::getDefaultMessage)
                         .toList();
                 return ResponseEntity.badRequest().body(
-                        CategoryResponse.builder()
+                        ObjectResponse.builder()
                             .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, errormessage.get(0)))
                             .build());
             }
             Category category = categoryServiec.updateCategory(idCategory, categoryDTO);
-            return ResponseEntity.ok(CategoryResponse.builder()
+            return ResponseEntity.ok(ObjectResponse.builder()
                     .message(localizationUtils.getLocalizedMessage(MessageKey.UPDATE_SUCCESSFULLY))
-                    .category(category)
+                    .items(category)
                     .build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(
-                        CategoryResponse.builder()
+                        ObjectResponse.builder()
                             .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
                             .build());
         }

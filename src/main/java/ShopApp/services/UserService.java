@@ -17,6 +17,7 @@ import ShopApp.dtos.UserUpdateDTO;
 import ShopApp.repositories.RoleRepository;
 import ShopApp.repositories.UserRepository;
 import ShopApp.utils.MessageKey;
+import jakarta.transaction.Transactional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +48,7 @@ public class UserService implements IUserService {
     private final LocalizationUtils localizationUtils;
 
     @Override
+    @Transactional
     public User createUser(UserDTO userDTO) throws Exception{
         User newUser = new User();
         String phone = userDTO.getPhoneNumber();
@@ -110,6 +112,7 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @Transactional
     public void deleteUser(long id) throws Exception {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
@@ -119,6 +122,7 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @Transactional
     public User updateUser(long id, UserUpdateDTO userUpdateDTO) throws Exception {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));

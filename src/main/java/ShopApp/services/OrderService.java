@@ -4,6 +4,7 @@
  */
 package ShopApp.services;
 
+import ShopApp.components.LocalizationUtils;
 import ShopApp.dtos.OrderDTO;
 import ShopApp.exception.DataNotFoudException;
 import ShopApp.iservices.IOrderService;
@@ -12,6 +13,8 @@ import ShopApp.models.OrderStatus;
 import ShopApp.models.User;
 import ShopApp.repositories.OrderRepository;
 import ShopApp.repositories.UserRepository;
+import ShopApp.utils.MessageKey;
+import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -34,10 +37,12 @@ public class OrderService implements IOrderService{
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
     private final ModelMapper modelMapper; 
+    private final LocalizationUtils localizationUtils;
     @Override
+    @Transactional
     public Order creteOrder(OrderDTO orderDTO) throws Exception{
         User user = userRepository.findById(orderDTO.getUserId())
-                .orElseThrow(() -> new DataNotFoudException("Không tìm thấy user có id: "+ orderDTO.getUserId()));
+                .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
         // convert Order DTO -> Order
         // dung thu thien ModelMapper
         modelMapper.typeMap(OrderDTO.class, Order.class)
@@ -51,7 +56,7 @@ public class OrderService implements IOrderService{
         LocalDate shippingDate = orderDTO.getShippingDate() == null
                 ? LocalDate.now() : orderDTO.getShippingDate();
         if (shippingDate.isBefore(LocalDate.now())) {
-            throw new DataNotFoudException("Ngày giao hàng không hợp lệ");
+            throw new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.ORDER_SHIPPINGDATE_INVALID));
         }
         order.setShippingDate(shippingDate);
         order.setActive(true);
@@ -63,14 +68,15 @@ public class OrderService implements IOrderService{
     @Override
     public Order getOrderById(long id) throws Exception{
         return orderRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoudException("Không tìm thấy OrderId hợp lệ"));
+                .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
     }
 
     @Override
+    @Transactional
     public Order updateOrder(long id, OrderDTO orderDTO) throws Exception{
         Order order = getOrderById(id);
         User user = userRepository.findById(orderDTO.getUserId())
-                .orElseThrow(() -> new DataNotFoudException("User Id không hợp lệ."));
+                .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
         
         modelMapper.typeMap(OrderDTO.class, Order.class)
                 .addMappings(mapper -> mapper.skip(Order::setId));
@@ -81,6 +87,7 @@ public class OrderService implements IOrderService{
     }
 
     @Override
+    @Transactional
     public void deleteOrder(long id) throws Exception{
         Order order = getOrderById(id);
         order.setActive(false);

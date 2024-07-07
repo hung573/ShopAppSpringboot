@@ -9,8 +9,11 @@ import ShopApp.dtos.OrderDetailDTO;
 import ShopApp.iservices.IOrderDetailService;
 import ShopApp.models.OrderDetail;
 import ShopApp.responses.ListResponse;
+import ShopApp.responses.MessageResponse;
+import ShopApp.responses.ObjectResponse;
 import ShopApp.responses.OrderDetailResponse;
 import ShopApp.services.OrderDetailService;
+import ShopApp.utils.MessageKey;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -65,34 +68,46 @@ public class OrderDetailController {
     }
     
     @PostMapping("/add")
-    private ResponseEntity<?> createOrderDetail(@Valid @RequestBody OrderDetailDTO orderDetailDTO, BindingResult result){
+    private ResponseEntity<ObjectResponse> createOrderDetail(@Valid @RequestBody OrderDetailDTO orderDetailDTO, BindingResult result){
         try {
             if (result.hasErrors()) {
                 List<String> errormessage = result.getFieldErrors()
                         .stream()
                         .map(FieldError::getDefaultMessage)
                         .toList();
-                return ResponseEntity.badRequest().body(errormessage);
+                return ResponseEntity.badRequest().body(ObjectResponse.builder()
+                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, errormessage))
+                        .build());
             }
             OrderDetail orderDetail = new OrderDetail();
             orderDetail = orderDetailService.creteOrderDetail(orderDetailDTO);
-            return ResponseEntity.ok(OrderDetailResponse.fromOrderDetail(orderDetail));
+            return ResponseEntity.ok(ObjectResponse.builder()
+                    .message(localizationUtils.getLocalizedMessage(MessageKey.ADD_SUCCESSFULLY))
+                    .items(OrderDetailResponse.fromOrderDetail(orderDetail))
+                    .build());
 //            return ResponseEntity.ok(orderDetail); // hiển thị kiểu chi tiết
 
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(ObjectResponse.builder()
+                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
+                        .build());
         }
     }
     
     @GetMapping("/{id}")
-    private ResponseEntity<?> getOrderDetailId(@Valid @PathVariable("id") long id){
+    private ResponseEntity<ObjectResponse> getOrderDetailId(@Valid @PathVariable("id") long id){
         try {
             OrderDetail orderDetail = new OrderDetail();
             orderDetail = orderDetailService.getOrderDetailById(id);
-            return ResponseEntity.ok(OrderDetailResponse.fromOrderDetail(orderDetail));
+            return ResponseEntity.ok(ObjectResponse.builder()
+                    .message(localizationUtils.getLocalizedMessage(MessageKey.GETID_SUCCESSFULLY))
+                    .items(OrderDetailResponse.fromOrderDetail(orderDetail))
+                    .build());
 //          return ResponseEntity.ok(orderDetailService.getOrderDetailById(id)); // hiển thị kiểu chi tiết
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(ObjectResponse.builder()
+                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
+                        .build());
         }
     }
     
@@ -115,25 +130,34 @@ public class OrderDetailController {
     
     // Update OrderDetail
     @PutMapping("/update/{id}")
-    private ResponseEntity<?> updateOrderDetail(
+    private ResponseEntity<ObjectResponse> updateOrderDetail(
             @PathVariable("id")long id ,
             @Valid @RequestBody OrderDetailDTO orderDetailDTO,
             BindingResult result){
         try {
             OrderDetail orderDetail = new OrderDetail();
             orderDetail = orderDetailService.updateOrderDetail(id, orderDetailDTO);
-            return ResponseEntity.ok(OrderDetailResponse.fromOrderDetail(orderDetail));
+            return ResponseEntity.ok(ObjectResponse.builder()
+                    .message(localizationUtils.getLocalizedMessage(MessageKey.UPDATE_SUCCESSFULLY))
+                    .items(OrderDetailResponse.fromOrderDetail(orderDetail))
+                    .build());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(ObjectResponse.builder()
+                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
+                        .build());
         }
     }
     @DeleteMapping("/delete/{id}")
-    private ResponseEntity<?> deleteOrderDetail(@PathVariable("id")long id){
+    private ResponseEntity<MessageResponse> deleteOrderDetail(@PathVariable("id")long id){
         try {
             orderDetailService.deleteOrderDetail(id);
-            return ResponseEntity.ok("Delete OrderDetail Successfully id: "+ id);
+            return ResponseEntity.ok(MessageResponse.builder()
+                    .message(localizationUtils.getLocalizedMessage(MessageKey.DELETE_SUCCESSFULLY))
+                    .build());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(MessageResponse.builder()
+                    .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR,e.getMessage()))
+                    .build());
         }
     }
 }

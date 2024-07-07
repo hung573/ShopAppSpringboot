@@ -11,6 +11,7 @@ import ShopApp.exception.DataNotFoudException;
 import ShopApp.models.Category;
 import ShopApp.repositories.CategoryRepository;
 import ShopApp.utils.MessageKey;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -41,6 +42,7 @@ public class CategoryService implements ICategoryService{
     }
 
     @Override
+    @Transactional
     public Category createCategory(CategoryDTO categoryDTO) throws Exception{
         Category newCategory = Category
                 .builder()
@@ -50,6 +52,7 @@ public class CategoryService implements ICategoryService{
     }
 
     @Override
+    @Transactional
     public Category updateCategory(long id, CategoryDTO categoryDTO) throws Exception{
         Category newCategory = getCategoryById(id);
         newCategory.setName(categoryDTO.getName());
@@ -58,6 +61,7 @@ public class CategoryService implements ICategoryService{
     }
 
     @Override
+    @Transactional
     public void deleteCategory(long id) throws Exception{
         // xoa cung
         Category category = getCategoryById(id);

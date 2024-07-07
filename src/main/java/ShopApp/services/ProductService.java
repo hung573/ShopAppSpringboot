@@ -17,6 +17,7 @@ import ShopApp.repositories.CategoryRepository;
 import ShopApp.repositories.ProductImageRepository;
 import ShopApp.repositories.ProductRepository;
 import ShopApp.responses.ProductResponse;
+import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.logging.Level;
@@ -39,6 +40,7 @@ public class ProductService implements IProductServiec{
     private final ProductImageRepository productImageRepository;
 
     @Override
+    @Transactional
     public Product createProduct(ProductDTO productDTO) throws Exception{
         Category existingCategory = categoryRepository.findById(productDTO.getCategoryId())
                     .orElseThrow(() -> new DataNotFoudException("Không tìm thấy mã loại sản phẩm này."));
@@ -69,6 +71,7 @@ public class ProductService implements IProductServiec{
     }
 
     @Override
+    @Transactional
     public Product updateProduct(long id, ProductDTO productDTO) throws DataNotFoudException{
         Product existingProduct = getProductById(id);
         
@@ -86,6 +89,7 @@ public class ProductService implements IProductServiec{
     }
 
     @Override
+    @Transactional
     public void deleteProduct(long id) throws DataNotFoudException{
         Product existingProduct = getProductById(id);
         existingProduct.setActive(false);

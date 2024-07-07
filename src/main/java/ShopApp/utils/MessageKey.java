@@ -23,6 +23,12 @@ public class MessageKey {
     
     public static final String PHONE_NUMBER_EXITS="user.register.phone_number_exist";
     
+    public static final String ORDER_SHIPPINGDATE_INVALID="order.shippingdate";
+    
+    public static final String UPLOAD_IMAGES_MAX_5 = "product.upload_images.error_max_5_images";
+    public static final String UPLOAD_IMAGES_FILE_LARGE = "product.upload_images.file_large";
+    public static final String UPLOAD_IMAGES_FILE_MUST_BE_IMAGE = "product.upload_images.file_must_be_image";
+    
     public static final String ADD_SUCCESSFULLY="add.successfully";
     public static final String UPDATE_SUCCESSFULLY="update.successfully";
     public static final String DELETE_SUCCESSFULLY="delete.successfully";
