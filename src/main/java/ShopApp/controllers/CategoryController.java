@@ -50,8 +50,10 @@ public class CategoryController {
     @GetMapping("")
     private ResponseEntity<ListResponse> getAllCategory(@RequestParam("page") int page, @RequestParam("limit") int limit){
         
+        // Điều chỉnh page để bắt đầu từ 1 thay vì 0
+        int adjustedPage = page > 0 ? page - 1 : 0;
         // Tạo Pageable từ page và limit
-        PageRequest pageRequest = PageRequest.of(page, limit,
+        PageRequest pageRequest = PageRequest.of(adjustedPage, limit,
                 Sort.by("id").ascending());
         
         Page<Category> categoryPage = categoryServiec.getAllCategories(pageRequest);

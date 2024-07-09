@@ -66,28 +66,34 @@ public class ProductController {
 
     
     @GetMapping("")
-    private ResponseEntity<ListResponse> getAllProduct(@RequestParam("page") int page, @RequestParam("limit") int limit){
-        
-        // Tạo Pageable từ page và limit
-        PageRequest pageRequest = PageRequest.of(page, limit,
-//                Sort.by("createdAt").descending()
+    private ResponseEntity<ListResponse> getAllProduct(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "0", name = "category_id") Long categoryId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int limit){
+
+        // Điều chỉnh page để bắt đầu từ 1 thay vì 0
+        int adjustedPage = page > 0 ? page - 1 : 0;
+
+        // Tạo Pageable từ adjustedPage và limit
+        PageRequest pageRequest = PageRequest.of(adjustedPage, limit,
                 Sort.by("id").ascending()
         );
-        
-        Page<ProductResponse> productPage = productService.getAllProduct(pageRequest);
+
+        Page<ProductResponse> productPage = productService.getAllProductSearch(categoryId, keyword, pageRequest);
         // tong trang
         int totalPages = productPage.getTotalPages();
         List<ProductResponse> products = productPage.getContent();
-        
+
          // Create response
-        ListResponse<ProductResponse> orderDetailListResponse = ListResponse
+        ListResponse<ProductResponse> ProductListResponse = ListResponse
                 .<ProductResponse>builder()
                 .items(products)
                 .page(page)
                 .totalPages(totalPages)
                 .build();
 
-        return ResponseEntity.ok(orderDetailListResponse);
+        return ResponseEntity.ok(ProductListResponse);
     }
     
     @GetMapping("/{id}")

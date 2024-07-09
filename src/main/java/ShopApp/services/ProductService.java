@@ -118,5 +118,12 @@ public class ProductService implements IProductServiec{
         return productImageRepository.save(productImage);
         
     }
+
+    @Override
+    public Page<ProductResponse> getAllProductSearch(long categoryId, String keyword, PageRequest pageRequest) {
+        Page<Product> pageProducts;
+        pageProducts = productRepository.searchProducts(categoryId, keyword, pageRequest);
+        return pageProducts.map(ProductResponse::fromProduct);
+    }
     
 }

@@ -6,6 +6,10 @@ package ShopApp.responses;
 
 import ShopApp.models.Category;
 import ShopApp.models.Product;
+import ShopApp.models.ProductImage;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,6 +37,9 @@ public class ProductResponse extends BaseResponse{
     
     private String nameCategory;
     
+    @JsonProperty("product_images")
+    private List<ProductImage> productImages = new ArrayList<>();
+    
     public static ProductResponse fromProduct(Product product){
         ProductResponse productResponse = ProductResponse.builder()
                     .id(product.getId())
@@ -41,6 +48,7 @@ public class ProductResponse extends BaseResponse{
                     .description(product.getDescription())
                     .thumbnail(product.getThumbnail())
                     .nameCategory(product.getCategory().getName())
+                    .productImages(product.getProductImages())
                     .build();
         productResponse.setCreatedAt(product.getCreatedAt());
         productResponse.setUpdatedAt(product.getUpdatedAt());
