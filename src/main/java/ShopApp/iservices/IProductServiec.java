@@ -10,6 +10,7 @@ import ShopApp.exception.DataNotFoudException;
 import ShopApp.models.Product;
 import ShopApp.models.ProductImage;
 import ShopApp.responses.ProductResponse;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
@@ -34,5 +35,8 @@ public interface IProductServiec {
     boolean existsByName(String name);
     
     ProductImage createProductImage(long productId,ProductImageDTO productImageDTO) throws Exception;
+    
+    List<Product> findProductsByIds(List<Long> productIds) throws Exception;
+
     
 }

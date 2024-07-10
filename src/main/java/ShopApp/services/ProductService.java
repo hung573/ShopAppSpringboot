@@ -20,6 +20,7 @@ import ShopApp.responses.ProductResponse;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.RequiredArgsConstructor;
@@ -124,6 +125,12 @@ public class ProductService implements IProductServiec{
         Page<Product> pageProducts;
         pageProducts = productRepository.searchProducts(categoryId, keyword, pageRequest);
         return pageProducts.map(ProductResponse::fromProduct);
+    }
+
+    @Override
+    public List<Product> findProductsByIds(List<Long> productIds) throws Exception{
+        return productRepository.findProductsByIds(productIds);
+
     }
     
 }
