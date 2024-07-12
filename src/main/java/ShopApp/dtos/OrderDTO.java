@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -60,5 +61,7 @@ public class OrderDTO {
     @NotBlank(message = "Phương thức thanh toán không được để tróng")
     private String paymentMethod;
     
+    @JsonProperty("cart_items")
+    private List<CartItemDTO> cartItems;
     
 }

@@ -5,19 +5,25 @@
 package ShopApp.services;
 
 import ShopApp.components.LocalizationUtils;
+import ShopApp.dtos.CartItemDTO;
 import ShopApp.dtos.OrderDTO;
 import ShopApp.exception.DataNotFoudException;
 import ShopApp.iservices.IOrderService;
 import ShopApp.models.Order;
+import ShopApp.models.OrderDetail;
 import ShopApp.models.OrderStatus;
+import ShopApp.models.Product;
 import ShopApp.models.User;
+import ShopApp.repositories.OrderDetailRepository;
 import ShopApp.repositories.OrderRepository;
+import ShopApp.repositories.ProductRepository;
 import ShopApp.repositories.UserRepository;
 import ShopApp.utils.MessageKey;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +42,8 @@ import org.springframework.stereotype.Service;
 public class OrderService implements IOrderService{
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
+    private final ProductService productService;
+    private final OrderDetailRepository orderDetailRepository;
     private final ModelMapper modelMapper; 
     private final LocalizationUtils localizationUtils;
     @Override
@@ -60,8 +68,37 @@ public class OrderService implements IOrderService{
         }
         order.setShippingDate(shippingDate);
         order.setActive(true);
+        order.setTotalMoney(orderDTO.getTotalMoney());
         orderRepository.save(order);
-        return order; 
+        
+        // Tạo danh sách các đối tượng OrderDetail từ cartItems
+        List<OrderDetail> orderDetails = new ArrayList<>();
+        for (CartItemDTO cartItemDTO : orderDTO.getCartItems()) {
+            // Tạo một đối tượng OrderDetail từ CartItemDTO
+            OrderDetail orderDetail = new OrderDetail();
+            orderDetail.setOrder(order);
+
+            // Lấy thông tin sản phẩm từ cartItemDTO
+            Long productId = cartItemDTO.getProductId();
+            int quantity = cartItemDTO.getQuantity();
+
+            // Tìm thông tin sản phẩm từ cơ sở dữ liệu (hoặc sử dụng cache nếu cần)
+            Product product = productService.getProductById(productId);
+
+            // Đặt thông tin cho OrderDetail
+            orderDetail.setProduct(product);
+            orderDetail.setNumberOfProducts(quantity);
+            // Các trường khác của OrderDetail nếu cần
+            orderDetail.setPrice(product.getPrice());
+            orderDetail.setTotalMoney(quantity * product.getPrice());
+            
+            // Thêm OrderDetail vào danh sách
+            orderDetails.add(orderDetail);
+        }
+
+        // Lưu danh sách OrderDetail vào cơ sở dữ liệu
+        orderDetailRepository.saveAll(orderDetails);
+        return order;
     
     }
 
