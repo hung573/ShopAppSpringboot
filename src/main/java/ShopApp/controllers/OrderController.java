@@ -10,6 +10,7 @@ import ShopApp.models.Order;
 import ShopApp.responses.ListResponse;
 import ShopApp.responses.MessageResponse;
 import ShopApp.responses.ObjectResponse;
+import ShopApp.responses.OrderResponse;
 import ShopApp.services.OrderService;
 import ShopApp.utils.MessageKey;
 import jakarta.validation.Valid;
@@ -57,9 +58,13 @@ public class OrderController {
         
         List<Order> orders = categoryPage.getContent();
         
+        List<OrderResponse> orderResponses = orders.stream()
+                .map(OrderResponse::fromOrder)
+                .toList();
+        
         // Create response
-        ListResponse<Order> orderListResponse = ListResponse.<Order>builder()
-                .items(orders)
+        ListResponse<OrderResponse> orderListResponse = ListResponse.<OrderResponse>builder()
+                .items(orderResponses)
                 .page(page)
                 .totalPages(totalPages)
                 .build();
@@ -81,7 +86,7 @@ public class OrderController {
             }
             Order order = orderService.creteOrder(ortDTO);
             return ResponseEntity.ok(ObjectResponse.builder()
-                    .items(order)
+                    .items(OrderResponse.fromOrder(order))
                     .message(localizationUtils.getLocalizedMessage(MessageKey.ADD_SUCCESSFULLY))
                     .build());
         } catch (Exception e) {
@@ -96,7 +101,11 @@ public class OrderController {
     private ResponseEntity<?> getUserIdMyOrder(@PathVariable("user_id") long idUser){
         try {
             List<Order> listOrders = orderService.getAllByUserId(idUser);
-            return ResponseEntity.ok(listOrders);
+            List<OrderResponse> listOrderResponses = listOrders
+                    .stream()
+                    .map(OrderResponse :: fromOrder)
+                    .toList();
+            return ResponseEntity.ok(listOrderResponses);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -109,7 +118,7 @@ public class OrderController {
             Order order = orderService.getOrderById(id);
             return ResponseEntity.ok(ObjectResponse.builder()
                     .message(localizationUtils.getLocalizedMessage(MessageKey.GETID_SUCCESSFULLY))
-                    .items(order)
+                    .items(OrderResponse.fromOrder(order))
                     .build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ObjectResponse.builder()
@@ -124,7 +133,7 @@ public class OrderController {
             Order order = orderService.updateOrder(id, orderDTO);
             return ResponseEntity.ok(ObjectResponse.builder()
                     .message(localizationUtils.getLocalizedMessage(MessageKey.UPDATE_SUCCESSFULLY))
-                    .items(order)
+                    .items(OrderResponse.fromOrder(order))
                     .build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ObjectResponse.builder()

@@ -20,10 +20,12 @@ import ShopApp.repositories.ProductRepository;
 import ShopApp.repositories.UserRepository;
 import ShopApp.utils.MessageKey;
 import jakarta.transaction.Transactional;
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,8 @@ import org.aspectj.lang.annotation.Around;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -104,8 +108,26 @@ public class OrderService implements IOrderService{
 
     @Override
     public Order getOrderById(long id) throws Exception{
-        return orderRepository.findById(id)
+        
+        String currentPhoneNumberUser = SecurityContextHolder.getContext().getAuthentication().getName();
+        
+        User user = userRepository.findByPhoneNumber(currentPhoneNumberUser)
                 .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
+        
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
+        
+        // Kiểm tra nếu user hiện tại là chủ sở hữu của order hoặc là admin
+        if (!order.getUser().getId().equals(user.getId()) && !isCurrentUserAdmin()) {
+            throw new AccessDeniedException(localizationUtils.getLocalizedMessage(MessageKey.ERORR));
+        }
+        
+        return order;
+    }
+    
+    private boolean isCurrentUserAdmin() {
+        Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        return authorities.stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
     }
 
     @Override
@@ -133,8 +155,23 @@ public class OrderService implements IOrderService{
     }
 
     @Override
-    public List<Order> getAllByUserId(long user_id) {
-        return orderRepository.findByUserId(user_id);
+    public List<Order> getAllByUserId(long user_id) throws Exception{
+        
+        String currentPhoneNumberUser = SecurityContextHolder.getContext().getAuthentication().getName();
+        
+        User user = userRepository.findByPhoneNumber(currentPhoneNumberUser)
+                .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
+        
+        List<Order> orders = orderRepository.findByUserId(user_id);
+        
+        for(Order order : orders){
+           // Kiểm tra nếu user hiện tại là chủ sở hữu của order hoặc là admin
+            if (!order.getUser().getId().equals(user.getId()) && !isCurrentUserAdmin()) {
+                throw new AccessDeniedException(localizationUtils.getLocalizedMessage(MessageKey.ERORR));
+            } 
+        }
+        
+        return orders;
     }
 
     @Override

@@ -4,6 +4,8 @@
  */
 package ShopApp.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -35,6 +37,7 @@ public class OrderDetail {
 
     @ManyToOne
     @JoinColumn(name = "order_id")
+    @JsonBackReference
     private Order order;
 
     @ManyToOne
@@ -45,9 +48,11 @@ public class OrderDetail {
     private Float price;
 
     @Column(name = "number_of_products", nullable = false)
+    @JsonProperty("number_of_products")
     private int numberOfProducts;
 
     @Column(name = "total_money", nullable = false)
+    @JsonProperty("total_money")
     private Float totalMoney;
 
     @Column(name = "color", nullable = false)

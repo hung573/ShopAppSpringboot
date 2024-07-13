@@ -19,4 +19,5 @@ public interface UserRepository extends JpaRepository<User, Long>{
     boolean existsByPhoneNumber(String phoneNumBer); // kiem tra sdt co ton tai khong
     
     Optional<User> findByPhoneNumber(String phoneNumBer); // tim kiem user theo sdt
+    
 }

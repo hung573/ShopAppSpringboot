@@ -85,9 +85,9 @@ public class WebSecurityConfig {
                             // Orders
                             .requestMatchers(POST,String.format("%s/orders/**", apiPrefix)).hasAnyRole(Role.USER)
                             
-                            .requestMatchers(GET,String.format("%s/orders/user_order/**", apiPrefix)).hasAnyRole(Role.USER)
+                            .requestMatchers(GET,String.format("%s/orders/user_order/**", apiPrefix)).permitAll()
                             
-                            .requestMatchers(GET,String.format("%s/orders/order/**", apiPrefix)).hasAnyRole(Role.USER)
+                            .requestMatchers(GET,String.format("%s/orders/order/**", apiPrefix)).permitAll()
                             
                             .requestMatchers(GET,String.format("%s/orders**", apiPrefix)).hasAnyRole(Role.ADMIN)
 

@@ -23,7 +23,7 @@ public interface IOrderService {
     
     void deleteOrder(long id) throws Exception;
     
-    List<Order> getAllByUserId(long user_id);
+    List<Order> getAllByUserId(long user_id) throws Exception;
     
     Page<Order> getAllOrders(PageRequest pageRequest);
 
