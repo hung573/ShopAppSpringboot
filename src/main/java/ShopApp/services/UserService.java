@@ -12,6 +12,7 @@ import ShopApp.exception.DataNotFoudException;
 import ShopApp.models.Role;
 import ShopApp.models.User;
 import ShopApp.configurations.*;
+import ShopApp.dtos.AdminUpdateUserDTO;
 import ShopApp.dtos.UserUpdateDTO;
 
 import ShopApp.repositories.RoleRepository;
@@ -49,7 +50,7 @@ public class UserService implements IUserService {
 
     @Override
     @Transactional
-    public User createUser(UserDTO userDTO) throws Exception{
+    public User createUser(UserDTO userDTO) throws Exception {
         User newUser = new User();
         String phone = userDTO.getPhoneNumber();
         if (userRepository.existsByPhoneNumber(phone)) {
@@ -68,7 +69,7 @@ public class UserService implements IUserService {
                 .googleAccountId(userDTO.getGoogleAccountId())
                 .role(role)
                 .build();
-        
+
         // kiểm tra nếu có accountId, thì không yêu cầu password
         if (userDTO.getFacebookAccountId() == 0 && userDTO.getGoogleAccountId() == 0) {
             String password = userDTO.getPassword();
@@ -123,7 +124,7 @@ public class UserService implements IUserService {
 
     @Override
     @Transactional
-    public User updateUser(long id, UserUpdateDTO userUpdateDTO) throws Exception {
+    public User updateUserAdmin(long id, AdminUpdateUserDTO userUpdateDTO) throws Exception {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
 
@@ -153,14 +154,49 @@ public class UserService implements IUserService {
         }
         String phoneNumber = jwtTokenUtil.extractPhoneNumber(token);
         Optional<User> user = userRepository.findByPhoneNumber(phoneNumber);
-        
+
         if (user.isPresent()) {
             return user.get();
-        }
-        else{
+        } else {
             throw new Exception("User không tồn tại");
         }
+
+    }
+
+    @Override
+    public User updateUser(long id, UserUpdateDTO userUpdateDTO) throws Exception {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
         
+        String fullname = userUpdateDTO.getFullName();
+        if (fullname != null && !fullname.isEmpty() && fullname == " " && fullname.equals(user.getFullName())) {
+            user.setFullName(userUpdateDTO.getFullName());
+        }
+        String address = userUpdateDTO.getAddress();
+        if (address != null && !address.isEmpty() && address == " " && address.equals(user.getAddress())) {
+            user.setAddress(userUpdateDTO.getAddress());
+        }
+        
+        if (userUpdateDTO.getDateOfBirth() != null) {
+            user.setDateOfBirth(userUpdateDTO.getDateOfBirth());
+        }
+
+        if (userUpdateDTO.getFacebookAccountId() > 0) {
+            user.setFacebookAccountId(userUpdateDTO.getFacebookAccountId());
+        }
+
+        if (userUpdateDTO.getGoogleAccountId() > 0) {
+            user.setGoogleAccountId(userUpdateDTO.getGoogleAccountId());
+        }
+
+        String password = userUpdateDTO.getPassword();
+        if (password != null && !password.isEmpty() && password == " ") {
+            // Password chưa được mã hóa
+            String encodePassword = passwordEncoder.encode(password);
+            user.setPassword(encodePassword);
+        }
+
+        return userRepository.save(user);
     }
 
 }

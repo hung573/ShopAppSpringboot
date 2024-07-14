@@ -6,13 +6,14 @@ package ShopApp.controllers;
 
 import ShopApp.dtos.UserDTO;
 import ShopApp.dtos.UserLoginDTO;
-import ShopApp.dtos.UserUpdateDTO;
+import ShopApp.dtos.AdminUpdateUserDTO;
 import ShopApp.iservices.IUserService;
 import ShopApp.models.User;
 import ShopApp.responses.ListResponse;
 import ShopApp.responses.LoginResponse;
 import ShopApp.services.UserService;
 import ShopApp.components.LocalizationUtils;
+import ShopApp.dtos.UserUpdateDTO;
 import ShopApp.responses.MessageResponse;
 import ShopApp.responses.ObjectResponse;
 import ShopApp.responses.UserResponse;
@@ -26,6 +27,8 @@ import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -151,9 +154,9 @@ public class UserController {
         }
     }
     
-    @PutMapping("/update/{id}")
-    private ResponseEntity<ObjectResponse> UpdateUser(@PathVariable("id") long id,
-            @Valid @RequestBody UserUpdateDTO userUpdateDTO,
+    @PutMapping("/admin/update/{id}")
+    private ResponseEntity<ObjectResponse> UpdateUserAdmin(@PathVariable("id") long id,
+            @Valid @RequestBody AdminUpdateUserDTO userUpdateDTO,
             BindingResult result){
         try {
             if (result.hasErrors()) {
@@ -164,6 +167,35 @@ public class UserController {
                 return ResponseEntity.badRequest().body(ObjectResponse.builder()
                         .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, errormessage.get(0)))
                         .build());
+            }
+            if (!userUpdateDTO.getPassword().equals(userUpdateDTO.getRetypePassword())) {
+                return ResponseEntity.badRequest().body(ObjectResponse.builder()
+                        .message(localizationUtils.getLocalizedMessage(MessageKey.PASSWORD_NOT_MATCH))
+                        .build());
+            }
+            User newUser = userService.updateUserAdmin(id, userUpdateDTO);
+            return ResponseEntity.ok(ObjectResponse.builder()
+                    .message(localizationUtils.getLocalizedMessage(MessageKey.UPDATE_SUCCESSFULLY))
+                    .items(UserResponse.fromUser(newUser))
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                    ObjectResponse.builder()
+                            .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR,e.getMessage()))
+                            .build());
+        }
+    }
+    
+    @PutMapping("/details/{id}")
+    private ResponseEntity<?> UpdateUser(
+            @PathVariable("id") long id,
+            @RequestBody UserUpdateDTO userUpdateDTO,
+            @RequestHeader("Authorization") String authorizationHeader){
+        try {
+            String token = authorizationHeader.substring(7);
+            User user = userService.getUserDetailFromToken(token);
+            if (user.getId() != id) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
             if (!userUpdateDTO.getPassword().equals(userUpdateDTO.getRetypePassword())) {
                 return ResponseEntity.badRequest().body(ObjectResponse.builder()
@@ -184,10 +216,10 @@ public class UserController {
     }
     
     @PostMapping("/details")
-    private ResponseEntity<ObjectResponse> getDetailUser(@RequestHeader("Authorization") String token){
+    private ResponseEntity<ObjectResponse> getDetailUser(@RequestHeader("Authorization") String authorizationHeader){
         try {
-            String extractedToken = token.substring(7);
-            User user = userService.getUserDetailFromToken(extractedToken);
+            String token = authorizationHeader.substring(7);
+            User user = userService.getUserDetailFromToken(token);
             return ResponseEntity.ok(ObjectResponse.builder()
                     .message(localizationUtils.getLocalizedMessage(MessageKey.GETID_SUCCESSFULLY))
                     .items(UserResponse.fromUser(user))

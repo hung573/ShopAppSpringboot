@@ -78,8 +78,10 @@ public class WebSecurityConfig {
                             // Users
                             .requestMatchers(GET,String.format("%s/users/**", apiPrefix)).hasAnyRole(Role.ADMIN)
 
-                            .requestMatchers(PUT,String.format("%s/users/**", apiPrefix)).hasAnyRole( Role.ADMIN)
+                            .requestMatchers(PUT,String.format("%s/users/admin/**", apiPrefix)).hasAnyRole( Role.ADMIN)
                             
+                            .requestMatchers(PUT,String.format("%s/users/details/**", apiPrefix)).permitAll()
+
                             .requestMatchers(DELETE,String.format("%s/users/**", apiPrefix)).hasAnyRole( Role.ADMIN)
                             
                             .requestMatchers(POST,String.format("%s/users/details/**", apiPrefix)).permitAll()
