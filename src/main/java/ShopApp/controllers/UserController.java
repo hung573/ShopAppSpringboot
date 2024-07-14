@@ -14,6 +14,7 @@ import ShopApp.responses.LoginResponse;
 import ShopApp.services.UserService;
 import ShopApp.components.LocalizationUtils;
 import ShopApp.responses.MessageResponse;
+import ShopApp.responses.ObjectResponse;
 import ShopApp.responses.UserResponse;
 import ShopApp.utils.MessageKey;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,6 +37,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.LocaleResolver;
@@ -76,31 +78,30 @@ public class UserController {
     }
     
     @PostMapping("/resigter")
-    private ResponseEntity<UserResponse> resigter(@Valid @RequestBody UserDTO userDTO, BindingResult result){
+    private ResponseEntity<MessageResponse> resigter(@Valid @RequestBody UserDTO userDTO, BindingResult result){
         try {
             if (result.hasErrors()) {
                 List<String> errormessage = result.getFieldErrors()
                         .stream()
                         .map(FieldError::getDefaultMessage)
                         .toList();
-                return ResponseEntity.badRequest().body(UserResponse.builder()
+                return ResponseEntity.badRequest().body(MessageResponse.builder()
                         .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR,errormessage.get(0)))
                         .build());
             }
             if (!userDTO.getPassword().equals(userDTO.getRetypePassword())) {
                 return ResponseEntity.badRequest().body(
-                        UserResponse.builder()
+                        MessageResponse.builder()
                                 .message(localizationUtils.getLocalizedMessage(MessageKey.PASSWORD_NOT_MATCH))
                                 .build()
                 );
             }
             User user = userService.createUser(userDTO);
-            return ResponseEntity.ok(UserResponse.builder()
+            return ResponseEntity.ok(MessageResponse.builder()
                     .message(localizationUtils.getLocalizedMessage(MessageKey.RIGISTER_SUCCESSFULLY))
-                    .user(user)
                     .build());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(UserResponse.builder()
+            return ResponseEntity.badRequest().body(MessageResponse.builder()
                     .message(localizationUtils.getLocalizedMessage(MessageKey.RIGISTER_FAILED, e.getMessage()))
                     .build());
         }
@@ -151,7 +152,7 @@ public class UserController {
     }
     
     @PutMapping("/update/{id}")
-    private ResponseEntity<UserResponse> UpdateUser(@PathVariable("id") long id,
+    private ResponseEntity<ObjectResponse> UpdateUser(@PathVariable("id") long id,
             @Valid @RequestBody UserUpdateDTO userUpdateDTO,
             BindingResult result){
         try {
@@ -160,23 +161,40 @@ public class UserController {
                         .stream()
                         .map(FieldError::getDefaultMessage)
                         .toList();
-                return ResponseEntity.badRequest().body(UserResponse.builder()
+                return ResponseEntity.badRequest().body(ObjectResponse.builder()
                         .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, errormessage.get(0)))
                         .build());
             }
             if (!userUpdateDTO.getPassword().equals(userUpdateDTO.getRetypePassword())) {
-                return ResponseEntity.badRequest().body(UserResponse.builder()
+                return ResponseEntity.badRequest().body(ObjectResponse.builder()
                         .message(localizationUtils.getLocalizedMessage(MessageKey.PASSWORD_NOT_MATCH))
                         .build());
             }
             User newUser = userService.updateUser(id, userUpdateDTO);
-            return ResponseEntity.ok(UserResponse.builder()
+            return ResponseEntity.ok(ObjectResponse.builder()
                     .message(localizationUtils.getLocalizedMessage(MessageKey.UPDATE_SUCCESSFULLY))
-                    .user(newUser)
+                    .items(UserResponse.fromUser(newUser))
                     .build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(
-                    UserResponse.builder()
+                    ObjectResponse.builder()
+                            .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR,e.getMessage()))
+                            .build());
+        }
+    }
+    
+    @PostMapping("/details")
+    private ResponseEntity<ObjectResponse> getDetailUser(@RequestHeader("Authorization") String token){
+        try {
+            String extractedToken = token.substring(7);
+            User user = userService.getUserDetailFromToken(extractedToken);
+            return ResponseEntity.ok(ObjectResponse.builder()
+                    .message(localizationUtils.getLocalizedMessage(MessageKey.GETID_SUCCESSFULLY))
+                    .items(UserResponse.fromUser(user))
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                    ObjectResponse.builder()
                             .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR,e.getMessage()))
                             .build());
         }

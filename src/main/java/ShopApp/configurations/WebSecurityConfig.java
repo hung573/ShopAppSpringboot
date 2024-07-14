@@ -51,6 +51,7 @@ public class WebSecurityConfig {
                             .requestMatchers(
                             String.format("%s/users/resigter", apiPrefix),
                             String.format("%s/users/login", apiPrefix)
+
                             )
                             .permitAll()
                             
@@ -81,6 +82,8 @@ public class WebSecurityConfig {
                             
                             .requestMatchers(DELETE,String.format("%s/users/**", apiPrefix)).hasAnyRole( Role.ADMIN)
                             
+                            .requestMatchers(POST,String.format("%s/users/details/**", apiPrefix)).permitAll()
+
                             
                             // Orders
                             .requestMatchers(POST,String.format("%s/orders/**", apiPrefix)).hasAnyRole(Role.USER)

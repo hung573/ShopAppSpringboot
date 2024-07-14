@@ -25,4 +25,6 @@ public interface IUserService {
     Page<User> getAllUser(PageRequest pageRequest);
     
     void deleteUser(long id) throws Exception;
+    
+    User getUserDetailFromToken(String token) throws Exception;
 }

@@ -146,4 +146,21 @@ public class UserService implements IUserService {
         return userRepository.save(user);
     }
 
+    @Override
+    public User getUserDetailFromToken(String token) throws Exception {
+        if (jwtTokenUtil.isTokenExpired(token)) {
+            throw new Exception("Mời bạn đăng nhập lại.");
+        }
+        String phoneNumber = jwtTokenUtil.extractPhoneNumber(token);
+        Optional<User> user = userRepository.findByPhoneNumber(phoneNumber);
+        
+        if (user.isPresent()) {
+            return user.get();
+        }
+        else{
+            throw new Exception("User không tồn tại");
+        }
+        
+    }
+
 }

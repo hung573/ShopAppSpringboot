@@ -4,8 +4,10 @@
  */
 package ShopApp.responses;
 
+import ShopApp.models.Role;
 import ShopApp.models.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,9 +23,40 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UserResponse{
     
-    @JsonProperty("message")
-    private String message;
+    private Long id;
+
+    @JsonProperty( "fullname")
+    private String fullName;
+
+    @JsonProperty("phone_number")
+    private String phoneNumber;
+
+    private String address;
+
+    private boolean active;
+
+    private Date dateOfBirth;
+
+    @JsonProperty("facebook_account_id")
+    private int facebookAccountId;
+
+    @JsonProperty("google_account_id")
+    private int googleAccountId;
+
+    private Role role;
     
-    @JsonProperty("user")
-    private User user;
+    public static UserResponse fromUser(User user){
+        UserResponse userResponse = UserResponse.builder()
+                .id(user.getId())
+                .fullName(user.getFullName())
+                .phoneNumber(user.getPhoneNumber())
+                .address(user.getAddress())
+                .active(user.isActive())
+                .dateOfBirth(user.getDateOfBirth())
+                .facebookAccountId(user.getFacebookAccountId())
+                .googleAccountId(user.getGoogleAccountId())
+                .role(user.getRole())
+                .build();
+        return userResponse;
+    }
 }

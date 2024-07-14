@@ -33,6 +33,7 @@ public class OrderResponse {
     @JsonProperty("user_id")
     private Long userId;
 
+    @JsonProperty("fullname")
     private String fullName;
 
     private String email;
