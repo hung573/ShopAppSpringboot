@@ -18,6 +18,7 @@ import ShopApp.repositories.OrderDetailRepository;
 import ShopApp.repositories.OrderRepository;
 import ShopApp.repositories.ProductRepository;
 import ShopApp.repositories.UserRepository;
+import ShopApp.responses.OrderResponse;
 import ShopApp.utils.MessageKey;
 import jakarta.transaction.Transactional;
 import java.nio.file.AccessDeniedException;
@@ -33,6 +34,7 @@ import org.aspectj.lang.annotation.Around;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -177,6 +179,14 @@ public class OrderService implements IOrderService{
     @Override
     public Page<Order> getAllOrders(PageRequest pageRequest) {
         return orderRepository.findAll(pageRequest);
+    }
+
+    @Override
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public Page<OrderResponse> getOrderByKeyWord(String keyword, PageRequest pageRequest) throws Exception {
+        Page<Order> pageOrders;
+        pageOrders = orderRepository.searchOrders(keyword, pageRequest);
+        return pageOrders.map(OrderResponse::fromOrder);
     }
     
 }

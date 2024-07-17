@@ -16,10 +16,12 @@ import ShopApp.utils.MessageKey;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -31,45 +33,48 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  *
  * @author mac
  */
-@Controller
+@RestController
 @RequestMapping("${api.prefix}/orders")
 @RequiredArgsConstructor
 public class OrderController {
-    
     private final OrderService orderService;
     private final LocalizationUtils localizationUtils;
 
-    
-    
-    @GetMapping("")
-    private ResponseEntity<ListResponse> getAllOrder(@RequestParam("page") int page, @RequestParam("limit") int limit){
-        // Tạo Pageable từ page và limit
-        PageRequest pageRequest = PageRequest.of(page, limit,
-                Sort.by("id").ascending());
         
-        Page<Order> categoryPage = orderService.getAllOrders(pageRequest);
-        // tong trang
-        int totalPages = categoryPage.getTotalPages();
-        
-        List<Order> orders = categoryPage.getContent();
-        
-        List<OrderResponse> orderResponses = orders.stream()
-                .map(OrderResponse::fromOrder)
-                .toList();
-        
-        // Create response
-        ListResponse<OrderResponse> orderListResponse = ListResponse.<OrderResponse>builder()
-                .items(orderResponses)
-                .page(page)
-                .totalPages(totalPages)
-                .build();
+    @GetMapping("/get-order-by-keyword")
+    private ResponseEntity<?> getAllOrder(
+            @RequestParam(defaultValue = "", required = false) String keyword,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int limit){
+        try {
+            // Điều chỉnh page để bắt đầu từ 1 thay vì 0
+            int adjustedPage = page > 0 ? page - 1 : 0;
+            // Tạo Pageable từ page và limit
+            PageRequest pageRequest = PageRequest.of(adjustedPage, limit,
+                    Sort.by("id").ascending());
 
-        return ResponseEntity.ok(orderListResponse);
+            Page<OrderResponse> orderPage = orderService.getOrderByKeyWord(keyword,pageRequest);
+            // tong trang
+            int totalPages = orderPage.getTotalPages();
+
+            List<OrderResponse> orders = orderPage.getContent();
+
+            // Create response
+            ListResponse<OrderResponse> orderListResponse = ListResponse.<OrderResponse>builder()
+                    .items(orders)
+                    .page(page)
+                    .totalPages(totalPages)
+                    .build();
+            return ResponseEntity.ok(orderListResponse);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
     
     @PostMapping("/add")
@@ -156,4 +161,5 @@ public class OrderController {
                     .build());
         }
     }
+
 }

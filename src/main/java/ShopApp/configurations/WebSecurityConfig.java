@@ -21,6 +21,8 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.springframework.http.HttpMethod.*;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -34,6 +36,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 @EnableWebMvc
+
 
 public class WebSecurityConfig {
     
@@ -94,7 +97,7 @@ public class WebSecurityConfig {
                             
                             .requestMatchers(GET,String.format("%s/orders/order/**", apiPrefix)).permitAll()
                             
-                            .requestMatchers(GET,String.format("%s/orders**", apiPrefix)).hasAnyRole(Role.ADMIN)
+//                            .requestMatchers(GET,String.format("%s/orders/get-order-by-keyword**", apiPrefix)).hasAnyRole(Role.ADMIN)
 
                             .requestMatchers(PUT,String.format("%s/orders/**", apiPrefix)).hasAnyRole(Role.ADMIN)
                             

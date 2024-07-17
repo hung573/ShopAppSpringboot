@@ -169,11 +169,11 @@ public class UserService implements IUserService {
                 .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
         
         String fullname = userUpdateDTO.getFullName();
-        if (fullname != null && !fullname.isEmpty() && fullname == " " && fullname.equals(user.getFullName())) {
+        if (fullname != null && !fullname.isEmpty() && fullname != " " && !fullname.equals(user.getFullName())) {
             user.setFullName(userUpdateDTO.getFullName());
         }
         String address = userUpdateDTO.getAddress();
-        if (address != null && !address.isEmpty() && address == " " && address.equals(user.getAddress())) {
+        if (address != null && !address.isEmpty() && address != " " && !address.equals(user.getAddress())) {
             user.setAddress(userUpdateDTO.getAddress());
         }
         
@@ -190,7 +190,7 @@ public class UserService implements IUserService {
         }
 
         String password = userUpdateDTO.getPassword();
-        if (password != null && !password.isEmpty() && password == " ") {
+        if (password != null && !password.isEmpty()) {
             // Password chưa được mã hóa
             String encodePassword = passwordEncoder.encode(password);
             user.setPassword(encodePassword);
