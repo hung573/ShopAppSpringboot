@@ -182,7 +182,7 @@ public class OrderService implements IOrderService{
     }
 
     @Override
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Page<OrderResponse> getOrderByKeyWord(String keyword, PageRequest pageRequest) throws Exception {
         Page<Order> pageOrders;
         pageOrders = orderRepository.searchOrders(keyword, pageRequest);
