@@ -54,9 +54,13 @@ public class CategoryService implements ICategoryService{
     @Override
     @Transactional
     public Category updateCategory(long id, CategoryDTO categoryDTO) throws Exception{
+       
         Category newCategory = getCategoryById(id);
-        newCategory.setName(categoryDTO.getName());
-        categoryRepository.save(newCategory);
+        String name = categoryDTO.getName();
+        if (name != null && !name.isEmpty() && name != " " && !name.equals(newCategory.getName())) {
+            newCategory.setName(categoryDTO.getName());
+            categoryRepository.save(newCategory);
+        }
         return newCategory;
     }
 
