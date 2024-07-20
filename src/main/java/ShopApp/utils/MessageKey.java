@@ -32,6 +32,8 @@ public class MessageKey {
     public static final String ADD_SUCCESSFULLY="add.successfully";
     public static final String UPDATE_SUCCESSFULLY="update.successfully";
     public static final String DELETE_SUCCESSFULLY="delete.successfully";
+    public static final String DELETE1_SUCCESSFULLY="delete1.successfully";
+
     public static final String GETID_SUCCESSFULLY="getId.successfully";
     public static final String NOT_FOUND="getId.failed";
     public static final String ERORR="error";

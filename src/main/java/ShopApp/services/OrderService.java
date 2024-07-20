@@ -153,7 +153,6 @@ public class OrderService implements IOrderService{
         Order order = getOrderById(id);
         order.setActive(false);
         orderRepository.save(order);
-
     }
 
     @Override

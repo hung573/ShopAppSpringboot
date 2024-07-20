@@ -72,6 +72,11 @@ public class CategoryService implements ICategoryService{
         categoryRepository.delete(category);
     }
 
+    @Override
+    public List<Category> getAllCategoriesHelCheck() {
+        return categoryRepository.findAll();
+    }
+
 
     
 }

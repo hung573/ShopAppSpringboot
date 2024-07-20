@@ -25,4 +25,6 @@ public interface ICategoryService {
     Category updateCategory(long id, CategoryDTO categoryDTO)throws Exception;
     
     void deleteCategory(long id)throws Exception;
+    
+    List<Category> getAllCategoriesHelCheck();
 }

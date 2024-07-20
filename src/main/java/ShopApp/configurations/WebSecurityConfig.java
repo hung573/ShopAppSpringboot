@@ -57,6 +57,8 @@ public class WebSecurityConfig {
 
                             )
                             .permitAll()
+                            //healthcheck
+                            .requestMatchers(GET,String.format("%s/healthcheck/**", apiPrefix)).permitAll()
                             
                             //Categories
                             .requestMatchers(GET,String.format("%s/categories/**", apiPrefix)).permitAll()
@@ -77,6 +79,10 @@ public class WebSecurityConfig {
                             .requestMatchers(PUT,String.format("%s/products/**", apiPrefix)).hasAnyRole( Role.ADMIN)
                             
                             .requestMatchers(DELETE,String.format("%s/products/**", apiPrefix)).hasAnyRole( Role.ADMIN)
+                            
+                            // ProductsIMG
+                            .requestMatchers(GET,String.format("%s/product-images**", apiPrefix)).hasAnyRole( Role.ADMIN)
+
                             
                             // Users
                             .requestMatchers(GET,String.format("%s/users/**", apiPrefix)).hasAnyRole(Role.ADMIN)

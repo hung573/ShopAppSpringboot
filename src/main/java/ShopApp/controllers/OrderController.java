@@ -152,8 +152,8 @@ public class OrderController {
     private ResponseEntity<MessageResponse> deleteOrder(@PathVariable("id")long id){
         try {
             orderService.deleteOrder(id);
-            return ResponseEntity.badRequest().body(MessageResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKey.DELETE_SUCCESSFULLY))
+            return ResponseEntity.ok(MessageResponse.builder()
+                    .message(localizationUtils.getLocalizedMessage(MessageKey.DELETE1_SUCCESSFULLY, id))
                     .build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(MessageResponse.builder()
