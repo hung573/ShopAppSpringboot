@@ -13,5 +13,7 @@ import org.springframework.data.domain.PageRequest;
  * @author mac
  */
 public interface IProduct_ImgService {
-     Page<Product_ImgResponse> getAllProductIMGSearch(String keyword, PageRequest pageRequest);
+    Page<Product_ImgResponse> getAllProductIMGSearch(String keyword, PageRequest pageRequest);
+    int totalPages(int limit) throws Exception;
+
 }

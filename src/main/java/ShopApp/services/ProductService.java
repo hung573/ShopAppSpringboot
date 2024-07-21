@@ -132,5 +132,10 @@ public class ProductService implements IProductServiec{
         return productRepository.findProductsByIds(productIds);
 
     }
+
+    @Override
+    public int totalPages(int limit) throws Exception {
+        return productRepository.findTotalPages(limit);
+    }
     
 }

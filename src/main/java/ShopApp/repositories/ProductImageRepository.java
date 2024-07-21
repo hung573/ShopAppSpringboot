@@ -26,4 +26,8 @@ public interface ProductImageRepository extends JpaRepository<ProductImage, Long
             "(:keyword IS NULL OR :keyword = '' OR p.product.name LIKE %:keyword%)")
     Page<ProductImage> searchProductIMG
             (@Param("keyword") String keyword, Pageable pageable);
+            
+    @Query(value = "SELECT CEIL(COUNT(*) / :limit) FROM product_images", nativeQuery = true)
+    int findTotalPages(@Param("limit") int limit);
+    
 }

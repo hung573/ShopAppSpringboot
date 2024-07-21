@@ -11,7 +11,9 @@ import ShopApp.services.CategoryService;
 import ShopApp.components.LocalizationUtils;
 import ShopApp.responses.MessageResponse;
 import ShopApp.responses.ObjectResponse;
+import ShopApp.services.CategoryRedisService;
 import ShopApp.utils.MessageKey;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -47,27 +49,35 @@ public class CategoryController {
     
     private final CategoryService categoryServiec;
     private final LocalizationUtils localizationUtils;
+    private final CategoryRedisService redisService;
     
     @GetMapping("")
-    private ResponseEntity<ListResponse> getAllCategory(@RequestParam("page") int page, @RequestParam("limit") int limit){
+    private ResponseEntity<ListResponse> getAllCategory(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit) throws JsonProcessingException{
         
+        String name = "all_categoris";
         // Điều chỉnh page để bắt đầu từ 1 thay vì 0
         int adjustedPage = page > 0 ? page - 1 : 0;
         // Tạo Pageable từ page và limit
         PageRequest pageRequest = PageRequest.of(adjustedPage, limit,
                 Sort.by("id").ascending());
         
-        Page<Category> categoryPage = categoryServiec.getAllCategories(pageRequest);
+        List<Category> categories = redisService.getAllItems(keyword, pageRequest, name);
+        if (categories == null) {
+            Page<Category> categoryPage = categoryServiec.getAllCategories(pageRequest);
         // tong trang
-        int totalPages = categoryPage.getTotalPages();
-        
-        List<Category> categories = categoryPage.getContent();
+            int totalPages = categoryPage.getTotalPages();
+            categories = categoryPage.getContent();
+            redisService.saveAllItems(categories, keyword, pageRequest, name);
+        }
         
         // Create response
         ListResponse<Category> categoryListResponse = ListResponse.<Category>builder()
                 .items(categories)
                 .page(page)
-                .totalPages(totalPages)
+                .totalPages(0)
                 .build();
 
         return ResponseEntity.ok(categoryListResponse);

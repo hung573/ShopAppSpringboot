@@ -30,5 +30,10 @@ public class Product_ImgService implements IProduct_ImgService{
         pageProductIMG = productImageRepository.searchProductIMG(keyword, pageRequest);
         return pageProductIMG.map(Product_ImgResponse::fromProductIMG); 
     }
+
+    @Override
+    public int totalPages(int limit) throws Exception {
+        return productImageRepository.findTotalPages(limit);
+    }
     
 }

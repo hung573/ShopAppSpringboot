@@ -15,8 +15,10 @@ import ShopApp.responses.ProductResponse;
 import ShopApp.iservices.IProductServiec;
 import ShopApp.responses.ListResponse;
 import ShopApp.responses.ObjectResponse;
+import ShopApp.services.ProductRedisService;
 import ShopApp.services.ProductService;
 import ShopApp.utils.MessageKey;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.javafaker.Faker;
 import jakarta.validation.Valid;
 import java.io.IOException;
@@ -66,6 +68,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ProductController {
     
     private final ProductService productService;
+    private final ProductRedisService productRedisService;
     private final LocalizationUtils localizationUtils;
 
     
@@ -74,25 +77,39 @@ public class ProductController {
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "0", name = "category_id") Long categoryId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int limit){
+            @RequestParam(defaultValue = "10") int limit) throws JsonProcessingException, Exception{
 
         // Điều chỉnh page để bắt đầu từ 1 thay vì 0
         int adjustedPage = page > 0 ? page - 1 : 0;
-
+        
         // Tạo Pageable từ adjustedPage và limit
         PageRequest pageRequest = PageRequest.of(adjustedPage, limit,
                 Sort.by("id").ascending()
         );
-
-        Page<ProductResponse> productPage = productService.getAllProductSearch(categoryId, keyword, pageRequest);
-        // tong trang
-        int totalPages = productPage.getTotalPages();
-        List<ProductResponse> products = productPage.getContent();
-
+        
+        List<ProductResponse> productsListRedist = productRedisService.getAllProducts(keyword, categoryId, pageRequest);
+        int totalPages = 0;
+        if (productsListRedist == null) {
+            Page<ProductResponse> productPage = productService.getAllProductSearch(categoryId, keyword, pageRequest);
+            // tong trang
+            totalPages = productPage.getTotalPages();
+            productsListRedist = productPage.getContent();
+            productRedisService.saveAllProducts(productsListRedist, keyword, categoryId, pageRequest);
+        }
+        if ( !keyword.isEmpty() || categoryId > 0) {
+            Page<ProductResponse> productPage = productService.getAllProductSearch(categoryId, keyword, pageRequest);
+            // tong trang
+            totalPages = productPage.getTotalPages();
+            productsListRedist = productPage.getContent();
+            productRedisService.saveAllProducts(productsListRedist, keyword, categoryId, pageRequest);
+        }
+        else{
+            totalPages = productService.totalPages(limit);
+        }
          // Create response
         ListResponse<ProductResponse> ProductListResponse = ListResponse
                 .<ProductResponse>builder()
-                .items(products)
+                .items(productsListRedist)
                 .page(page)
                 .totalPages(totalPages)
                 .build();

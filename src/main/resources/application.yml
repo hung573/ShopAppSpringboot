@@ -3,10 +3,10 @@ server:
   port: 8088
 spring:
     datasource:
-      url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/shopapp?useSSL=false&serverTimezone=UTC}
+      url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3307/ShopApp?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
       driver-class-name: com.mysql.cj.jdbc.Driver
       username: root
-      password: ${MYSQL_ROOT_PASSWORD:}
+      password: ${MYSQL_ROOT_PASSWORD:HunG1907@}
     jpa:
       show-sql: true
       hibernate:
@@ -19,6 +19,9 @@ spring:
         multipart:
             max-file-size: 10MB
             max-request-size: 10MB
+    redis:
+      host: ${REDIS_HOST:localhost} 
+      port: ${REDIS_PORT:6379}       
     messages:
       basename: i18n/messages
       encoding: UTF-8
