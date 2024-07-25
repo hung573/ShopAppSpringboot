@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 @AllArgsConstructor
 public class ProductImageListener {
     private final Product_ImgRedisService product_ImgRedisService;
-    private static final Logger logger = LoggerFactory.getLogger(ProductListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProductImageListener.class);
     
     @PrePersist
     public void prePersist(ProductImage productImage) {

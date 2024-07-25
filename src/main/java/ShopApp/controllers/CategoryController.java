@@ -9,6 +9,8 @@ import ShopApp.models.Category;
 import ShopApp.responses.ListResponse;
 import ShopApp.services.CategoryService;
 import ShopApp.components.LocalizationUtils;
+import ShopApp.iservices.ICategoryRedisService;
+import ShopApp.iservices.ICategoryService;
 import ShopApp.responses.MessageResponse;
 import ShopApp.responses.ObjectResponse;
 import ShopApp.services.CategoryRedisService;
@@ -19,11 +21,15 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Locale;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -63,9 +69,8 @@ public class CategoryController {
         // Tạo Pageable từ page và limit
         PageRequest pageRequest = PageRequest.of(adjustedPage, limit,
                 Sort.by("id").ascending());
-        
         List<Category> categories = redisService.getAllItems(keyword, pageRequest, name);
-        if (categories == null) {
+        if (categories == null || categories.isEmpty()) {
             Page<Category> categoryPage = categoryServiec.getAllCategories(pageRequest);
         // tong trang
             int totalPages = categoryPage.getTotalPages();
@@ -115,7 +120,7 @@ public class CategoryController {
             }
             Category category = categoryServiec.createCategory(categoryDTO);
             return ResponseEntity.ok(ObjectResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKey.ADD_SUCCESSFULLY))
+                    .message("yes")
                     .items(category)
                     .build());
         } catch (Exception e) {
@@ -124,8 +129,6 @@ public class CategoryController {
                         .build());
         }
     }
-    
-
     
     @PutMapping("/update/{id}")
     private ResponseEntity<ObjectResponse> updateCategory(

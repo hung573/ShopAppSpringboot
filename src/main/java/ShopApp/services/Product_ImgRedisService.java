@@ -20,10 +20,10 @@ import org.springframework.stereotype.Service;
  *
  * @author mac
  */
+
 @Service
 @RequiredArgsConstructor
 public class Product_ImgRedisService implements IProduct_Img_RedisService{
-    
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper redisObjectMapper;
     

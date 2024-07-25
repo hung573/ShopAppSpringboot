@@ -16,9 +16,8 @@ import org.springframework.web.servlet.LocaleResolver;
  *
  * @author mac
  */
-
-@RequiredArgsConstructor
 @Component
+@RequiredArgsConstructor
 public class LocalizationUtils {
     private final MessageSource messageSource;
     private final LocaleResolver localeResolver;

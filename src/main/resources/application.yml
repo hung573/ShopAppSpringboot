@@ -33,5 +33,25 @@ jwt:
     # 1h
     expiration: 3600 
     secretKey: WGBtsEm/cGzeh2xfNitX7F5fTZpCHdy1wp60rTzJOpA=
+
+# swagger-ui custom path
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /api-docs
+  show-actuator: true
+
+#health check
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      base-path: /api/v1/actuator
+      exposure:
+        #include: "health"
+        include: "health, info"
     
     

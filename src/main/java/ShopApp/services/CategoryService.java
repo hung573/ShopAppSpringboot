@@ -16,6 +16,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 /**
@@ -28,6 +29,9 @@ public class CategoryService implements ICategoryService{
     
     private final CategoryRepository categoryRepository;
     private final LocalizationUtils localizationUtils;
+
+    
+    
 
     
     @Override
@@ -50,7 +54,7 @@ public class CategoryService implements ICategoryService{
                 .build();
         return categoryRepository.save(newCategory);
     }
-
+    
     @Override
     @Transactional
     public Category updateCategory(long id, CategoryDTO categoryDTO) throws Exception{

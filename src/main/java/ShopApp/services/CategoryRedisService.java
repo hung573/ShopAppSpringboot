@@ -29,8 +29,6 @@ public class CategoryRedisService implements ICategoryRedisService<Category>{
     private final ObjectMapper redisObjectMapper;
     
     
-    
-    
     private String getKeyFrom(String keyword, PageRequest pageRequest, String name){
         int pageNumber = pageRequest.getPageNumber();
         int pageSize = pageRequest.getPageSize();
