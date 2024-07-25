@@ -25,10 +25,10 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
  */
 @Configuration
 public class RedisConfig {
-    @Value("${spring.redis.host}") // Read 'spring.redis.host' property from application.yml
+    @Value("${spring.data.redis.host}") // Read 'spring.redis.host' property from application.yml
     private String redisHost;
 
-    @Value("${spring.redis.port}") // Read 'spring.redis.port' property from application.yml
+    @Value("${spring.data.redis.port}") // Read 'spring.redis.port' property from application.yml
     private int redisPort;
     
     @Bean
