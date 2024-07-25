@@ -17,6 +17,7 @@ import ShopApp.dtos.UserUpdateDTO;
 import ShopApp.responses.MessageResponse;
 import ShopApp.responses.ObjectResponse;
 import ShopApp.responses.UserResponse;
+import ShopApp.services.TokenService;
 import ShopApp.utils.MessageKey;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -60,6 +61,7 @@ public class UserController {
     
     private final UserService userService;
     private final LocalizationUtils localizationUtils;
+    private final TokenService tokenService;
     
     @GetMapping("")
     private ResponseEntity<ListResponse> getAllUsers(@RequestParam("page") int page, @RequestParam("limit") int limit){
@@ -115,9 +117,10 @@ public class UserController {
     @PostMapping("/login")
     private ResponseEntity<LoginResponse> login(
             @Valid @RequestBody UserLoginDTO userLoginDTO,
-            BindingResult result){
+            BindingResult result,
+            HttpServletRequest request){
         try {
-            if (result.hasErrors()) {
+                if (result.hasErrors()) {
                 List<String> errormessage = result.getFieldErrors()
                         .stream()
                         .map(FieldError::getDefaultMessage)
@@ -129,6 +132,9 @@ public class UserController {
                         .build());
             }
             String token = userService.login(userLoginDTO.getPhoneNumber(), userLoginDTO.getPassword());
+            String userAgent = request.getHeader("User-Agent");
+            User user = userService.getUserDetailFromToken(token);
+            tokenService.addToken(user, token, isMobileDevice(userAgent));
             return ResponseEntity.ok(LoginResponse.builder()
                     .message(localizationUtils.getLocalizedMessage(MessageKey.LOGIN_SUCCESSFULLY))
                     .token(token)
@@ -140,7 +146,11 @@ public class UserController {
                     .build());
         }
     }
-    
+    private boolean isMobileDevice(String userAgent) {
+        // Kiểm tra User-Agent header để xác định thiết bị di động
+        // Ví dụ đơn giản:
+        return userAgent.toLowerCase().contains("mobile");
+    }
     @DeleteMapping("/delete/{id}")
     private ResponseEntity<MessageResponse> DeleteUser(@PathVariable("id") long id){
         try {

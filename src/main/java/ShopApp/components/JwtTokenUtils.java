@@ -5,6 +5,8 @@
 package ShopApp.components;
 
 import ShopApp.exception.InvalidParamExeption;
+import ShopApp.models.Token;
+import ShopApp.repositories.TokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -30,6 +32,8 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 
 public class JwtTokenUtils {
+    
+    private final TokenRepository tokenRepository;
     
     @Value("${jwt.expiration}")
     private int expiration; // thời gian token kết thúc, và phải được lưu trong biến moi trường trong file .yml
@@ -94,6 +98,10 @@ public class JwtTokenUtils {
     }
     public boolean validateToken(String token, UserDetails userDetails) {
         String phoneNumber = extractPhoneNumber(token);
+        Token existingToken = tokenRepository.findByToken(token);
+        if(existingToken == null || existingToken.isRevoked() == true) {
+            return false;
+        }
         return (phoneNumber.equals(userDetails.getUsername()))
                 && !isTokenExpired(token);
     }

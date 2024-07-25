@@ -36,8 +36,8 @@ api:
     prefix: /api/v1
     
 jwt:
-    # 1h
-    expiration: 3600 
+    # 30day (30*24*60*60)
+    expiration: 2592000  
     secretKey: WGBtsEm/cGzeh2xfNitX7F5fTZpCHdy1wp60rTzJOpA=
 
 # swagger-ui custom path
