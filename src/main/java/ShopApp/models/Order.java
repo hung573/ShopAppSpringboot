@@ -76,7 +76,7 @@ public class Order {
     private String shippingAddress;
 
     @Column(name = "shipping_date")
-    private LocalDate shippingDate;
+    private Date shippingDate;
 
     @Column(name = "tracking_number")
     private String trackingNumber;

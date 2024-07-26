@@ -37,6 +37,8 @@ public class ProductResponse extends BaseResponse{
     
     private String nameCategory;
     
+    private int totalPage;
+    
     @JsonProperty("product_images")
     private List<ProductImage> productImages = new ArrayList<>();
     

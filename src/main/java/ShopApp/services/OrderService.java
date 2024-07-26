@@ -25,6 +25,7 @@ import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -67,11 +68,18 @@ public class OrderService implements IOrderService{
         order.setOrderDate(new Date()); // thời gian hiện tại
         order.setStatus(OrderStatus.PENDING);
         // shipping date phải lớn hơn ngày hơm nay
-        LocalDate shippingDate = orderDTO.getShippingDate() == null
-                ? LocalDate.now() : orderDTO.getShippingDate();
-        if (shippingDate.isBefore(LocalDate.now())) {
-            throw new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.ORDER_SHIPPINGDATE_INVALID));
-        }
+//        LocalDate shippingDate = orderDTO.getShippingDate() == null
+//                ? LocalDate.now() : orderDTO.getShippingDate();
+//        if (shippingDate.isBefore(LocalDate.now())) {
+//            throw new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.ORDER_SHIPPINGDATE_INVALID));
+//        }
+        // Lấy ngày hiện tại
+        LocalDate localDate = LocalDate.now();
+        // Thêm 1 ngày
+        LocalDate nextDay = localDate.plusDays(1);
+        // Chuyển đổi LocalDate thành Date
+        ZonedDateTime zonedDateTime = nextDay.atStartOfDay(ZoneId.systemDefault());
+        Date shippingDate = Date.from(zonedDateTime.toInstant());
         order.setShippingDate(shippingDate);
         order.setActive(true);
         order.setTotalMoney(orderDTO.getTotalMoney());
@@ -140,7 +148,10 @@ public class OrderService implements IOrderService{
                 .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
         
         modelMapper.typeMap(OrderDTO.class, Order.class)
-                .addMappings(mapper -> mapper.skip(Order::setId));
+                .addMappings(mapper -> {
+                mapper.skip(Order::setId);
+                mapper.skip(Order::setOrderDate);
+                });
         modelMapper.map(orderDTO, order);
         order.setUser(user);
         return orderRepository.save(order);

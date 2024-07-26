@@ -87,26 +87,34 @@ public class ProductController {
         PageRequest pageRequest = PageRequest.of(adjustedPage, limit,
                 Sort.by("id").ascending()
         );
-        
         List<ProductResponse> productsListRedist = productRedisService.getAllProducts(keyword, categoryId, pageRequest);
         int totalPages = 0;
+        if (productsListRedist!=null && !productsListRedist.isEmpty()) {
+            totalPages = productsListRedist.get(0).getTotalPage();
+        }
         if (productsListRedist == null) {
             Page<ProductResponse> productPage = productService.getAllProductSearch(categoryId, keyword, pageRequest);
             // tong trang
             totalPages = productPage.getTotalPages();
             productsListRedist = productPage.getContent();
+            for (ProductResponse product : productsListRedist) {
+                product.setTotalPage(totalPages);
+            }
             productRedisService.saveAllProducts(productsListRedist, keyword, categoryId, pageRequest);
         }
-        if ( !keyword.isEmpty() || categoryId > 0) {
-            Page<ProductResponse> productPage = productService.getAllProductSearch(categoryId, keyword, pageRequest);
-            // tong trang
-            totalPages = productPage.getTotalPages();
-            productsListRedist = productPage.getContent();
-            productRedisService.saveAllProducts(productsListRedist, keyword, categoryId, pageRequest);
-        }
-        else{
-            totalPages = productService.totalPages(limit);
-        }
+//        if ( !keyword.isEmpty() || categoryId > 0) {
+//            Page<ProductResponse> productPage = productService.getAllProductSearch(categoryId, keyword, pageRequest);
+//            // tong trang
+//            totalPages = productPage.getTotalPages();
+//            productsListRedist = productPage.getContent();
+//            for (ProductResponse product : productsListRedist) {
+//                product.setTotalPage(totalPages);
+//            }
+//            productRedisService.saveAllProducts(productsListRedist, keyword, categoryId, pageRequest);
+//        }
+//        else{
+//            totalPages = productService.totalPages(limit);
+//        }
          // Create response
         ListResponse<ProductResponse> ProductListResponse = ListResponse
                 .<ProductResponse>builder()

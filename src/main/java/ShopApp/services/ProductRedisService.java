@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -26,13 +27,17 @@ public class ProductRedisService implements IProductRedisService{
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper redisObjectMapper;
     
+    @Value("${spring.data.redis.use-redis-cache}")
+    private boolean useRedisCache;
+    
     private String getKeyFrom(String keyword, Long catrgoryId, PageRequest pageRequest){
         int pageNumber = pageRequest.getPageNumber();
         int pageSize = pageRequest.getPageSize();
         Sort sort = pageRequest.getSort();
         String sortDirection = sort.getOrderFor("id")
                 .getDirection() == Sort.Direction.ASC ? "asc" : "desc";
-        String key = String.format("all_products:%d:%d:%s", pageNumber, pageSize, sortDirection);
+        String key = String.format("all_products:%s:%d:%d:%d:%s",
+                keyword, catrgoryId, pageNumber, pageSize, sortDirection);
         return key;
         /*
          * {

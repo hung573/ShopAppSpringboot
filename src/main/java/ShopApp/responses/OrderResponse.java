@@ -60,7 +60,7 @@ public class OrderResponse {
     private String shippingAddress;
     
     @JsonProperty("shipping_date")
-    private LocalDate shippingDate;
+    private Date shippingDate;
     
     @JsonProperty("tracking_number")
     private String trackingNumber;
