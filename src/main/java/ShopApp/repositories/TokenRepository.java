@@ -17,5 +17,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TokenRepository extends JpaRepository<Token, Long>{
     List<Token> findByUser(User user);
+    Token findByRefreshToken(String token);
     Token findByToken(String token);
 }

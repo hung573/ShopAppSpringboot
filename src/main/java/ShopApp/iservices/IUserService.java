@@ -30,4 +30,7 @@ public interface IUserService {
     void deleteUser(long id) throws Exception;
     
     User getUserDetailFromToken(String token) throws Exception;
+    
+    User getUserDetailsFromRefreshToken(String token) throws Exception;
+
 }

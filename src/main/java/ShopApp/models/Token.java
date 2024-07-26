@@ -48,6 +48,12 @@ public class Token {
 
     private boolean revoked;
     private boolean expired;
+    
+    @Column(name = "refresh_token", length = 255)
+    private String refreshToken;
+    
+    @Column(name = "refresh_expiration_date")
+    private LocalDateTime refreshExpirationDate;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

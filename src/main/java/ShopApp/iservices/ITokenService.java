@@ -4,6 +4,7 @@
  */
 package ShopApp.iservices;
 
+import ShopApp.models.Token;
 import ShopApp.models.User;
 
 /**
@@ -11,5 +12,7 @@ import ShopApp.models.User;
  * @author mac
  */
 public interface ITokenService {
-    void addToken(User user, String token, boolean isMobileDevice);
+    Token addToken(User user, String token, boolean isMobileDevice);
+    Token refreshToken(String refreshToken, User user) throws Exception;
+    boolean checktoken(String token);
 }

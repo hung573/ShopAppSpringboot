@@ -14,8 +14,10 @@ import ShopApp.models.User;
 import ShopApp.configurations.*;
 import ShopApp.dtos.AdminUpdateUserDTO;
 import ShopApp.dtos.UserUpdateDTO;
+import ShopApp.models.Token;
 
 import ShopApp.repositories.RoleRepository;
+import ShopApp.repositories.TokenRepository;
 import ShopApp.repositories.UserRepository;
 import ShopApp.utils.MessageKey;
 import jakarta.transaction.Transactional;
@@ -47,6 +49,7 @@ public class UserService implements IUserService {
     private final JwtTokenUtils jwtTokenUtil;
     private final AuthenticationManager authManager;
     private final LocalizationUtils localizationUtils;
+    private final TokenRepository tokenRepository;
 
     @Override
     @Transactional
@@ -162,6 +165,13 @@ public class UserService implements IUserService {
         }
 
     }
+    
+    
+    @Override
+    public User getUserDetailsFromRefreshToken(String token) throws Exception {
+        Token existingToken = tokenRepository.findByRefreshToken(token);
+        return getUserDetailFromToken(existingToken.getToken());
+    }
 
     @Override
     public User updateUser(long id, UserUpdateDTO userUpdateDTO) throws Exception {
@@ -198,5 +208,6 @@ public class UserService implements IUserService {
 
         return userRepository.save(user);
     }
+
 
 }

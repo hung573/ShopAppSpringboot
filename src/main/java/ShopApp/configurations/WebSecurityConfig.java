@@ -104,6 +104,10 @@ public class WebSecurityConfig{
                             
                             // Users
                             .requestMatchers(GET,String.format("%s/users/**", apiPrefix)).hasAnyRole(Role.ADMIN)
+                            
+                            .requestMatchers(POST,String.format("%s/users/check/**", apiPrefix)).permitAll()
+                            
+                            .requestMatchers(POST,String.format("%s/users/refreshToken/**", apiPrefix)).permitAll()
 
                             .requestMatchers(PUT,String.format("%s/users/admin/**", apiPrefix)).hasAnyRole( Role.ADMIN)
                             
