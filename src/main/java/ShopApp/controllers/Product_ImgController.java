@@ -5,8 +5,10 @@
 package ShopApp.controllers;
 
 import ShopApp.components.LocalizationUtils;
+import ShopApp.models.ProductImage;
 import ShopApp.responses.ListResponse;
 import ShopApp.responses.Product_ImgResponse;
+import ShopApp.services.ProductService;
 import ShopApp.services.Product_ImgRedisService;
 import ShopApp.services.Product_ImgService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -16,7 +18,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,6 +37,7 @@ public class Product_ImgController {
     private final LocalizationUtils localizationUtils;
     private final Product_ImgService product_ImgService;
     private final Product_ImgRedisService product_ImgRedisService;
+    private final ProductService productService;
     
     @GetMapping("")
     private ResponseEntity<ListResponse> getAllProduct_IMG( 
@@ -76,6 +81,21 @@ public class Product_ImgController {
                 .build();
 
         return ResponseEntity.ok(ProductIMGListResponse);
+    }
+    
+    @DeleteMapping("/delete-file/{id}")
+    public ResponseEntity<?> delete(
+            @PathVariable Long id
+    ) {
+        try {
+            ProductImage productImage = product_ImgService.deleteProductImage(id);
+            if(productImage != null){
+                productService.deleteFile(productImage.getImageURL());
+            }
+            return ResponseEntity.ok(productImage);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.toString());
+        }
     }
 
 }

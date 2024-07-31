@@ -100,6 +100,8 @@ public class WebSecurityConfig{
                             
                             // ProductsIMG
                             .requestMatchers(GET,String.format("%s/product-images/**", apiPrefix)).permitAll()
+                            
+                            .requestMatchers(DELETE,String.format("%s/product-images/delete/**", apiPrefix)).hasAnyRole(Role.ADMIN)
 
                             
                             // Users

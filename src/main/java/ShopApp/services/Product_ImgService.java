@@ -1,9 +1,12 @@
 package ShopApp.services;
 
+import ShopApp.exception.DataNotFoudException;
 import ShopApp.iservices.IProduct_ImgService;
 import ShopApp.models.ProductImage;
 import ShopApp.repositories.ProductImageRepository;
 import ShopApp.responses.Product_ImgResponse;
+import jakarta.transaction.Transactional;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,6 +37,19 @@ public class Product_ImgService implements IProduct_ImgService{
     @Override
     public int totalPages(int limit) throws Exception {
         return productImageRepository.findTotalPages(limit);
+    }
+
+    @Override
+    @Transactional
+    public ProductImage deleteProductImage(Long id) throws Exception {
+        Optional<ProductImage> productImage = productImageRepository.findById(id);
+        if(productImage.isEmpty()) {
+            throw new DataNotFoudException(
+                    String.format("Cannot find product image with id: %ld", id)
+            );
+        }
+        productImageRepository.deleteById(id);
+        return productImage.get();
     }
     
 }

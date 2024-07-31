@@ -18,7 +18,10 @@ import ShopApp.repositories.ProductImageRepository;
 import ShopApp.repositories.ProductRepository;
 import ShopApp.responses.ProductResponse;
 import jakarta.transaction.Transactional;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.logging.Level;
@@ -39,6 +42,8 @@ public class ProductService implements IProductServiec{
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final ProductImageRepository productImageRepository;
+    
+    private static String UPLOADS_FOLDER = "uploads";
 
     @Override
     @Transactional
@@ -79,12 +84,32 @@ public class ProductService implements IProductServiec{
         Category existingCategory = categoryRepository.findById(productDTO.getCategoryId())
                     .orElseThrow(() -> new DataNotFoudException("Không tìm thấy mã loại sản phẩm này."));
         
-        existingProduct.setName(productDTO.getName());
-        existingProduct.setCategory(existingCategory);
-        existingProduct.setPrice(productDTO.getPrice());
-        existingProduct.setThumbnail(productDTO.getThumbnail());
-        existingProduct.setDescription(productDTO.getDescription());
+        String name = productDTO.getName();
+        if(name != null && !name.isEmpty() && name.equals(existingProduct.getName())) {
+            existingProduct.setName(productDTO.getName());
+        }
         
+        long category_id = productDTO.getCategoryId();
+        if (category_id > 0 && category_id != existingProduct.getCategory().getId()) {
+            existingProduct.setCategory(existingCategory);
+        }
+        
+        float price = productDTO.getPrice();
+        if(price >= 0 && price != existingProduct.getPrice()) {
+            existingProduct.setPrice(productDTO.getPrice());
+        }
+        
+        String description = productDTO.getDescription();
+        if(description != null &&
+                !description.isEmpty() && !description.equals(existingProduct.getDescription())) {
+            existingProduct.setDescription(productDTO.getDescription());
+        }
+        
+        String thumbnail = productDTO.getThumbnail();
+        if(thumbnail != null &&
+                !thumbnail.isEmpty() && !thumbnail.equals(existingProduct.getThumbnail())) {
+            existingProduct.setThumbnail(productDTO.getThumbnail());
+        }
         return productRepository.save(existingProduct);
         
     }
@@ -136,6 +161,22 @@ public class ProductService implements IProductServiec{
     @Override
     public int totalPages(int limit) throws Exception {
         return productRepository.findTotalPages(limit);
+    }
+
+    @Override
+    public void deleteFile(String filename) throws IOException {
+        // Đường dẫn đến thư mục chứa file
+        java.nio.file.Path uploadDir = Paths.get(UPLOADS_FOLDER);
+        // Đường dẫn đầy đủ đến file cần xóa
+        java.nio.file.Path filePath = uploadDir.resolve(filename);
+
+        // Kiểm tra xem file tồn tại hay không
+        if (Files.exists(filePath)) {
+            // Xóa file
+            Files.delete(filePath);
+        } else {
+            throw new FileNotFoundException("File not found: " + filename);
+        }
     }
     
 }

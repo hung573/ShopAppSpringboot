@@ -4,6 +4,7 @@
  */
 package ShopApp.iservices;
 
+import ShopApp.models.ProductImage;
 import ShopApp.responses.Product_ImgResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,5 +16,5 @@ import org.springframework.data.domain.PageRequest;
 public interface IProduct_ImgService {
     Page<Product_ImgResponse> getAllProductIMGSearch(String keyword, PageRequest pageRequest);
     int totalPages(int limit) throws Exception;
-
+    ProductImage deleteProductImage(Long id) throws Exception;
 }
