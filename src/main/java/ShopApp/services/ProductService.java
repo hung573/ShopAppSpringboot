@@ -85,7 +85,7 @@ public class ProductService implements IProductServiec{
                     .orElseThrow(() -> new DataNotFoudException("Không tìm thấy mã loại sản phẩm này."));
         
         String name = productDTO.getName();
-        if(name != null && !name.isEmpty() && name.equals(existingProduct.getName())) {
+        if(name != null && !name.isEmpty() && !name.equals(existingProduct.getName())) {
             existingProduct.setName(productDTO.getName());
         }
         
@@ -110,6 +110,8 @@ public class ProductService implements IProductServiec{
                 !thumbnail.isEmpty() && !thumbnail.equals(existingProduct.getThumbnail())) {
             existingProduct.setThumbnail(productDTO.getThumbnail());
         }
+        
+        existingProduct.setActive(productDTO.isActive());
         return productRepository.save(existingProduct);
         
     }
@@ -151,6 +153,13 @@ public class ProductService implements IProductServiec{
         pageProducts = productRepository.searchProducts(categoryId, keyword, pageRequest);
         return pageProducts.map(ProductResponse::fromProduct);
     }
+    
+    @Override
+    public Page<ProductResponse> getAllProductSearchIsActive(long categoryId, String keyword, PageRequest pageRequest) {
+        Page<Product> pageProducts;
+        pageProducts = productRepository.searchProductsIsActive(categoryId, keyword, pageRequest);
+        return pageProducts.map(ProductResponse::fromProduct);
+    }
 
     @Override
     public List<Product> findProductsByIds(List<Long> productIds) throws Exception{
@@ -178,5 +187,9 @@ public class ProductService implements IProductServiec{
             throw new FileNotFoundException("File not found: " + filename);
         }
     }
+
+
+
+
     
 }

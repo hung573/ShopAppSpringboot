@@ -14,6 +14,7 @@ import static ShopApp.models.ProductImage.MAX_IMG_PER_PRODUCT;
 import ShopApp.responses.ProductResponse;
 import ShopApp.iservices.IProductServiec;
 import ShopApp.responses.ListResponse;
+import ShopApp.responses.MessageResponse;
 import ShopApp.responses.ObjectResponse;
 import ShopApp.services.ProductRedisService;
 import ShopApp.services.ProductService;
@@ -87,6 +88,7 @@ public class ProductController {
         PageRequest pageRequest = PageRequest.of(adjustedPage, limit,
                 Sort.by("id").ascending()
         );
+        productRedisService.clear();
         List<ProductResponse> productsListRedist = productRedisService.getAllProducts(keyword, categoryId, pageRequest);
         int totalPages = 0;
         if (productsListRedist!=null && !productsListRedist.isEmpty()) {
@@ -94,6 +96,60 @@ public class ProductController {
         }
         if (productsListRedist == null) {
             Page<ProductResponse> productPage = productService.getAllProductSearch(categoryId, keyword, pageRequest);
+            // tong trang
+            totalPages = productPage.getTotalPages();
+            productsListRedist = productPage.getContent();
+            for (ProductResponse product : productsListRedist) {
+                product.setTotalPage(totalPages);
+            }
+            productRedisService.saveAllProducts(productsListRedist, keyword, categoryId, pageRequest);
+        }
+//        if ( !keyword.isEmpty() || categoryId > 0) {
+//            Page<ProductResponse> productPage = productService.getAllProductSearch(categoryId, keyword, pageRequest);
+//            // tong trang
+//            totalPages = productPage.getTotalPages();
+//            productsListRedist = productPage.getContent();
+//            for (ProductResponse product : productsListRedist) {
+//                product.setTotalPage(totalPages);
+//            }
+//            productRedisService.saveAllProducts(productsListRedist, keyword, categoryId, pageRequest);
+//        }
+//        else{
+//            totalPages = productService.totalPages(limit);
+//        }
+         // Create response
+        ListResponse<ProductResponse> ProductListResponse = ListResponse
+                .<ProductResponse>builder()
+                .items(productsListRedist)
+                 .page(page)
+                .totalPages(totalPages)
+                .build();
+
+        return ResponseEntity.ok(ProductListResponse);
+    }
+    
+    @GetMapping("product-home")
+    private ResponseEntity<ListResponse> getAllProductIsActive(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "0", name = "category_id") Long categoryId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int limit) throws JsonProcessingException, Exception{
+
+        // Điều chỉnh page để bắt đầu từ 1 thay vì 0
+        int adjustedPage = page > 0 ? page - 1 : 0;
+        
+        // Tạo Pageable từ adjustedPage và limit
+        PageRequest pageRequest = PageRequest.of(adjustedPage, limit,
+                Sort.by("id").ascending()
+        );
+        productRedisService.clear();
+        List<ProductResponse> productsListRedist = productRedisService.getAllProducts(keyword, categoryId, pageRequest);
+        int totalPages = 0;
+        if (productsListRedist!=null && !productsListRedist.isEmpty()) {
+            totalPages = productsListRedist.get(0).getTotalPage();
+        }
+        if (productsListRedist == null) {
+            Page<ProductResponse> productPage = productService.getAllProductSearchIsActive(categoryId, keyword, pageRequest);
             // tong trang
             totalPages = productPage.getTotalPages();
             productsListRedist = productPage.getContent();
@@ -311,12 +367,16 @@ public class ProductController {
     }
     
     @DeleteMapping("/delete/{id}")
-    private ResponseEntity<String> deleteProduct(@PathVariable("id") long idProduct){
+    private ResponseEntity<MessageResponse> deleteProduct(@PathVariable("id") long idProduct){
         try {
             productService.deleteProduct(idProduct);
-            return ResponseEntity.ok(localizationUtils.getLocalizedMessage(MessageKey.DELETE_SUCCESSFULLY));
+            return ResponseEntity.ok(MessageResponse.builder()
+                    .message(localizationUtils.getLocalizedMessage(MessageKey.DELETE_SUCCESSFULLY))
+                    .build());
         } catch (DataNotFoudException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
+            return ResponseEntity.badRequest().body(MessageResponse.builder()
+                    .message(ex.getMessage())
+                    .build());
         }
     }
     

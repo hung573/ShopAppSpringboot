@@ -36,4 +36,11 @@ public interface ProductRepository extends JpaRepository<Product, Long>{
     @Query(value = "SELECT CEIL(COUNT(*) / :limit) FROM products", nativeQuery = true)
     int findTotalPages(@Param("limit") int limit);
     
+    @Query("SELECT p FROM Product p WHERE " +
+            "(:categoryId IS NULL OR :categoryId = 0 OR p.category.id = :categoryId) " +
+            "AND (:keyword IS NULL OR :keyword = '' OR p.name LIKE %:keyword% OR p.description LIKE %:keyword%) " +
+            "AND (p.active = true)")
+    Page<Product> searchProductsIsActive(@Param("categoryId") Long categoryId,
+             @Param("keyword") String keyword, Pageable pageable);
+    
 }

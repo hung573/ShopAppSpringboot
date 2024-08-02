@@ -27,6 +27,8 @@ public interface IProductServiec {
     
     Page<ProductResponse> getAllProduct(PageRequest pageRequest);
     
+    Page<ProductResponse> getAllProductSearchIsActive(long categoryId, String keyword, PageRequest pageRequest);
+    
     Page<ProductResponse> getAllProductSearch(long categoryId, String keyword, PageRequest pageRequest);
     
     Product updateProduct(long id, ProductDTO productDTO)  throws DataNotFoudException;

@@ -35,12 +35,15 @@ public class ProductResponse extends BaseResponse{
     
     private String thumbnail;
     
-    private String nameCategory;
-    
     private int totalPage;
     
     @JsonProperty("product_images")
     private List<ProductImage> productImages = new ArrayList<>();
+    
+    @JsonProperty("category_id")
+    private Long categoryId;
+    
+    private Boolean active;//thuộc về admin
     
     public static ProductResponse fromProduct(Product product){
         ProductResponse productResponse = ProductResponse.builder()
@@ -49,8 +52,9 @@ public class ProductResponse extends BaseResponse{
                     .price(product.getPrice())
                     .description(product.getDescription())
                     .thumbnail(product.getThumbnail())
-                    .nameCategory(product.getCategory().getName())
                     .productImages(product.getProductImages())
+                    .categoryId(product.getCategory().getId())
+                    .active(product.getActive())
                     .build();
         productResponse.setCreatedAt(product.getCreatedAt());
         productResponse.setUpdatedAt(product.getUpdatedAt());
