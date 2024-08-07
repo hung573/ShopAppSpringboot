@@ -34,10 +34,6 @@ public class AdminUpdateUserDTO {
     @Size(min = 3, message = "Password không được đặt dưới 3 ký tự")
     private String password;
     
-    @JsonProperty("retype_password")
-    @NotBlank(message = "Nhập lại password")
-    private String retypePassword;
-    
     @JsonProperty("date_of_birth")
     private Date dateOfBirth;
     

@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -26,6 +27,9 @@ import org.springframework.stereotype.Service;
 public class Product_ImgRedisService implements IProduct_Img_RedisService{
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper redisObjectMapper;
+    
+    @Value("${spring.data.redis.use-redis-cache}")
+    private boolean useRedisCache;
     
     private String getKeyFrom(String keyword, PageRequest pageRequest, String name){
         int pageNumber = pageRequest.getPageNumber();
@@ -50,6 +54,9 @@ public class Product_ImgRedisService implements IProduct_Img_RedisService{
 
     @Override
     public List<Product_ImgResponse> getAllItems(String keyword, PageRequest pageRequest, String name) throws JsonProcessingException {
+        if(useRedisCache == false) {
+            return null;
+        }
         String key = this.getKeyFrom(keyword, pageRequest, name);
         String json = (String) redisTemplate.opsForValue().get(key);
         List<Product_ImgResponse> itemResponses = json != null

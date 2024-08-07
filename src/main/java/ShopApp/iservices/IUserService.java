@@ -9,6 +9,7 @@ import ShopApp.dtos.AdminUpdateUserDTO;
 import ShopApp.dtos.UserUpdateDTO;
 import ShopApp.exception.DataNotFoudException;
 import ShopApp.models.User;
+import ShopApp.responses.UserResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
@@ -27,9 +28,13 @@ public interface IUserService {
     
     Page<User> getAllUser(PageRequest pageRequest);
     
+    Page<UserResponse> searchUsers(String keyword,PageRequest pageRequest);
+    
     void deleteUser(long id) throws Exception;
     
     User getUserDetailFromToken(String token) throws Exception;
+    
+    User getUserDetailFromId(long id) throws Exception;
     
     User getUserDetailsFromRefreshToken(String token) throws Exception;
 

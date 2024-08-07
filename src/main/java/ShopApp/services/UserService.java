@@ -19,8 +19,10 @@ import ShopApp.models.Token;
 import ShopApp.repositories.RoleRepository;
 import ShopApp.repositories.TokenRepository;
 import ShopApp.repositories.UserRepository;
+import ShopApp.responses.UserResponse;
 import ShopApp.utils.MessageKey;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.RequiredArgsConstructor;
@@ -133,21 +135,54 @@ public class UserService implements IUserService {
 
         Role role = roleRepository.findById(userUpdateDTO.getRoleId())
                 .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.ROLE_NOTFOUND)));
+        
+        
+        String fullname = userUpdateDTO.getFullName();
+        if (fullname != null && !fullname.isEmpty() && fullname != " " && !fullname.equals(user.getFullName())) {
+            user.setFullName(userUpdateDTO.getFullName());
+        }
+        String address = userUpdateDTO.getAddress();
+        if (address != null && !address.isEmpty() && address != " " && !address.equals(user.getAddress())) {
+            user.setAddress(userUpdateDTO.getAddress());
+        }
+        
+        if (userUpdateDTO.getDateOfBirth() != null) {
+            user.setDateOfBirth(userUpdateDTO.getDateOfBirth());
+        }
 
-        user.setFullName(userUpdateDTO.getFullName());
-        user.setAddress(userUpdateDTO.getAddress());
-        user.setDateOfBirth(userUpdateDTO.getDateOfBirth());
-        user.setFacebookAccountId(user.getFacebookAccountId());
-        user.setGoogleAccountId(user.getGoogleAccountId());
-        user.setRole(role);
-        user.setActive(userUpdateDTO.isActive());
+        if (userUpdateDTO.getFacebookAccountId() > 0) {
+            user.setFacebookAccountId(userUpdateDTO.getFacebookAccountId());
+        }
+
+        if (userUpdateDTO.getGoogleAccountId() > 0) {
+            user.setGoogleAccountId(userUpdateDTO.getGoogleAccountId());
+        }
 
         String password = userUpdateDTO.getPassword();
-        // password chua duoc ma hoa
-        String encodePassword = passwordEncoder.encode(password);
-        user.setPassword(encodePassword);
+        if (password != null && !password.isEmpty()) {
+            // Password chưa được mã hóa
+            String encodePassword = passwordEncoder.encode(password);
+            user.setPassword(encodePassword);
+        }
+        
+        long roleId = userUpdateDTO.getRoleId();
+        if (roleId != user.getRole().getId()) {
+            user.setRole(role);
+        }
+        
+        boolean active = userUpdateDTO.isActive();
+        if (user.isActive() != active) {
+            user.setActive(userUpdateDTO.isActive());
+        }
 
-        return userRepository.save(user);
+        User newUser = userRepository.save(user);
+        
+        List<Token>tokens = tokenRepository.findByUser(user);
+        for(Token token: tokens){
+            tokenRepository.delete(token);
+        }
+        
+        return newUser;
     }
 
     @Override
@@ -171,6 +206,12 @@ public class UserService implements IUserService {
     public User getUserDetailsFromRefreshToken(String token) throws Exception {
         Token existingToken = tokenRepository.findByRefreshToken(token);
         return getUserDetailFromToken(existingToken.getToken());
+    }
+    
+    @Override
+    public User getUserDetailFromId(long id) throws Exception {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoudException("Không tìm thấy user có id: "+ id));
     }
 
     @Override
@@ -208,6 +249,15 @@ public class UserService implements IUserService {
 
         return userRepository.save(user);
     }
+
+    @Override
+    public Page<UserResponse> searchUsers(String keyword, PageRequest pageRequest) {
+        Page<User> pageUsers;
+        pageUsers = userRepository.searchUser(keyword, pageRequest);
+        return pageUsers.map(UserResponse::fromUser);
+    }
+
+
 
 
 }

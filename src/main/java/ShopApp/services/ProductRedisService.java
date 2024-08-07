@@ -53,6 +53,9 @@ public class ProductRedisService implements IProductRedisService{
 
     @Override
     public List<ProductResponse> getAllProducts(String keyword, Long categoryId, PageRequest pageRequest) throws JsonProcessingException {
+        if(useRedisCache == false) {
+            return null;
+        }
         String key = this.getKeyFrom(keyword, categoryId, pageRequest);
         String json = (String) redisTemplate.opsForValue().get(key);
         List<ProductResponse> productResponses = json != null

@@ -88,7 +88,7 @@ public class ProductController {
         PageRequest pageRequest = PageRequest.of(adjustedPage, limit,
                 Sort.by("id").ascending()
         );
-        productRedisService.clear();
+//        productRedisService.clear();
         List<ProductResponse> productsListRedist = productRedisService.getAllProducts(keyword, categoryId, pageRequest);
         int totalPages = 0;
         if (productsListRedist!=null && !productsListRedist.isEmpty()) {
@@ -142,7 +142,7 @@ public class ProductController {
         PageRequest pageRequest = PageRequest.of(adjustedPage, limit,
                 Sort.by("id").ascending()
         );
-        productRedisService.clear();
+//        productRedisService.clear();
         List<ProductResponse> productsListRedist = productRedisService.getAllProducts(keyword, categoryId, pageRequest);
         int totalPages = 0;
         if (productsListRedist!=null && !productsListRedist.isEmpty()) {

@@ -66,21 +66,27 @@ public class UserController {
     private final TokenService tokenService;
     
     @GetMapping("")
-    private ResponseEntity<ListResponse> getAllUsers(@RequestParam("page") int page, @RequestParam("limit") int limit){
-        PageRequest pageRequest = PageRequest.of(page, limit,
-                Sort.by("id").descending());
+    private ResponseEntity<ListResponse> getAllUsers(
+            @RequestParam(defaultValue = "", required = false) String keyword,
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit){
         
-        Page<User> userPage = userService.getAllUser(pageRequest);
+        // Điều chỉnh page để bắt đầu từ 1 thay vì 0
+        int adjustedPage = page > 0 ? page - 1 : 0;
+        // Tạo Pageable từ page và limit
+        PageRequest pageRequest = PageRequest.of(adjustedPage, limit,
+                Sort.by("id").ascending());
+        
+        Page<UserResponse> userPage = userService.searchUsers(keyword,pageRequest);
         int totalPages = userPage.getTotalPages();
-        List<User> users = userPage.getContent();
+        List<UserResponse> users = userPage.getContent();
          // Create response
-        ListResponse<User> orderDetailListResponse = ListResponse
-                .<User>builder()
+        ListResponse<UserResponse> orderDetailListResponse = ListResponse
+                .<UserResponse>builder()
                 .items(users)
                 .page(page)
                 .totalPages(totalPages)
                 .build();
-
         return ResponseEntity.ok(orderDetailListResponse);
        
           
@@ -187,11 +193,6 @@ public class UserController {
                         .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, errormessage.get(0)))
                         .build());
             }
-            if (!userUpdateDTO.getPassword().equals(userUpdateDTO.getRetypePassword())) {
-                return ResponseEntity.badRequest().body(ObjectResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKey.PASSWORD_NOT_MATCH))
-                        .build());
-            }
             User newUser = userService.updateUserAdmin(id, userUpdateDTO);
             return ResponseEntity.ok(ObjectResponse.builder()
                     .message(localizationUtils.getLocalizedMessage(MessageKey.UPDATE_SUCCESSFULLY))
@@ -250,6 +251,25 @@ public class UserController {
                             .build());
         }
     }
+    
+    @GetMapping("/admin/{id}")
+    private ResponseEntity<ObjectResponse> getDetailUserFormId(
+            @PathVariable("id") long idUser){
+        try {
+            User user = new User();
+            user = userService.getUserDetailFromId(idUser);
+            return ResponseEntity.ok(ObjectResponse.builder()
+                    .message(localizationUtils.getLocalizedMessage(MessageKey.GETID_SUCCESSFULLY))
+                    .items(UserResponse.fromUser(user))
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                    ObjectResponse.builder()
+                            .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR,e.getMessage()))
+                            .build());
+        }
+    }
+    
     @PostMapping("/check")
     private ResponseEntity<?> checkToken(@RequestHeader("Authorization") String authorizationHeader){
         String token = authorizationHeader.substring(7);
@@ -287,4 +307,6 @@ public class UserController {
             );
         }
     }
+    
+    
 }

@@ -98,7 +98,7 @@ public class WebSecurityConfig{
                             
                             .requestMatchers(DELETE,String.format("%s/products/**", apiPrefix)).hasAnyRole( Role.ADMIN)
                             
-                            // ProductsIMG
+                            // ProductsIMG  
                             .requestMatchers(GET,String.format("%s/product-images/**", apiPrefix)).permitAll()
                             
                             .requestMatchers(DELETE,String.format("%s/product-images/delete/**", apiPrefix)).hasAnyRole(Role.ADMIN)

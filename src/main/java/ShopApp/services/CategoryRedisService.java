@@ -17,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import ShopApp.iservices.ICategoryRedisService;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  *
@@ -27,6 +28,9 @@ import ShopApp.iservices.ICategoryRedisService;
 public class CategoryRedisService implements ICategoryRedisService<Category>{
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper redisObjectMapper;
+    
+    @Value("${spring.data.redis.use-redis-cache}")
+    private boolean useRedisCache;
     
     
     private String getKeyFrom(String keyword, PageRequest pageRequest, String name){
@@ -51,6 +55,9 @@ public class CategoryRedisService implements ICategoryRedisService<Category>{
 
     @Override
     public List<Category> getAllItems(String keyword, PageRequest pageRequest, String name) throws JsonProcessingException {
+        if(useRedisCache == false) {
+            return null;
+        }
         String key = this.getKeyFrom(keyword, pageRequest, name);
         String json = (String) redisTemplate.opsForValue().get(key);
         List<Category> itemResponses = json != null
