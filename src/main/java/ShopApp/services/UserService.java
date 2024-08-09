@@ -119,11 +119,11 @@ public class UserService implements IUserService {
 
     @Override
     @Transactional
-    public void deleteUser(long id) throws Exception {
+    public void blockOrEnableUser(long id, boolean active) throws Exception {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
 
-        user.setActive(false);
+        user.setActive(active);
         userRepository.save(user);
     }
 

@@ -118,9 +118,9 @@ public class ProductService implements IProductServiec{
 
     @Override
     @Transactional
-    public void deleteProduct(long id) throws DataNotFoudException{
+    public void deleteProduct(long id, boolean active) throws DataNotFoudException{
         Product existingProduct = getProductById(id);
-        existingProduct.setActive(false);
+        existingProduct.setActive(active);
         productRepository.save(existingProduct);
     }
 

@@ -24,14 +24,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AdminUpdateUserDTO {
     @JsonProperty("fullname")
-    @NotBlank(message = "Họ và tên không được để tróng")
     private String fullName;
     
     @NotBlank(message = "Địa chỉ không được để tróng")
     private String address;
     
     @NotBlank(message = "Password không được để tróng")
-    @Size(min = 3, message = "Password không được đặt dưới 3 ký tự")
+    @Size(min = 6, message = "Password không được đặt dưới 6 ký tự")
     private String password;
     
     @JsonProperty("date_of_birth")

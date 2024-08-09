@@ -30,7 +30,7 @@ public interface IUserService {
     
     Page<UserResponse> searchUsers(String keyword,PageRequest pageRequest);
     
-    void deleteUser(long id) throws Exception;
+    void blockOrEnableUser(long id, boolean active) throws Exception;
     
     User getUserDetailFromToken(String token) throws Exception;
     

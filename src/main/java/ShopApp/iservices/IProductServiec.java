@@ -33,7 +33,7 @@ public interface IProductServiec {
     
     Product updateProduct(long id, ProductDTO productDTO)  throws DataNotFoudException;
     
-    void deleteProduct(long id) throws DataNotFoudException;
+    void deleteProduct(long id, boolean active) throws DataNotFoudException;
     
     boolean existsByName(String name);
     

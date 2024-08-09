@@ -164,12 +164,15 @@ public class UserController {
         // Ví dụ đơn giản:
         return userAgent.toLowerCase().contains("mobile");
     }
-    @DeleteMapping("/delete/{id}")
-    private ResponseEntity<MessageResponse> DeleteUser(@PathVariable("id") long id){
+    @DeleteMapping("/delete/{id}/{acitve}")
+    private ResponseEntity<MessageResponse> DeleteUser(
+            @PathVariable("id") long id,
+            @PathVariable("acitve") int active){
         try {
-            userService.deleteUser(id);
+            userService.blockOrEnableUser(id, active > 0);
+            String message = active > 0 ? "Successfully enabled the user." : localizationUtils.getLocalizedMessage(MessageKey.DELETE_SUCCESSFULLY);
             return ResponseEntity.ok(MessageResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKey.DELETE_SUCCESSFULLY))
+                    .message(message)
                     .build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(

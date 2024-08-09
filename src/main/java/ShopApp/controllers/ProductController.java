@@ -366,12 +366,15 @@ public class ProductController {
         }
     }
     
-    @DeleteMapping("/delete/{id}")
-    private ResponseEntity<MessageResponse> deleteProduct(@PathVariable("id") long idProduct){
+    @DeleteMapping("/delete/{id}/{active}")
+    private ResponseEntity<MessageResponse> deleteProduct(
+            @PathVariable("id") long idProduct,
+            @PathVariable("active") int active){
         try {
-            productService.deleteProduct(idProduct);
+            productService.deleteProduct(idProduct, active > 0);
+            String message = active > 0 ? "Successfully business the product." : localizationUtils.getLocalizedMessage(MessageKey.DELETE_SUCCESSFULLY);
             return ResponseEntity.ok(MessageResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKey.DELETE_SUCCESSFULLY))
+                    .message(message)
                     .build());
         } catch (DataNotFoudException ex) {
             return ResponseEntity.badRequest().body(MessageResponse.builder()
