@@ -145,7 +145,10 @@ public class WebSecurityConfig{
                             // Roles
                             .requestMatchers(GET,String.format("%s/roles/admin/**", apiPrefix)).hasAnyRole(Role.ADMIN)
                             .requestMatchers(GET,String.format("%s/roles/login/**", apiPrefix)).permitAll()
-
+                            
+                            // Comments
+                            .requestMatchers(POST,String.format("%s/comments/**", apiPrefix)).permitAll()
+                            .requestMatchers(GET,String.format("%s/comments/**", apiPrefix)).permitAll()
 
                             
                             .anyRequest().authenticated();
