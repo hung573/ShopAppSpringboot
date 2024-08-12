@@ -148,6 +148,7 @@ public class WebSecurityConfig{
                             
                             // Comments
                             .requestMatchers(POST,String.format("%s/comments/**", apiPrefix)).permitAll()
+                            .requestMatchers(PUT,String.format("%s/comments/**", apiPrefix)).hasAnyRole(Role.USER)
                             .requestMatchers(GET,String.format("%s/comments/**", apiPrefix)).permitAll()
 
                             

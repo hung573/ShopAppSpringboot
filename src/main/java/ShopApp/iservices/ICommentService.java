@@ -5,6 +5,7 @@
 package ShopApp.iservices;
 
 import ShopApp.dtos.CommentDTO;
+import ShopApp.dtos.CommentUpdateDTO;
 import ShopApp.models.Comment;
 import ShopApp.responses.CommentResponse;
 import java.util.List;
@@ -18,7 +19,7 @@ import org.springframework.data.domain.PageRequest;
 public interface ICommentService {
     Comment createComment(CommentDTO commentDTO) throws Exception;
     
-    Comment updateComment(long id, CommentDTO commentDTO) throws Exception;
+    Comment updateComment(long id, CommentUpdateDTO commentUpdateDTO) throws Exception;
     
     void deleteComment(long id) throws Exception;
     
@@ -28,7 +29,10 @@ public interface ICommentService {
     
     List<CommentResponse> getAllCommentList() throws Exception;
     
-    List<Comment> getAlCommentByUserId(long userId) throws Exception;
+    Page<CommentResponse> getAlCommentByUserId(long userId, PageRequest pageRequest) throws Exception;
     
     Page<CommentResponse> getAllCommentByProductId(long productId, PageRequest pageRequest) throws Exception;
+    
+    Page<CommentResponse> getAllCommentByUserIdAndProductId(long userId,long productId, PageRequest pageRequest) throws Exception;
+
 }

@@ -21,26 +21,29 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CommentResponse {
+public class CommentResponse extends BaseResponse{
+    
+    private long id;
+    
     @JsonProperty("product_id")
     private long productId;
     
-    @JsonProperty("user_id")
-    private long userId;
+    @JsonProperty("user")
+    private UserResponse userResponse;
     
     @JsonProperty("content")
     private String content;
     
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
     
     public static CommentResponse fromComment(Comment comment){
         CommentResponse commentResponse = CommentResponse.builder()
+                .id(comment.getId())
                 .productId(comment.getProduct().getId())
-                .userId(comment.getUser().getId())
+                .userResponse(UserResponse.fromUser(comment.getUser()))
                 .content(comment.getContent())
-                .createdAt(comment.getCreatedAt())
                 .build();
+        commentResponse.setCreatedAt(comment.getCreatedAt());
+        commentResponse.setUpdatedAt(comment.getUpdatedAt());
         return commentResponse;
     }
 }

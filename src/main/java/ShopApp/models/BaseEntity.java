@@ -9,6 +9,7 @@ import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import java.time.LocalDateTime;
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,19 +24,22 @@ import lombok.NoArgsConstructor;
 @MappedSuperclass //*
 public class BaseEntity {
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+//    private LocalDateTime createdAt;
+    private Date createdAt;
+
 
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+//    private LocalDateTime updatedAt;
+    private Date updatedAt;
 
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        createdAt = new Date();
+        updatedAt = new Date();
     }
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        updatedAt = new Date();
     }
 }

@@ -13,6 +13,7 @@ CREATE TABLE comments (
     user_id INT,
     content VARCHAR(500),
     created_at DATETIME,
+    updated_at DATETIME,
     FOREIGN KEY (product_id) REFERENCES products(id),
     FOREIGN KEY (user_id) REFERENCES users(id)
 );

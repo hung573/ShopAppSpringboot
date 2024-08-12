@@ -6,6 +6,7 @@ package ShopApp.services;
 
 import ShopApp.components.LocalizationUtils;
 import ShopApp.dtos.CommentDTO;
+import ShopApp.dtos.CommentUpdateDTO;
 import ShopApp.exception.DataNotFoudException;
 import ShopApp.iservices.ICommentService;
 import ShopApp.models.Comment;
@@ -51,12 +52,9 @@ public class CommentService implements ICommentService{
 
     @Override
     @Transactional
-    public Comment updateComment(long id, CommentDTO commentDTO) throws Exception {
+    public Comment updateComment(long id, CommentUpdateDTO commentUpdateDTO) throws Exception {
         Comment comment = getCommentId(id);
-        Product product = productService.getProductById(commentDTO.getProductId());
-        User user = userService.getUserDetailFromId(commentDTO.getUserId());
-        
-        comment.setContent(commentDTO.getContent());
+        comment.setContent(commentUpdateDTO.getContent());
         
         return commentRepository.save(comment);
     }
@@ -89,13 +87,22 @@ public class CommentService implements ICommentService{
     }
 
     @Override
-    public List<Comment> getAlCommentByUserId(long userId) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public Page<CommentResponse> getAlCommentByUserId(long userId, PageRequest pageRequest) throws Exception {
+        User user = userService.getUserDetailFromId(userId);
+        Page<Comment> comments = commentRepository.findByUserId(userId, pageRequest);
+        return comments.map(CommentResponse::fromComment);
     }
 
     @Override
     public Page<CommentResponse> getAllCommentByProductId(long productId, PageRequest pageRequest) throws Exception {
         Page<Comment> comments = commentRepository.findByProductId(productId, pageRequest);
+        return comments.map(CommentResponse::fromComment);
+    }
+
+    @Override
+    public Page<CommentResponse> getAllCommentByUserIdAndProductId(long userId, long productId, PageRequest pageRequest) throws Exception {
+        User user = userService.getUserDetailFromId(userId);
+        Page<Comment> comments = commentRepository.findByUserIdAndProductId(userId, productId, pageRequest);
         return comments.map(CommentResponse::fromComment);
     }
     

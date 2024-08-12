@@ -4,6 +4,7 @@
  */
 package ShopApp.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.swagger.v3.oas.annotations.media.Content;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,7 +32,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Comment {
+public class Comment extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -42,16 +43,10 @@ public class Comment {
     
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private User user;
     
     private String content;
     
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-    
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
     
 }
