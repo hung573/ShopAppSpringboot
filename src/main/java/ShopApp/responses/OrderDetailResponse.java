@@ -5,6 +5,7 @@
 package ShopApp.responses;
 
 import ShopApp.models.OrderDetail;
+import ShopApp.models.Product;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,8 +29,11 @@ public class OrderDetailResponse {
     @JsonProperty("order_id")
     private Long orderId;
 
-    @JsonProperty("product_id")
-    private Long productId;
+//    @JsonProperty("product_id")
+//    private Long productId;
+    
+    @JsonProperty("product")
+    private ProductResponse product;
 
     private Float price;
     
@@ -45,7 +49,7 @@ public class OrderDetailResponse {
         return OrderDetailResponse.builder()
                 .id(orderDetail.getId())
                 .orderId(orderDetail.getOrder().getId())
-                .productId(orderDetail.getProduct().getId())
+                .product(ProductResponse.fromProduct(orderDetail.getProduct()))
                 .price(orderDetail.getPrice())
                 .numberOfProducts(orderDetail.getNumberOfProducts())
                 .totalMoney(orderDetail.getTotalMoney())

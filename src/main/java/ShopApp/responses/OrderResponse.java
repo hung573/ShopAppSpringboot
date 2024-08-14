@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -70,7 +71,7 @@ public class OrderResponse {
     
     @JsonProperty("order_details")
     @JsonManagedReference
-    private List<OrderDetail> orderDetails;
+    private List<OrderDetailResponse> orderDetails;
     
     public static OrderResponse fromOrder(Order order){
         return OrderResponse.builder()
@@ -89,7 +90,11 @@ public class OrderResponse {
                 .shippingDate(order.getShippingDate())
                 .trackingNumber(order.getTrackingNumber())
                 .paymentMethod(order.getPaymentMethod())
-                .orderDetails(order.getOrderDetails())
+                .orderDetails(
+                        order.getOrderDetails().stream()
+                                .map(OrderDetailResponse::fromOrderDetail)
+                                .collect(Collectors.toList())
+                )
                 .build();
     }
 

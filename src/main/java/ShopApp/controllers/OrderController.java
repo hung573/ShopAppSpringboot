@@ -7,6 +7,7 @@ import ShopApp.components.LocalizationUtils;
 import ShopApp.dtos.OrderDTO;
 import ShopApp.iservices.IOrderService;
 import ShopApp.models.Order;
+import ShopApp.models.User;
 import ShopApp.responses.ListResponse;
 import ShopApp.responses.MessageResponse;
 import ShopApp.responses.ObjectResponse;
@@ -20,8 +21,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -105,6 +108,11 @@ public class OrderController {
     @GetMapping("/user_order/{user_id}")
     private ResponseEntity<?> getUserIdMyOrder(@PathVariable("user_id") long idUser){
         try {
+            //kiem tra user dang nhap
+            User loginUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            if (loginUser.getId() != idUser) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
             List<Order> listOrders = orderService.getAllByUserId(idUser);
             List<OrderResponse> listOrderResponses = listOrders
                     .stream()
