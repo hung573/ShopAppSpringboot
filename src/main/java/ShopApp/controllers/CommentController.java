@@ -98,6 +98,40 @@ public class CommentController {
         }
     }
     
+    @GetMapping("/admin")
+    private ResponseEntity<?> getAllCommentPage(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "0", name = "product_id") Long productId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int limit){
+        try {
+            // Điều chỉnh page để bắt đầu từ 1 thay vì 0
+            int adjustedPage = page > 0 ? page - 1 : 0;
+
+            // Tạo Pageable từ adjustedPage và limit
+            PageRequest pageRequest = PageRequest.of(adjustedPage, limit,
+                    Sort.by("id").ascending()
+            );
+            Page<CommentResponse> pageCommentResponses = commentService.getAllCommentPage(productId, keyword, pageRequest);
+             // tong trang
+            int totalPages = pageCommentResponses.getTotalPages();
+            
+            List<CommentResponse> listCommentResponses = pageCommentResponses.getContent();
+            
+            ListResponse<CommentResponse> commemntListResponse = ListResponse.<CommentResponse>builder()
+                    .items(listCommentResponses)
+                    .totalPages(totalPages)
+                    .page(page)
+                    .build();
+            return ResponseEntity.ok(commemntListResponse);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(MessageResponse.builder()
+                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
+                        .build());
+        }
+        
+    }
+    
     @GetMapping("/by-product")
     private ResponseEntity<?> getAllCommentByProductId(
             @RequestParam(name = "id") long productId,

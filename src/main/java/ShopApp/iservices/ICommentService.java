@@ -25,7 +25,7 @@ public interface ICommentService {
     
     Comment getCommentId(long id) throws Exception;
     
-    Page<Comment> getAllCommentPage(PageRequest pageRequest) throws Exception;
+    Page<CommentResponse> getAllCommentPage(long productId, String keyword, PageRequest pageRequest) throws Exception;
     
     List<CommentResponse> getAllCommentList() throws Exception;
     

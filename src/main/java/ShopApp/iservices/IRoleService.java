@@ -4,6 +4,7 @@
  */
 package ShopApp.iservices;
 
+import ShopApp.dtos.RoleDTO;
 import ShopApp.models.Role;
 import java.util.List;
 import org.springframework.data.domain.Page;
@@ -16,4 +17,8 @@ import org.springframework.data.domain.PageRequest;
 public interface IRoleService {
     Page<Role> getAllRoleAdmin(PageRequest pageRequest);
     List<Role> getAllRole();
+    Role getRoleByid(long id) throws Exception;
+    Role addRole(RoleDTO roleDTO) throws Exception;
+    Role updateRole(long roleId,RoleDTO roleDTO) throws Exception;
+    void deleteRole(long roleId, boolean acitve) throws Exception;
 }

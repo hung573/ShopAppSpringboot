@@ -5,10 +5,9 @@
 package ShopApp.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -24,43 +23,32 @@ import lombok.NoArgsConstructor;
  *
  * @author mac
  */
+
 @Entity
-@Table(name = "order_details")
+@Table(name = "coupon_conditions")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-
-public class OrderDetail {
+public class CouponCondition {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "order_id")
-    @JsonBackReference
-    private Order order;
-
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Product product;
-
-    @Column(name = "price", nullable = false)
-    private Float price;
-
-    @Column(name = "number_of_products", nullable = false)
-    @JsonProperty("number_of_products")
-    private int numberOfProducts;
-
-    @Column(name = "total_money", nullable = false)
-    @JsonProperty("total_money")
-    private Float totalMoney;
-
-    @Column(name = "color", nullable = false)
-    private String color;
+    private long id;
     
-    @ManyToOne
-    @JoinColumn(name = "coupon_id")
-    @JsonManagedReference
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "coupon_id", nullable = false)
+    @JsonBackReference
     private Coupon coupon;
+    
+    @Column(name = "attribute", nullable = false)
+    private String attribute;
+    
+    @Column(name = "operator", nullable = false)
+    private String operator;
+    
+    @Column(name = "value", nullable = false)
+    private String value;
+    
+    @Column(name = "discount_amount", nullable = false)
+    private float discount_amount;
 }

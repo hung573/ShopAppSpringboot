@@ -121,7 +121,7 @@ public class ProductController {
         ListResponse<ProductResponse> ProductListResponse = ListResponse
                 .<ProductResponse>builder()
                 .items(productsListRedist)
-                 .page(page)
+                .page(page)
                 .totalPages(totalPages)
                 .build();
 

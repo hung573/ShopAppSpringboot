@@ -20,23 +20,19 @@ import lombok.NoArgsConstructor;
  * @author mac
  */
 @Entity
-@Table(name = "roles")
+@Table(name = "coupons")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-
-public class Role {
+public class Coupon {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "name", nullable = false, length = 20)
-    private String name;
     
-    @Column(name = "active")
+    @Column(name = "code", nullable = false, unique = true)
+    private String code;
+    
+    @Column(name = "active", nullable = false)
     private boolean active;
-    
-    public static String ADMIN = "ADMIN";
-    public static String USER = "USER";
 }

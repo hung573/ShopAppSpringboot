@@ -73,10 +73,6 @@ public class CommentService implements ICommentService{
                 .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
     }
 
-    @Override
-    public Page<Comment> getAllCommentPage(PageRequest pageRequest) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
 
     @Override
     public List<CommentResponse> getAllCommentList() throws Exception {
@@ -103,6 +99,12 @@ public class CommentService implements ICommentService{
     public Page<CommentResponse> getAllCommentByUserIdAndProductId(long userId, long productId, PageRequest pageRequest) throws Exception {
         User user = userService.getUserDetailFromId(userId);
         Page<Comment> comments = commentRepository.findByUserIdAndProductId(userId, productId, pageRequest);
+        return comments.map(CommentResponse::fromComment);
+    }
+
+    @Override
+    public Page<CommentResponse> getAllCommentPage(long productId, String keyword, PageRequest pageRequest) throws Exception {
+        Page<Comment> comments = commentRepository.searchComments(productId, keyword, pageRequest);
         return comments.map(CommentResponse::fromComment);
     }
     

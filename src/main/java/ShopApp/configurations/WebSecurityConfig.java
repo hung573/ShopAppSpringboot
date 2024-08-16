@@ -149,7 +149,13 @@ public class WebSecurityConfig{
                             // Comments
                             .requestMatchers(POST,String.format("%s/comments/**", apiPrefix)).permitAll()
                             .requestMatchers(PUT,String.format("%s/comments/**", apiPrefix)).hasAnyRole(Role.USER)
-                            .requestMatchers(GET,String.format("%s/comments/**", apiPrefix)).permitAll()
+                            .requestMatchers(GET,String.format("%s/comments/admin/**", apiPrefix)).hasAnyRole(Role.ADMIN)
+                            
+                            //Roles
+                            .requestMatchers(GET,String.format("%s/roles/**", apiPrefix)).hasAnyRole(Role.ADMIN)
+                            .requestMatchers(POST,String.format("%s/roles/**", apiPrefix)).hasAnyRole(Role.ADMIN)
+                            .requestMatchers(PUT,String.format("%s/roles/**", apiPrefix)).hasAnyRole(Role.ADMIN)
+                            .requestMatchers(DELETE,String.format("%s/roles/**", apiPrefix)).hasAnyRole(Role.ADMIN)
 
                             
                             .anyRequest().authenticated();

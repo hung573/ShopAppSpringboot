@@ -10,6 +10,8 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 /**
  *
@@ -22,5 +24,13 @@ public interface CommentRepository extends JpaRepository<Comment, Long>{
     Page<Comment> findByUserId(long userId, Pageable pageable);
     
     Page<Comment> findByUserIdAndProductId(long userId, long productId, Pageable pageable);
+    
+    @Query("SELECT c FROM Comment c WHERE " +
+            "(:productId IS NULL OR :productId = 0 OR c.product.id = :productId) "+
+            "AND (:keyword IS NULL OR :keyword = '' OR c.content LIKE %:keyword%)")
+    Page<Comment> searchComments
+            (@Param("productId") Long productId,
+            @Param("keyword") String keyword, 
+            Pageable pageable);
 
 }

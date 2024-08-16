@@ -46,7 +46,7 @@ import org.springframework.web.client.HttpClientErrorException;
 public class UserService implements IUserService {
 
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
+    private final RoleService roleService;
     private final PasswordEncoder passwordEncoder; // inject vao
     private final JwtTokenUtils jwtTokenUtil;
     private final AuthenticationManager authManager;
@@ -62,7 +62,7 @@ public class UserService implements IUserService {
             throw new DataIntegrityViolationException(localizationUtils.getLocalizedMessage(MessageKey.PHONE_NUMBER_EXITS));
         }
         long idrole_user = 2;
-        Role role = roleRepository.findById(idrole_user);
+        Role role = roleService.getRoleByid(idrole_user);
         newUser = User.builder()
                 .fullName(userDTO.getFullName())
                 .phoneNumber(userDTO.getPhoneNumber())
@@ -133,9 +133,7 @@ public class UserService implements IUserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
 
-        Role role = roleRepository.findById(userUpdateDTO.getRoleId())
-                .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.ROLE_NOTFOUND)));
-        
+        Role role = roleService.getRoleByid(userUpdateDTO.getRoleId());
         
         String fullname = userUpdateDTO.getFullName();
         if (fullname != null && !fullname.isEmpty() && fullname != " " && !fullname.equals(user.getFullName())) {
