@@ -5,7 +5,7 @@
 package ShopApp.controllers;
 
 import ShopApp.models.Category;
-import ShopApp.services.CategoryService;
+import ShopApp.services.Category.CategoryService;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;

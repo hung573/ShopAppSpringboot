@@ -2,9 +2,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
  */
-package ShopApp.iservices;
+package ShopApp.services.ProductImage;
 
-import ShopApp.responses.ProductResponse;
+import ShopApp.responses.Product_ImgResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
 import org.springframework.data.domain.PageRequest;
@@ -13,18 +13,17 @@ import org.springframework.data.domain.PageRequest;
  *
  * @author mac
  */
-public interface IProductRedisService {
-    
+public interface IProduct_Img_RedisService {
     void clear();
     
-    List<ProductResponse> getAllProducts(
+    List<Product_ImgResponse> getAllItems(
             String keyword, 
-            Long categoryId,
-            PageRequest pageRequest) throws JsonProcessingException;
+            PageRequest pageRequest,
+            String name) throws JsonProcessingException;
     
-    void saveAllProducts(
-            List<ProductResponse> productResponses,
+    void saveAllItems(
+            List<Product_ImgResponse> item,
             String keyword,
-            Long categoryId,
-            PageRequest pageRequest)throws JsonProcessingException;
+            PageRequest pageRequest,
+            String name)throws JsonProcessingException;
 }

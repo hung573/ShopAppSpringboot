@@ -2,12 +2,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Other/File.java to edit this template
  */
-package ShopApp.services;
+package ShopApp.services.Role;
 
 import ShopApp.components.LocalizationUtils;
 import ShopApp.dtos.RoleDTO;
 import ShopApp.exception.DataNotFoudException;
-import ShopApp.iservices.IRoleService;
 import ShopApp.models.Role;
 import ShopApp.repositories.RoleRepository;
 import ShopApp.utils.MessageKey;

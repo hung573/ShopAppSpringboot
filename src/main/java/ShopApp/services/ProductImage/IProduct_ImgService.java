@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package ShopApp.iservices;
+package ShopApp.services.ProductImage;
 
 import ShopApp.models.ProductImage;
 import ShopApp.responses.Product_ImgResponse;

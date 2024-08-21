@@ -2,12 +2,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package ShopApp.services;
+package ShopApp.services.Token;
 
 import ShopApp.components.JwtTokenUtils;
 import ShopApp.exception.DataNotFoudException;
 import ShopApp.exception.ExpiredTokenException;
-import ShopApp.iservices.ITokenService;
+import ShopApp.services.Token.ITokenService;
 import ShopApp.models.Token;
 import ShopApp.models.User;
 import ShopApp.repositories.TokenRepository;

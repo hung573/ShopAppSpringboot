@@ -4,7 +4,7 @@
  */
 package ShopApp.models;
 
-import ShopApp.services.ProductRedisService;
+import ShopApp.services.Product.ProductRedisService;
 import jakarta.persistence.PostPersist;
 import jakarta.persistence.PostRemove;
 import jakarta.persistence.PostUpdate;

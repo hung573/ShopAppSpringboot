@@ -11,7 +11,7 @@ import ShopApp.models.Role;
 import ShopApp.responses.ListResponse;
 import ShopApp.responses.MessageResponse;
 import ShopApp.responses.ObjectResponse;
-import ShopApp.services.RoleService;
+import ShopApp.services.Role.RoleService;
 import ShopApp.utils.MessageKey;
 import jakarta.validation.Valid;
 import java.util.List;

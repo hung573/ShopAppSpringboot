@@ -1,7 +1,7 @@
-package ShopApp.services;
+package ShopApp.services.ProductImage;
 
 import ShopApp.exception.DataNotFoudException;
-import ShopApp.iservices.IProduct_ImgService;
+import ShopApp.services.ProductImage.IProduct_ImgService;
 import ShopApp.models.ProductImage;
 import ShopApp.repositories.ProductImageRepository;
 import ShopApp.responses.Product_ImgResponse;

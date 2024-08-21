@@ -2,12 +2,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package ShopApp.services;
+package ShopApp.services.OrderDetail;
 
+import ShopApp.services.Order.OrderService;
 import ShopApp.components.LocalizationUtils;
 import ShopApp.dtos.OrderDetailDTO;
 import ShopApp.exception.DataNotFoudException;
-import ShopApp.iservices.IOrderDetailService;
 import ShopApp.models.Order;
 import ShopApp.models.OrderDetail;
 import ShopApp.models.Product;
@@ -15,6 +15,7 @@ import ShopApp.repositories.OrderDetailRepository;
 import ShopApp.repositories.OrderRepository;
 import ShopApp.repositories.ProductRepository;
 import ShopApp.responses.OrderDetailResponse;
+import ShopApp.services.Product.ProductService;
 import ShopApp.utils.MessageKey;
 import jakarta.transaction.Transactional;
 import java.util.List;

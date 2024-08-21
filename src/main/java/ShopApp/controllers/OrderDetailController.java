@@ -6,13 +6,13 @@ package ShopApp.controllers;
 
 import ShopApp.components.LocalizationUtils;
 import ShopApp.dtos.OrderDetailDTO;
-import ShopApp.iservices.IOrderDetailService;
+import ShopApp.services.OrderDetail.IOrderDetailService;
 import ShopApp.models.OrderDetail;
 import ShopApp.responses.ListResponse;
 import ShopApp.responses.MessageResponse;
 import ShopApp.responses.ObjectResponse;
 import ShopApp.responses.OrderDetailResponse;
-import ShopApp.services.OrderDetailService;
+import ShopApp.services.OrderDetail.OrderDetailService;
 import ShopApp.utils.MessageKey;
 import jakarta.validation.Valid;
 import java.util.List;

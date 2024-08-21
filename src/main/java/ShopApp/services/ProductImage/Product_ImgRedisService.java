@@ -2,9 +2,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package ShopApp.services;
+package ShopApp.services.ProductImage;
 
-import ShopApp.iservices.IProduct_Img_RedisService;
+import ShopApp.services.ProductImage.IProduct_Img_RedisService;
 import ShopApp.responses.Product_ImgResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;

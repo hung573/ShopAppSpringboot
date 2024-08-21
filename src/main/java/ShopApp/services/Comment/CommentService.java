@@ -2,18 +2,19 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package ShopApp.services;
+package ShopApp.services.Comment;
 
 import ShopApp.components.LocalizationUtils;
 import ShopApp.dtos.CommentDTO;
 import ShopApp.dtos.CommentUpdateDTO;
 import ShopApp.exception.DataNotFoudException;
-import ShopApp.iservices.ICommentService;
 import ShopApp.models.Comment;
 import ShopApp.models.Product;
 import ShopApp.models.User;
 import ShopApp.repositories.CommentRepository;
 import ShopApp.responses.CommentResponse;
+import ShopApp.services.Product.ProductService;
+import ShopApp.services.User.UserService;
 import ShopApp.utils.MessageKey;
 import jakarta.transaction.Transactional;
 import java.util.List;

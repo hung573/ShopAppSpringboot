@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
  */
-package ShopApp.iservices;
+package ShopApp.services.User;
 
 import ShopApp.dtos.UserDTO;
 import ShopApp.dtos.AdminUpdateUserDTO;

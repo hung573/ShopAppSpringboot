@@ -2,10 +2,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package ShopApp.services;
+package ShopApp.services.Category;
 
 import ShopApp.components.LocalizationUtils;
-import ShopApp.iservices.ICategoryService;
 import ShopApp.dtos.CategoryDTO;
 import ShopApp.exception.DataNotFoudException;
 import ShopApp.models.Category;
