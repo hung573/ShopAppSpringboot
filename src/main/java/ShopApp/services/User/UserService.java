@@ -13,6 +13,7 @@ import ShopApp.exception.DataNotFoudException;
 import ShopApp.models.Role;
 import ShopApp.models.User;
 import ShopApp.configurations.*;
+import ShopApp.controllers.UserController;
 import ShopApp.dtos.AdminUpdateUserDTO;
 import ShopApp.dtos.UserUpdateDTO;
 import ShopApp.models.Token;
@@ -33,6 +34,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -53,7 +55,7 @@ public class UserService implements IUserService {
     private final AuthenticationManager authManager;
     private final LocalizationUtils localizationUtils;
     private final TokenRepository tokenRepository;
-
+    
     @Override
     @Transactional
     public User createUser(UserDTO userDTO) throws Exception {

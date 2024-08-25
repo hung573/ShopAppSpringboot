@@ -26,6 +26,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Locale;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -128,7 +129,7 @@ public class UserController {
             BindingResult result,
             HttpServletRequest request){
         try {
-                if (result.hasErrors()) {
+            if (result.hasErrors()) {
                 List<String> errormessage = result.getFieldErrors()
                         .stream()
                         .map(FieldError::getDefaultMessage)
@@ -144,7 +145,8 @@ public class UserController {
             User user = userService.getUserDetailFromToken(token);
             Token jwtToken = tokenService.addToken(user, token, isMobileDevice(userAgent));
             return ResponseEntity.ok(LoginResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKey.LOGIN_SUCCESSFULLY))
+//                    .message(localizationUtils.getLocalizedMessage(MessageKey.LOGIN_SUCCESSFULLY))
+                    .message("successfully")
                     .token(jwtToken.getToken())
                     .tokenType(jwtToken.getTokenType())
                     .refreshToken(jwtToken.getRefreshToken())
@@ -154,7 +156,8 @@ public class UserController {
                     .build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(LoginResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKey.LOGIN_FAILED, e.getMessage()))
+//                    .message(localizationUtils.getLocalizedMessage(MessageKey.LOGIN_FAILED, e.getMessage()))
+                    .message(e.getMessage())
                     .token("")
                     .build());
         }

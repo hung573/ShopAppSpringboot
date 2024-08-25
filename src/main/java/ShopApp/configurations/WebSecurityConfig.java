@@ -158,6 +158,9 @@ public class WebSecurityConfig{
                             .requestMatchers(DELETE,String.format("%s/roles/**", apiPrefix)).hasAnyRole(Role.ADMIN)
 
                             
+                            //Coupons
+                            .requestMatchers(GET,String.format("%s/coupons/**", apiPrefix)).permitAll()
+
                             .anyRequest().authenticated();
                 })
                 
