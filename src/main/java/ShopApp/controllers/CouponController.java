@@ -26,13 +26,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("${api.prefix}/coupons")
 @RequiredArgsConstructor
 public class CouponController {
+
     private final CouponService couponService;
     private final LocalizationUtils localizationUtils;
-    
+
     @GetMapping("")
-    private ResponseEntity<?> calculateCouponValue(
+    private ResponseEntity<ObjectResponse> calculateCouponValue(
             @RequestParam("couponCode") String couponCode,
-            @RequestParam("totalAmount") float totalAmount){
+            @RequestParam("totalAmount") float totalAmount) {
         try {
             float finalAmount = couponService.calculateCouponValue(couponCode, totalAmount);
             return ResponseEntity.ok(ObjectResponse.builder()
@@ -41,25 +42,19 @@ public class CouponController {
                     .build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ObjectResponse.builder()
-                        .items(totalAmount)
-                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
-                        .build());
-        }
-    }
-    
-    @GetMapping("/listCoupons")
-    private ResponseEntity<?> getAllCoupons(){
-        try {
-            List<CouponConditionReponse> AllCouponConditionReponses = couponService.getAllCoupon();
-            return ResponseEntity.ok(ObjectResponse.builder()
-                    .items(AllCouponConditionReponses)
-                    .message("")
+                    .items(totalAmount)
+                    .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
                     .build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(MessageResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
-                        .build());
         }
     }
-    
+
+    @GetMapping("/listCoupons")
+    private ResponseEntity<?> getAllCoupons() throws Exception {
+        List<CouponConditionReponse> AllCouponConditionReponses = couponService.getAllCoupon();
+        return ResponseEntity.ok(ObjectResponse.builder()
+                .items(AllCouponConditionReponses)
+                .message("")
+                .build());
+    }
+
 }

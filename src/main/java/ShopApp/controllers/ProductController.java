@@ -63,27 +63,25 @@ import org.springframework.web.multipart.MultipartFile;
  *
  * @author mac
  */
-
 @RestController
 @RequestMapping("${api.prefix}/products")
 @RequiredArgsConstructor
 public class ProductController {
-    
+
     private final ProductService productService;
     private final ProductRedisService productRedisService;
     private final LocalizationUtils localizationUtils;
 
-    
     @GetMapping("")
     private ResponseEntity<ListResponse> getAllProduct(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "0", name = "category_id") Long categoryId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int limit) throws JsonProcessingException, Exception{
+            @RequestParam(defaultValue = "10") int limit) throws JsonProcessingException, Exception {
 
         // Điều chỉnh page để bắt đầu từ 1 thay vì 0
         int adjustedPage = page > 0 ? page - 1 : 0;
-        
+
         // Tạo Pageable từ adjustedPage và limit
         PageRequest pageRequest = PageRequest.of(adjustedPage, limit,
                 Sort.by("id").ascending()
@@ -91,7 +89,7 @@ public class ProductController {
 //        productRedisService.clear();
         List<ProductResponse> productsListRedist = productRedisService.getAllProducts(keyword, categoryId, pageRequest);
         int totalPages = 0;
-        if (productsListRedist!=null && !productsListRedist.isEmpty()) {
+        if (productsListRedist != null && !productsListRedist.isEmpty()) {
             totalPages = productsListRedist.get(0).getTotalPage();
         }
         if (productsListRedist == null) {
@@ -117,7 +115,7 @@ public class ProductController {
 //        else{
 //            totalPages = productService.totalPages(limit);
 //        }
-         // Create response
+        // Create response
         ListResponse<ProductResponse> ProductListResponse = ListResponse
                 .<ProductResponse>builder()
                 .items(productsListRedist)
@@ -127,17 +125,17 @@ public class ProductController {
 
         return ResponseEntity.ok(ProductListResponse);
     }
-    
+
     @GetMapping("product-home")
     private ResponseEntity<ListResponse> getAllProductIsActive(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "0", name = "category_id") Long categoryId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int limit) throws JsonProcessingException, Exception{
+            @RequestParam(defaultValue = "10") int limit) throws JsonProcessingException, Exception {
 
         // Điều chỉnh page để bắt đầu từ 1 thay vì 0
         int adjustedPage = page > 0 ? page - 1 : 0;
-        
+
         // Tạo Pageable từ adjustedPage và limit
         PageRequest pageRequest = PageRequest.of(adjustedPage, limit,
                 Sort.by("id").ascending()
@@ -145,7 +143,7 @@ public class ProductController {
 //        productRedisService.clear();
         List<ProductResponse> productsListRedist = productRedisService.getAllProducts(keyword, categoryId, pageRequest);
         int totalPages = 0;
-        if (productsListRedist!=null && !productsListRedist.isEmpty()) {
+        if (productsListRedist != null && !productsListRedist.isEmpty()) {
             totalPages = productsListRedist.get(0).getTotalPage();
         }
         if (productsListRedist == null) {
@@ -171,7 +169,7 @@ public class ProductController {
 //        else{
 //            totalPages = productService.totalPages(limit);
 //        }
-         // Create response
+        // Create response
         ListResponse<ProductResponse> ProductListResponse = ListResponse
                 .<ProductResponse>builder()
                 .items(productsListRedist)
@@ -181,59 +179,48 @@ public class ProductController {
 
         return ResponseEntity.ok(ProductListResponse);
     }
-    
+
     @GetMapping("/{id}")
-    private ResponseEntity<ObjectResponse> getIdProduct(@PathVariable("id") long idProduct){
+    private ResponseEntity<?> getIdProduct(@PathVariable("id") long idProduct) throws Exception {
         Product product = new Product();
-        try {
-            product = productService.getProductById(idProduct);
-            return ResponseEntity.ok(ObjectResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKey.GETID_SUCCESSFULLY))
-                    .items(ProductResponse.fromProduct(product))
-                    .build());
-        } catch (DataNotFoudException ex) {
-            return ResponseEntity.badRequest().body(ObjectResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, ex.getMessage()))
-                        .build());
-        }
+        product = productService.getProductById(idProduct);
+        return ResponseEntity.ok(ObjectResponse.builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKey.GETID_SUCCESSFULLY))
+                .items(ProductResponse.fromProduct(product))
+                .build());
 
     }
-    
+
     // Lay danh sach gio hang 
     @GetMapping("/by-ids")
-    public ResponseEntity<?> getProductsByIds(@RequestParam("ids") String ids) {
+    public ResponseEntity<?> getProductsByIds(@RequestParam("ids") String ids) throws Exception {
         //eg: 1,3,5,7
-        try {
-            // Tách chuỗi ids thành một mảng các số nguyên
-            List<Long> productIds = Arrays.stream(ids.split(","))
-                    .map(Long::parseLong)
-                    .collect(Collectors.toList());
-            List<Product> products = productService.findProductsByIds(productIds);
-            return ResponseEntity.ok(products);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        // Tách chuỗi ids thành một mảng các số nguyên
+        List<Long> productIds = Arrays.stream(ids.split(","))
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
+        List<Product> products = productService.findProductsByIds(productIds);
+        return ResponseEntity.ok(products);
     }
-    
+
     // thay doi cach upImg
 //    @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PostMapping("/add")
-    private ResponseEntity<ObjectResponse> addProduct(
+    private ResponseEntity<?> addProduct(
             @Valid @RequestBody ProductDTO productDTO,
-//            @ModelAttribute("files") List<MultipartFile> files,
-            BindingResult result){
-        try {
-            if (result.hasErrors()) {
-                List<String> errormessage = result.getFieldErrors()
-                        .stream()
-                        .map(FieldError::getDefaultMessage)
-                        .toList();
-                return ResponseEntity.badRequest().body(ObjectResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, errormessage))
-                        .build());
-            }
-            
-            Product newProduct = productService.createProduct(productDTO);
+            //            @ModelAttribute("files") List<MultipartFile> files,
+            BindingResult result) throws Exception {
+        if (result.hasErrors()) {
+            List<String> errormessage = result.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ResponseEntity.badRequest().body(ObjectResponse.builder()
+                    .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, errormessage))
+                    .build());
+        }
+
+        Product newProduct = productService.createProduct(productDTO);
 
 //            List<MultipartFile> ListfileIMG = productDTO.getFiles();
 //            ListfileIMG = ListfileIMG == null ? new ArrayList<MultipartFile>() : ListfileIMG;
@@ -261,63 +248,54 @@ public class ProductController {
 //                                .build());
 //                // thuc chat la luu vao product_image
 //            }
-            return ResponseEntity.ok(ObjectResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKey.ADD_SUCCESSFULLY))
-                    .items(newProduct)
-                    .build());
-        } catch (Exception e) {
-           return ResponseEntity.badRequest().body(ObjectResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
-                        .build());
-        }
+        return ResponseEntity.ok(ObjectResponse.builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKey.ADD_SUCCESSFULLY))
+                .items(newProduct)
+                .build());
     }
-    
+
     @PostMapping(value = "/uploads/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadProductImage(
             @ModelAttribute("files") List<MultipartFile> files,
-            @PathVariable("id") long productId){
-        
-        try {
-            Product existingProduct = productService.getProductById(productId);
-            List<ProductImage> productImages = new ArrayList<>();
-            files = files == null ? new ArrayList<MultipartFile>() : files;
-            if (files.size() > MAX_IMG_PER_PRODUCT) {
-                return ResponseEntity.badRequest().body(localizationUtils.getLocalizedMessage(MessageKey.UPLOAD_IMAGES_MAX_5));
-            }
-            for(MultipartFile fileIMG : files){
-                if(fileIMG.getSize() == 0){
-                    continue;
-                }
-                // kiểm tra kích thước file ảnh khong vuot qua 10MB
-                if (fileIMG.getSize() > 10 * 1024 * 1024) {
-                    return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
-                                .body(localizationUtils.getLocalizedMessage(MessageKey.UPLOAD_IMAGES_FILE_LARGE));
-                }
-                // kiểm tra đây có phải là file ảnh hay không
-                // String contentType = fileIMG.getContentType();
-                if (!isImageFile(fileIMG) || fileIMG.getOriginalFilename() == null) {
-                    return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-                                .body(localizationUtils.getLocalizedMessage(MessageKey.UPLOAD_IMAGES_FILE_MUST_BE_IMAGE));
-                }
-                // luu file
-                String fileName = storeFile(fileIMG);
-                // luu vao doi tuong product trong DB lam sau
-                ProductImage productImage = productService.createProductImage(
-                        existingProduct.getId(),ProductImageDTO.builder()
-                                .imageUrl(fileName)
-                                .build());
-                productImages.add(productImage);
-            }
-            return ResponseEntity.ok(productImages);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            @PathVariable("id") long productId) throws Exception {
+
+        Product existingProduct = productService.getProductById(productId);
+        List<ProductImage> productImages = new ArrayList<>();
+        files = files == null ? new ArrayList<MultipartFile>() : files;
+        if (files.size() > MAX_IMG_PER_PRODUCT) {
+            return ResponseEntity.badRequest().body(localizationUtils.getLocalizedMessage(MessageKey.UPLOAD_IMAGES_MAX_5));
         }
+        for (MultipartFile fileIMG : files) {
+            if (fileIMG.getSize() == 0) {
+                continue;
+            }
+            // kiểm tra kích thước file ảnh khong vuot qua 10MB
+            if (fileIMG.getSize() > 10 * 1024 * 1024) {
+                return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+                        .body(localizationUtils.getLocalizedMessage(MessageKey.UPLOAD_IMAGES_FILE_LARGE));
+            }
+            // kiểm tra đây có phải là file ảnh hay không
+            // String contentType = fileIMG.getContentType();
+            if (!isImageFile(fileIMG) || fileIMG.getOriginalFilename() == null) {
+                return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                        .body(localizationUtils.getLocalizedMessage(MessageKey.UPLOAD_IMAGES_FILE_MUST_BE_IMAGE));
+            }
+            // luu file
+            String fileName = storeFile(fileIMG);
+            // luu vao doi tuong product trong DB lam sau
+            ProductImage productImage = productService.createProductImage(
+                    existingProduct.getId(), ProductImageDTO.builder()
+                    .imageUrl(fileName)
+                    .build());
+            productImages.add(productImage);
+        }
+        return ResponseEntity.ok(productImages);
     }
-    
+
     @GetMapping("/images/{imageName}")
     public ResponseEntity<?> viewImage(@PathVariable String imageName) {
         try {
-            java.nio.file.Path imagePath = Paths.get("uploads/"+imageName);
+            java.nio.file.Path imagePath = Paths.get("uploads/" + imageName);
             UrlResource resource = new UrlResource(imagePath.toUri());
 
             if (resource.exists()) {
@@ -331,17 +309,17 @@ public class ProductController {
             return ResponseEntity.notFound().build();
         }
     }
-    
+
     // Ham kiem tra anh co đúng định dạng hay không
     private boolean isImageFile(MultipartFile file) {
         String contentType = file.getContentType();
         return contentType != null && contentType.startsWith("image/");
     }
-    
-    private String storeFile(MultipartFile fileIMG) throws IOException{
+
+    private String storeFile(MultipartFile fileIMG) throws IOException {
         String fileName = StringUtils.cleanPath(fileIMG.getOriginalFilename());
         // Them UUID vao truoc ten file de dam bao ten file la duy nhat
-        String newFileName =UUID .randomUUID().toString() + "_" +fileName ;
+        String newFileName = UUID.randomUUID().toString() + "_" + fileName;
         // Duong dan den thu muc muon luu file
         Path uploadDir = Paths.get("uploads");
         // Kiem tra va tao thu muc neu no chua ton tai
@@ -352,37 +330,27 @@ public class ProductController {
         Path destination = Paths.get(uploadDir.toString(), newFileName);
         // Sao chep file vao thu muc dich
         Files.copy(fileIMG.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
-        return  newFileName;
+        return newFileName;
     }
-    
+
     @PutMapping("/update/{id}")
-    private ResponseEntity<?> updateProduct(@PathVariable("id") long idProduct, @Valid @RequestBody ProductDTO productDTO){
-        
-        try {
-            Product updateProduct = productService.updateProduct(idProduct, productDTO);
-            return ResponseEntity.ok(updateProduct);
-        } catch (Exception ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
-        }
+    private ResponseEntity<?> updateProduct(@PathVariable("id") long idProduct, @Valid @RequestBody ProductDTO productDTO) throws Exception {
+
+        Product updateProduct = productService.updateProduct(idProduct, productDTO);
+        return ResponseEntity.ok(updateProduct);
     }
-    
+
     @DeleteMapping("/delete/{id}/{active}")
     private ResponseEntity<MessageResponse> deleteProduct(
             @PathVariable("id") long idProduct,
-            @PathVariable("active") int active){
-        try {
-            productService.deleteProduct(idProduct, active > 0);
-            String message = active > 0 ? "Successfully business the product." : localizationUtils.getLocalizedMessage(MessageKey.DELETE_SUCCESSFULLY);
-            return ResponseEntity.ok(MessageResponse.builder()
-                    .message(message)
-                    .build());
-        } catch (DataNotFoudException ex) {
-            return ResponseEntity.badRequest().body(MessageResponse.builder()
-                    .message(ex.getMessage())
-                    .build());
-        }
+            @PathVariable("active") int active) throws Exception {
+        productService.deleteProduct(idProduct, active > 0);
+        String message = active > 0 ? "Successfully business the product." : localizationUtils.getLocalizedMessage(MessageKey.DELETE_SUCCESSFULLY);
+        return ResponseEntity.ok(MessageResponse.builder()
+                .message(message)
+                .build());
     }
-    
+
     @PostMapping("/genfakerProducts")
     private ResponseEntity<?> genfakerProducts() {
         Faker faker = new Faker();
@@ -406,6 +374,5 @@ public class ProductController {
         }
         return ResponseEntity.ok("Gen Faker Products Successfully");
     }
-    
 
 }

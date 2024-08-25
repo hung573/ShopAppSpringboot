@@ -41,21 +41,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("${api.prefix}/roles")
 @RequiredArgsConstructor
 public class RoleController {
+
     private final RoleService roleService;
     private final LocalizationUtils localizationUtils;
-    
+
     @GetMapping("/admin")
-    private ResponseEntity<ListResponse> getAllAdminReole(@RequestParam("page") int page, @RequestParam("limit") int limit){
+    private ResponseEntity<ListResponse> getAllAdminReole(@RequestParam("page") int page, @RequestParam("limit") int limit) {
         // Tạo Pageable từ page và limit
         PageRequest pageRequest = PageRequest.of(page, limit,
                 Sort.by("id").ascending());
-        
+
         Page<Role> rolePage = roleService.getAllRoleAdmin(pageRequest);
         // tong trang
         int totalPages = rolePage.getTotalPages();
-        
+
         List<Role> categories = rolePage.getContent();
-        
+
         // Create response
         ListResponse<Role> roleListResponse = ListResponse.<Role>builder()
                 .items(categories)
@@ -65,81 +66,63 @@ public class RoleController {
 
         return ResponseEntity.ok(roleListResponse);
     }
-    
+
     @GetMapping("/login")
-    private ResponseEntity<?> getAllRole(){
+    private ResponseEntity<?> getAllRole() {
         List<Role> listrole = roleService.getAllRole();
         return ResponseEntity.ok(listrole);
     }
-    
+
     @PostMapping("/add")
     private ResponseEntity<?> addRole(
             @Valid @RequestBody RoleDTO roleDTO,
-            BindingResult result){
-        try {
-            if (result.hasErrors()) {
+            BindingResult result) throws Exception {
+        if (result.hasErrors()) {
             List<String> errormessage = result.getFieldErrors()
                     .stream()
                     .map(FieldError::getDefaultMessage)
                     .toList();
             return ResponseEntity.badRequest().body(ObjectResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, errormessage.get(0)))
-                        .build());
-            }
-            Role role = roleService.addRole(roleDTO);
-            return ResponseEntity.ok(ObjectResponse.builder()
-                    .message("yes")
-                    .items(role)
+                    .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, errormessage.get(0)))
                     .build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ObjectResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
-                        .build());
         }
+        Role role = roleService.addRole(roleDTO);
+        return ResponseEntity.ok(ObjectResponse.builder()
+                .message("yes")
+                .items(role)
+                .build());
     }
-    
+
     @PutMapping("/update/{id}")
     private ResponseEntity<?> updateRole(
             @PathVariable("id") long idRole,
             @Valid @RequestBody RoleDTO roleDTO,
-            BindingResult result){
-        try {
-            if (result.hasErrors()) {
+            BindingResult result) throws Exception {
+        if (result.hasErrors()) {
             List<String> errormessage = result.getFieldErrors()
                     .stream()
                     .map(FieldError::getDefaultMessage)
                     .toList();
             return ResponseEntity.badRequest().body(ObjectResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, errormessage.get(0)))
-                        .build());
-            }
-            Role role = roleService.updateRole(idRole, roleDTO);
-            return ResponseEntity.ok(ObjectResponse.builder()
-                    .message("yes")
-                    .items(role)
+                    .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, errormessage.get(0)))
                     .build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ObjectResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
-                        .build());
         }
+        Role role = roleService.updateRole(idRole, roleDTO);
+        return ResponseEntity.ok(ObjectResponse.builder()
+                .message("yes")
+                .items(role)
+                .build());
     }
-    
+
     @DeleteMapping("/delete/{id}/{active}")
     private ResponseEntity<?> deleteRole(
             @PathVariable("id") long roleId,
-            @PathVariable("active") int active) throws Exception{
-        try {
-            roleService.deleteRole(roleId, active>0);
-            String message = active > 0 ? "Successfully business the product." : localizationUtils.getLocalizedMessage(MessageKey.DELETE_SUCCESSFULLY);
-            return ResponseEntity.ok(MessageResponse.builder()
-                    .message(message)
-                    .build());
-        } catch (DataNotFoudException ex) {
-            return ResponseEntity.badRequest().body(MessageResponse.builder()
-                    .message(ex.getMessage())
-                    .build());
-        }
+            @PathVariable("active") int active) throws Exception {
+        roleService.deleteRole(roleId, active > 0);
+        String message = active > 0 ? "Successfully business the product." : localizationUtils.getLocalizedMessage(MessageKey.DELETE_SUCCESSFULLY);
+        return ResponseEntity.ok(MessageResponse.builder()
+                .message(message)
+                .build());
     }
-        
+
 }

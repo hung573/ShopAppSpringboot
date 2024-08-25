@@ -50,38 +50,35 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.LocaleResolver;
 
-
-
 /**
  *
  * @author mac
  */
-
 @RestController
 @RequestMapping("${api.prefix}/users")
 @RequiredArgsConstructor
 public class UserController {
-    
+
     private final UserService userService;
     private final LocalizationUtils localizationUtils;
     private final TokenService tokenService;
-    
+
     @GetMapping("")
     private ResponseEntity<ListResponse> getAllUsers(
             @RequestParam(defaultValue = "", required = false) String keyword,
             @RequestParam("page") int page,
-            @RequestParam("limit") int limit){
-        
+            @RequestParam("limit") int limit) {
+
         // Điều chỉnh page để bắt đầu từ 1 thay vì 0
         int adjustedPage = page > 0 ? page - 1 : 0;
         // Tạo Pageable từ page và limit
         PageRequest pageRequest = PageRequest.of(adjustedPage, limit,
                 Sort.by("id").ascending());
-        
-        Page<UserResponse> userPage = userService.searchUsers(keyword,pageRequest);
+
+        Page<UserResponse> userPage = userService.searchUsers(keyword, pageRequest);
         int totalPages = userPage.getTotalPages();
         List<UserResponse> users = userPage.getContent();
-         // Create response
+        // Create response
         ListResponse<UserResponse> orderDetailListResponse = ListResponse
                 .<UserResponse>builder()
                 .items(users)
@@ -89,45 +86,39 @@ public class UserController {
                 .totalPages(totalPages)
                 .build();
         return ResponseEntity.ok(orderDetailListResponse);
-       
-          
+
     }
-    
+
     @PostMapping("/resigter")
-    private ResponseEntity<MessageResponse> resigter(@Valid @RequestBody UserDTO userDTO, BindingResult result){
-        try {
-            if (result.hasErrors()) {
-                List<String> errormessage = result.getFieldErrors()
-                        .stream()
-                        .map(FieldError::getDefaultMessage)
-                        .toList();
-                return ResponseEntity.badRequest().body(MessageResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR,errormessage.get(0)))
-                        .build());
-            }
-            if (!userDTO.getPassword().equals(userDTO.getRetypePassword())) {
-                return ResponseEntity.badRequest().body(
-                        MessageResponse.builder()
-                                .message(localizationUtils.getLocalizedMessage(MessageKey.PASSWORD_NOT_MATCH))
-                                .build()
-                );
-            }
-            User user = userService.createUser(userDTO);
-            return ResponseEntity.ok(MessageResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKey.RIGISTER_SUCCESSFULLY))
-                    .build());
-        } catch (Exception e) {
+    private ResponseEntity<MessageResponse> resigter(@Valid @RequestBody UserDTO userDTO, BindingResult result) throws Exception {
+        if (result.hasErrors()) {
+            List<String> errormessage = result.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
             return ResponseEntity.badRequest().body(MessageResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKey.RIGISTER_FAILED, e.getMessage()))
+                    .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, errormessage.get(0)))
                     .build());
         }
-                                    
+        if (!userDTO.getPassword().equals(userDTO.getRetypePassword())) {
+            return ResponseEntity.badRequest().body(
+                    MessageResponse.builder()
+                            .message(localizationUtils.getLocalizedMessage(MessageKey.PASSWORD_NOT_MATCH))
+                            .build()
+            );
+        }
+        User user = userService.createUser(userDTO);
+        return ResponseEntity.ok(MessageResponse.builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKey.RIGISTER_SUCCESSFULLY))
+                .build());
+
     }
+
     @PostMapping("/login")
     private ResponseEntity<LoginResponse> login(
             @Valid @RequestBody UserLoginDTO userLoginDTO,
             BindingResult result,
-            HttpServletRequest request){
+            HttpServletRequest request) {
         try {
             if (result.hasErrors()) {
                 List<String> errormessage = result.getFieldErrors()
@@ -136,16 +127,16 @@ public class UserController {
                         .toList();
                 return ResponseEntity.badRequest().body(
                         LoginResponse.builder()
-                        .message(errormessage.get(0))
-                        .token("")
-                        .build());
+                                .message(errormessage.get(0))
+                                .token("")
+                                .build());
             }
             String token = userService.login(userLoginDTO.getPhoneNumber(), userLoginDTO.getPassword());
             String userAgent = request.getHeader("User-Agent");
             User user = userService.getUserDetailFromToken(token);
             Token jwtToken = tokenService.addToken(user, token, isMobileDevice(userAgent));
             return ResponseEntity.ok(LoginResponse.builder()
-//                    .message(localizationUtils.getLocalizedMessage(MessageKey.LOGIN_SUCCESSFULLY))
+                    //                    .message(localizationUtils.getLocalizedMessage(MessageKey.LOGIN_SUCCESSFULLY))
                     .message("successfully")
                     .token(jwtToken.getToken())
                     .tokenType(jwtToken.getTokenType())
@@ -156,128 +147,95 @@ public class UserController {
                     .build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(LoginResponse.builder()
-//                    .message(localizationUtils.getLocalizedMessage(MessageKey.LOGIN_FAILED, e.getMessage()))
+                    //                    .message(localizationUtils.getLocalizedMessage(MessageKey.LOGIN_FAILED, e.getMessage()))
                     .message(e.getMessage())
                     .token("")
                     .build());
         }
     }
+
     private boolean isMobileDevice(String userAgent) {
         // Kiểm tra User-Agent header để xác định thiết bị di động
         // Ví dụ đơn giản:
         return userAgent.toLowerCase().contains("mobile");
     }
+
     @DeleteMapping("/delete/{id}/{acitve}")
     private ResponseEntity<MessageResponse> DeleteUser(
             @PathVariable("id") long id,
-            @PathVariable("acitve") int active){
-        try {
-            userService.blockOrEnableUser(id, active > 0);
-            String message = active > 0 ? "Successfully enabled the user." : localizationUtils.getLocalizedMessage(MessageKey.DELETE_SUCCESSFULLY);
-            return ResponseEntity.ok(MessageResponse.builder()
-                    .message(message)
-                    .build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(
-                    MessageResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
-                    .build());
-        }
+            @PathVariable("acitve") int active) throws Exception {
+        userService.blockOrEnableUser(id, active > 0);
+        String message = active > 0 ? "Successfully enabled the user." : localizationUtils.getLocalizedMessage(MessageKey.DELETE_SUCCESSFULLY);
+        return ResponseEntity.ok(MessageResponse.builder()
+                .message(message)
+                .build());
     }
-    
+
     @PutMapping("/admin/update/{id}")
-    private ResponseEntity<ObjectResponse> UpdateUserAdmin(@PathVariable("id") long id,
+    private ResponseEntity<?> UpdateUserAdmin(@PathVariable("id") long id,
             @Valid @RequestBody AdminUpdateUserDTO userUpdateDTO,
-            BindingResult result){
-        try {
-            if (result.hasErrors()) {
-                List<String> errormessage = result.getFieldErrors()
-                        .stream()
-                        .map(FieldError::getDefaultMessage)
-                        .toList();
-                return ResponseEntity.badRequest().body(ObjectResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, errormessage.get(0)))
-                        .build());
-            }
-            User newUser = userService.updateUserAdmin(id, userUpdateDTO);
-            return ResponseEntity.ok(ObjectResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKey.UPDATE_SUCCESSFULLY))
-                    .items(UserResponse.fromUser(newUser))
+            BindingResult result) throws Exception {
+        if (result.hasErrors()) {
+            List<String> errormessage = result.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ResponseEntity.badRequest().body(ObjectResponse.builder()
+                    .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, errormessage.get(0)))
                     .build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(
-                    ObjectResponse.builder()
-                            .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR,e.getMessage()))
-                            .build());
         }
+        User newUser = userService.updateUserAdmin(id, userUpdateDTO);
+        return ResponseEntity.ok(ObjectResponse.builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKey.UPDATE_SUCCESSFULLY))
+                .items(UserResponse.fromUser(newUser))
+                .build());
     }
-    
+
     @PutMapping("/details/{id}")
     private ResponseEntity<?> UpdateUser(
             @PathVariable("id") long id,
             @RequestBody UserUpdateDTO userUpdateDTO,
-            @RequestHeader("Authorization") String authorizationHeader){
-        try {
-            String token = authorizationHeader.substring(7);
-            User user = userService.getUserDetailFromToken(token);
-            if (user.getId() != id) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-            if (!userUpdateDTO.getPassword().equals(userUpdateDTO.getRetypePassword())) {
-                return ResponseEntity.badRequest().body(ObjectResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKey.PASSWORD_NOT_MATCH))
-                        .build());
-            }
-            User newUser = userService.updateUser(id, userUpdateDTO);
-            return ResponseEntity.ok(ObjectResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKey.UPDATE_SUCCESSFULLY))
-                    .items(UserResponse.fromUser(newUser))
-                    .build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(
-                    ObjectResponse.builder()
-                            .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR,e.getMessage()))
-                            .build());
+            @RequestHeader("Authorization") String authorizationHeader) throws Exception {
+        String token = authorizationHeader.substring(7);
+        User user = userService.getUserDetailFromToken(token);
+        if (user.getId() != id) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+        if (!userUpdateDTO.getPassword().equals(userUpdateDTO.getRetypePassword())) {
+            return ResponseEntity.badRequest().body(ObjectResponse.builder()
+                    .message(localizationUtils.getLocalizedMessage(MessageKey.PASSWORD_NOT_MATCH))
+                    .build());
+        }
+        User newUser = userService.updateUser(id, userUpdateDTO);
+        return ResponseEntity.ok(ObjectResponse.builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKey.UPDATE_SUCCESSFULLY))
+                .items(UserResponse.fromUser(newUser))
+                .build());
     }
-    
+
     @PostMapping("/details")
-    private ResponseEntity<ObjectResponse> getDetailUser(@RequestHeader("Authorization") String authorizationHeader){
-        try {
-            String token = authorizationHeader.substring(7);
-            User user = userService.getUserDetailFromToken(token);
-            return ResponseEntity.ok(ObjectResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKey.GETID_SUCCESSFULLY))
-                    .items(UserResponse.fromUser(user))
-                    .build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(
-                    ObjectResponse.builder()
-                            .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR,e.getMessage()))
-                            .build());
-        }
+    private ResponseEntity<?> getDetailUser(@RequestHeader("Authorization") String authorizationHeader) throws Exception {
+        String token = authorizationHeader.substring(7);
+        User user = userService.getUserDetailFromToken(token);
+        return ResponseEntity.ok(ObjectResponse.builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKey.GETID_SUCCESSFULLY))
+                .items(UserResponse.fromUser(user))
+                .build());
     }
-    
+
     @GetMapping("/admin/{id}")
-    private ResponseEntity<ObjectResponse> getDetailUserFormId(
-            @PathVariable("id") long idUser){
-        try {
-            User user = new User();
-            user = userService.getUserDetailFromId(idUser);
-            return ResponseEntity.ok(ObjectResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKey.GETID_SUCCESSFULLY))
-                    .items(UserResponse.fromUser(user))
-                    .build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(
-                    ObjectResponse.builder()
-                            .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR,e.getMessage()))
-                            .build());
-        }
+    private ResponseEntity<?> getDetailUserFormId(
+            @PathVariable("id") long idUser) throws Exception {
+        User user = new User();
+        user = userService.getUserDetailFromId(idUser);
+        return ResponseEntity.ok(ObjectResponse.builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKey.GETID_SUCCESSFULLY))
+                .items(UserResponse.fromUser(user))
+                .build());
     }
-    
+
     @PostMapping("/check")
-    private ResponseEntity<?> checkToken(@RequestHeader("Authorization") String authorizationHeader){
+    private ResponseEntity<?> checkToken(@RequestHeader("Authorization") String authorizationHeader) {
         String token = authorizationHeader.substring(7);
         if (tokenService.checktoken(token)) {
             return ResponseEntity.ok(MessageResponse.builder()
@@ -285,14 +243,13 @@ public class UserController {
                     .build());
         }
         return ResponseEntity.badRequest().body(MessageResponse.builder()
-                    .message(null)
-                    .build());
+                .message(null)
+                .build());
     }
-    
+
     @PostMapping("/refreshToken")
     public ResponseEntity<LoginResponse> refreshToken(
-            @Valid @RequestBody RefreshTokenDTO refreshTokenDTO)
-    {
+            @Valid @RequestBody RefreshTokenDTO refreshTokenDTO) {
         try {
             User userDetail = userService.getUserDetailsFromRefreshToken(refreshTokenDTO.getRefreshToken());
             Token jwtToken = tokenService.refreshToken(refreshTokenDTO.getRefreshToken(), userDetail);
@@ -313,6 +270,5 @@ public class UserController {
             );
         }
     }
-    
-    
+
 }

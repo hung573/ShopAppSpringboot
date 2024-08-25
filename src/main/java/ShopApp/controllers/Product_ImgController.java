@@ -86,7 +86,7 @@ public class Product_ImgController {
     @DeleteMapping("/delete-file/{id}")
     public ResponseEntity<?> delete(
             @PathVariable Long id
-    ) {
+    ){
         try {
             ProductImage productImage = product_ImgService.deleteProductImage(id);
             if(productImage != null){

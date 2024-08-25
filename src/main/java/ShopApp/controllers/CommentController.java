@@ -46,231 +46,181 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("${api.prefix}/comments")
 @RequiredArgsConstructor
 public class CommentController {
+
     private final CommentService commentService;
     private final UserService userService;
     private final LocalizationUtils localizationUtils;
 
-    
     @PostMapping("/add")
-    private ResponseEntity<ObjectResponse> addComment(
+    private ResponseEntity<?> addComment(
             @Valid @RequestBody CommentDTO commentDTO,
-            BindingResult result){
-        try {
-            
-            User loginUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if (loginUser.getId() != commentDTO.getUserId()) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-            if (result.hasErrors()) {
+            BindingResult result) throws Exception {
+        User loginUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (loginUser.getId() != commentDTO.getUserId()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        if (result.hasErrors()) {
             List<String> errormessage = result.getFieldErrors()
                     .stream()
                     .map(FieldError::getDefaultMessage)
                     .toList();
             return ResponseEntity.badRequest().body(ObjectResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, errormessage.get(0)))
-                        .build());
-            }
-            Comment comment = commentService.createComment(commentDTO);
-            return ResponseEntity.ok(ObjectResponse.builder()
-                    .message("yes")
-                    .items(CommentResponse.fromComment(comment))
+                    .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, errormessage.get(0)))
                     .build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ObjectResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
-                        .build());
         }
+        Comment comment = commentService.createComment(commentDTO);
+        return ResponseEntity.ok(ObjectResponse.builder()
+                .message("yes")
+                .items(CommentResponse.fromComment(comment))
+                .build());
     }
-    
+
     @GetMapping("/list")
-    private ResponseEntity<?> getAllCommentList(){
-        try {
-            List<CommentResponse> comment = commentService.getAllCommentList();
-            return ResponseEntity.ok(ListResponse.<CommentResponse>builder()
-                    .items(comment)
-                    .totalPages(0)
-                    .page(0)
-                    .build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(MessageResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
-                        .build());
-        }
+    private ResponseEntity<?> getAllCommentList() throws Exception {
+        List<CommentResponse> comment = commentService.getAllCommentList();
+        return ResponseEntity.ok(ListResponse.<CommentResponse>builder()
+                .items(comment)
+                .totalPages(0)
+                .page(0)
+                .build());
     }
-    
+
     @GetMapping("/admin")
     private ResponseEntity<?> getAllCommentPage(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "0", name = "product_id") Long productId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int limit){
-        try {
-            // Điều chỉnh page để bắt đầu từ 1 thay vì 0
-            int adjustedPage = page > 0 ? page - 1 : 0;
+            @RequestParam(defaultValue = "10") int limit) throws Exception {
+        // Điều chỉnh page để bắt đầu từ 1 thay vì 0
+        int adjustedPage = page > 0 ? page - 1 : 0;
 
-            // Tạo Pageable từ adjustedPage và limit
-            PageRequest pageRequest = PageRequest.of(adjustedPage, limit,
-                    Sort.by("id").ascending()
-            );
-            Page<CommentResponse> pageCommentResponses = commentService.getAllCommentPage(productId, keyword, pageRequest);
-             // tong trang
-            int totalPages = pageCommentResponses.getTotalPages();
-            
-            List<CommentResponse> listCommentResponses = pageCommentResponses.getContent();
-            
-            ListResponse<CommentResponse> commemntListResponse = ListResponse.<CommentResponse>builder()
-                    .items(listCommentResponses)
-                    .totalPages(totalPages)
-                    .page(page)
-                    .build();
-            return ResponseEntity.ok(commemntListResponse);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(MessageResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
-                        .build());
-        }
-        
+        // Tạo Pageable từ adjustedPage và limit
+        PageRequest pageRequest = PageRequest.of(adjustedPage, limit,
+                Sort.by("id").ascending()
+        );
+        Page<CommentResponse> pageCommentResponses = commentService.getAllCommentPage(productId, keyword, pageRequest);
+        // tong trang
+        int totalPages = pageCommentResponses.getTotalPages();
+
+        List<CommentResponse> listCommentResponses = pageCommentResponses.getContent();
+
+        ListResponse<CommentResponse> commemntListResponse = ListResponse.<CommentResponse>builder()
+                .items(listCommentResponses)
+                .totalPages(totalPages)
+                .page(page)
+                .build();
+        return ResponseEntity.ok(commemntListResponse);
+
     }
-    
+
     @GetMapping("/by-product")
     private ResponseEntity<?> getAllCommentByProductId(
             @RequestParam(name = "id") long productId,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int limit){
-        try {
-            // Điều chỉnh page để bắt đầu từ 1 thay vì 0
-            int adjustedPage = page > 0 ? page - 1 : 0;
-            // Tạo Pageable từ page và limit
-            PageRequest pageRequest = PageRequest.of(adjustedPage, limit,
-                    Sort.by("id").ascending());
-            Page<CommentResponse> commentResponsePage = commentService.getAllCommentByProductId(productId,pageRequest);
-            List<CommentResponse> commentResponseList = commentResponsePage.getContent();
-            return ResponseEntity.ok(ListResponse.<CommentResponse>builder()
-                    .items(commentResponseList)
-                    .totalPages(commentResponsePage.getTotalPages())
-                    .page(page)
-                    .build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(MessageResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
-                        .build());
-        }
+            @RequestParam(defaultValue = "10") int limit) throws Exception {
+        // Điều chỉnh page để bắt đầu từ 1 thay vì 0
+        int adjustedPage = page > 0 ? page - 1 : 0;
+        // Tạo Pageable từ page và limit
+        PageRequest pageRequest = PageRequest.of(adjustedPage, limit,
+                Sort.by("id").ascending());
+        Page<CommentResponse> commentResponsePage = commentService.getAllCommentByProductId(productId, pageRequest);
+        List<CommentResponse> commentResponseList = commentResponsePage.getContent();
+        return ResponseEntity.ok(ListResponse.<CommentResponse>builder()
+                .items(commentResponseList)
+                .totalPages(commentResponsePage.getTotalPages())
+                .page(page)
+                .build());
     }
-    
+
     @GetMapping("/by-user")
     private ResponseEntity<?> getAllCommentByUserId(
             @RequestParam("user-id") long userId,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10")int limit){
-        try {
-            //kiem tra user dang nhap
-            User loginUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if (loginUser.getId() != userId) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-            // Điều chỉnh page để bắt đầu từ 1 thay vì 0
-            int adjustedPage = page > 0 ? page - 1 : 0;
-            // Tạo Pageable từ page và limit
-            PageRequest pageRequest = PageRequest.of(adjustedPage, limit,
-                    Sort.by("id").ascending());
-            Page<CommentResponse> commentResponsePage = commentService.getAlCommentByUserId(userId,pageRequest);
-            List<CommentResponse> commentResponseList = commentResponsePage.getContent();
-            return ResponseEntity.ok(ListResponse.<CommentResponse>builder()
-                    .items(commentResponseList)
-                    .totalPages(commentResponsePage.getTotalPages())
-                    .page(page)
-                    .build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(MessageResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
-                        .build());
+            @RequestParam(defaultValue = "10") int limit) throws Exception {
+        //kiem tra user dang nhap
+        User loginUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (loginUser.getId() != userId) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+        // Điều chỉnh page để bắt đầu từ 1 thay vì 0
+        int adjustedPage = page > 0 ? page - 1 : 0;
+        // Tạo Pageable từ page và limit
+        PageRequest pageRequest = PageRequest.of(adjustedPage, limit,
+                Sort.by("id").ascending());
+        Page<CommentResponse> commentResponsePage = commentService.getAlCommentByUserId(userId, pageRequest);
+        List<CommentResponse> commentResponseList = commentResponsePage.getContent();
+        return ResponseEntity.ok(ListResponse.<CommentResponse>builder()
+                .items(commentResponseList)
+                .totalPages(commentResponsePage.getTotalPages())
+                .page(page)
+                .build());
     }
-    
+
     @GetMapping("/by-user/by-product")
     private ResponseEntity<?> getAllCommentByUserIdAndByProductId(
             @RequestParam(name = "user-id") long userId,
             @RequestParam(name = "product-id") long productId,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10")int limit){
-        try {
-            //kiem tra user dang nhap
-            User loginUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if (loginUser.getId() != userId) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-            // Điều chỉnh page để bắt đầu từ 1 thay vì 0
-            int adjustedPage = page > 0 ? page - 1 : 0;
-            // Tạo Pageable từ page và limit
-            PageRequest pageRequest = PageRequest.of(adjustedPage, limit,
-                    Sort.by("id").ascending());
-            Page<CommentResponse> commentResponsePage = commentService.getAllCommentByUserIdAndProductId(userId,productId,pageRequest);
-            List<CommentResponse> commentResponseList = commentResponsePage.getContent();
-            return ResponseEntity.ok(ListResponse.<CommentResponse>builder()
-                    .items(commentResponseList)
-                    .totalPages(commentResponsePage.getTotalPages())
-                    .page(page)
-                    .build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(MessageResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
-                        .build());
+            @RequestParam(defaultValue = "10") int limit) throws Exception {
+        //kiem tra user dang nhap
+        User loginUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (loginUser.getId() != userId) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+        // Điều chỉnh page để bắt đầu từ 1 thay vì 0
+        int adjustedPage = page > 0 ? page - 1 : 0;
+        // Tạo Pageable từ page và limit
+        PageRequest pageRequest = PageRequest.of(adjustedPage, limit,
+                Sort.by("id").ascending());
+        Page<CommentResponse> commentResponsePage = commentService.getAllCommentByUserIdAndProductId(userId, productId, pageRequest);
+        List<CommentResponse> commentResponseList = commentResponsePage.getContent();
+        return ResponseEntity.ok(ListResponse.<CommentResponse>builder()
+                .items(commentResponseList)
+                .totalPages(commentResponsePage.getTotalPages())
+                .page(page)
+                .build());
     }
-    
+
     @PutMapping("update/{id}")
     private ResponseEntity<?> updateCommentUser(
             @PathVariable("id") long commentId,
             @RequestParam(name = "user-id") long userId,
             @RequestHeader("Authorization") String authorizationHeader,
             @Valid @RequestBody CommentUpdateDTO commentUpdateDTO,
-            BindingResult result){
-        try {
-            String token = authorizationHeader.substring(7);
-            User loginUser = userService.getUserDetailFromToken(token);
-            if (loginUser.getId() != userId) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-            if (result.hasErrors()) {
+            BindingResult result) throws Exception {
+        String token = authorizationHeader.substring(7);
+        User loginUser = userService.getUserDetailFromToken(token);
+        if (loginUser.getId() != userId) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        if (result.hasErrors()) {
             List<String> errormessage = result.getFieldErrors()
                     .stream()
                     .map(FieldError::getDefaultMessage)
                     .toList();
             return ResponseEntity.badRequest().body(ObjectResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, errormessage.get(0)))
-                        .build());
-            }
-            Comment comment = commentService.updateComment(commentId,commentUpdateDTO);
-            return ResponseEntity.ok(ObjectResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKey.UPDATE_SUCCESSFULLY))
-                    .items(CommentResponse.fromComment(comment))
+                    .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, errormessage.get(0)))
                     .build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(MessageResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
-                        .build());
         }
+        Comment comment = commentService.updateComment(commentId, commentUpdateDTO);
+        return ResponseEntity.ok(ObjectResponse.builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKey.UPDATE_SUCCESSFULLY))
+                .items(CommentResponse.fromComment(comment))
+                .build());
     }
-    
+
     @DeleteMapping("/delete/{id}")
-    private ResponseEntity<MessageResponse> deleteCategory(
+    private ResponseEntity<ObjectResponse> deleteComment(
             @PathVariable("id") long commentId,
-            @RequestParam(name = "user-id") long userId){
-        try {
-            //kiem tra user dang nhap
-            User loginUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if (loginUser.getId() != userId) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-            commentService.deleteComment(commentId);
-            return ResponseEntity.ok(MessageResponse.builder()
+            @RequestParam(name = "user-id") long userId) throws Exception {
+        //kiem tra user dang nhap
+        User loginUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (loginUser.getId() != userId) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        commentService.deleteComment(commentId);
+        return ResponseEntity.ok(ObjectResponse.builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKey.DELETE_SUCCESSFULLY))
                 .build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(
-                        MessageResponse.builder()
-                            .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
-                            .build());
-        }
     }
 }

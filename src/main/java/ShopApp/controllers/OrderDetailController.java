@@ -42,22 +42,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("${api.prefix}/order_details")
 @RequiredArgsConstructor
 public class OrderDetailController {
+
     private final OrderDetailService orderDetailService;
     private final LocalizationUtils localizationUtils;
 
-    
     @GetMapping("")
-     private ResponseEntity<ListResponse> getAllOrderDetails(@RequestParam("page") int page, @RequestParam("limit") int limit){
+    private ResponseEntity<ListResponse> getAllOrderDetails(@RequestParam("page") int page, @RequestParam("limit") int limit) {
         // Tạo Pageable từ page và limit
         PageRequest pageRequest = PageRequest.of(page, limit,
                 Sort.by("id").ascending());
-        
+
         Page<OrderDetailResponse> orderDetailsPage = orderDetailService.getAllOrderDetails(pageRequest);
         // tong trang
         int totalPages = orderDetailsPage.getTotalPages();
-        
+
         List<OrderDetailResponse> orderDetails = orderDetailsPage.getContent();
-        
+
         // Create response
         ListResponse<OrderDetailResponse> orderDetailListResponse = ListResponse.<OrderDetailResponse>builder()
                 .items(orderDetails)
@@ -67,98 +67,69 @@ public class OrderDetailController {
 
         return ResponseEntity.ok(orderDetailListResponse);
     }
-    
-    @PostMapping("/add")
-    private ResponseEntity<ObjectResponse> createOrderDetail(@Valid @RequestBody OrderDetailDTO orderDetailDTO, BindingResult result){
-        try {
-            if (result.hasErrors()) {
-                List<String> errormessage = result.getFieldErrors()
-                        .stream()
-                        .map(FieldError::getDefaultMessage)
-                        .toList();
-                return ResponseEntity.badRequest().body(ObjectResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, errormessage))
-                        .build());
-            }
-            OrderDetail orderDetail = new OrderDetail();
-            orderDetail = orderDetailService.creteOrderDetail(orderDetailDTO);
-            return ResponseEntity.ok(ObjectResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKey.ADD_SUCCESSFULLY))
-                    .items(OrderDetailResponse.fromOrderDetail(orderDetail))
-                    .build());
-//            return ResponseEntity.ok(orderDetail); // hiển thị kiểu chi tiết
 
-        } catch (Exception e) {
+    @PostMapping("/add")
+    private ResponseEntity<?> createOrderDetail(@Valid @RequestBody OrderDetailDTO orderDetailDTO, BindingResult result) throws Exception {
+        if (result.hasErrors()) {
+            List<String> errormessage = result.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
             return ResponseEntity.badRequest().body(ObjectResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
-                        .build());
-        }
-    }
-    
-    @GetMapping("/{id}")
-    private ResponseEntity<ObjectResponse> getOrderDetailId(@Valid @PathVariable("id") long id){
-        try {
-            OrderDetail orderDetail = new OrderDetail();
-            orderDetail = orderDetailService.getOrderDetailById(id);
-            return ResponseEntity.ok(ObjectResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKey.GETID_SUCCESSFULLY))
-                    .items(OrderDetailResponse.fromOrderDetail(orderDetail))
+                    .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, errormessage))
                     .build());
-//          return ResponseEntity.ok(orderDetailService.getOrderDetailById(id)); // hiển thị kiểu chi tiết
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ObjectResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
-                        .build());
         }
+        OrderDetail orderDetail = new OrderDetail();
+        orderDetail = orderDetailService.creteOrderDetail(orderDetailDTO);
+        return ResponseEntity.ok(ObjectResponse.builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKey.ADD_SUCCESSFULLY))
+                .items(OrderDetailResponse.fromOrderDetail(orderDetail))
+                .build());
+//            return ResponseEntity.ok(orderDetail); // hiển thị kiểu chi tiết
     }
-    
+
+    @GetMapping("/{id}")
+    private ResponseEntity<?> getOrderDetailId(@Valid @PathVariable("id") long id) throws Exception {
+        OrderDetail orderDetail = new OrderDetail();
+        orderDetail = orderDetailService.getOrderDetailById(id);
+        return ResponseEntity.ok(ObjectResponse.builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKey.GETID_SUCCESSFULLY))
+                .items(OrderDetailResponse.fromOrderDetail(orderDetail))
+                .build());
+//          return ResponseEntity.ok(orderDetailService.getOrderDetailById(id)); // hiển thị kiểu chi tiết
+    }
+
     // Lay ds orderDetails tu id Order
     @GetMapping("/order/{order_id}")
-    private ResponseEntity<?> ListOrderDetails(@Valid @PathVariable("order_id") long  orderId){
-        try {
-            List<OrderDetail> listOrderDetails = orderDetailService.getAllByOrderId(orderId);
-            List<OrderDetailResponse> orderResponses = listOrderDetails
-                    .stream()
-                    .map(OrderDetailResponse::fromOrderDetail)
-                    .toList();
-            return ResponseEntity.ok(orderResponses);
+    private ResponseEntity<?> ListOrderDetails(@Valid @PathVariable("order_id") long orderId) {
+        List<OrderDetail> listOrderDetails = orderDetailService.getAllByOrderId(orderId);
+        List<OrderDetailResponse> orderResponses = listOrderDetails
+                .stream()
+                .map(OrderDetailResponse::fromOrderDetail)
+                .toList();
+        return ResponseEntity.ok(orderResponses);
 //            return ResponseEntity.ok(orderResponses); // hiển thị kiểu chi tiết
-
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
     }
-    
+
     // Update OrderDetail
     @PutMapping("/update/{id}")
-    private ResponseEntity<ObjectResponse> updateOrderDetail(
-            @PathVariable("id")long id ,
+    private ResponseEntity<?> updateOrderDetail(
+            @PathVariable("id") long id,
             @Valid @RequestBody OrderDetailDTO orderDetailDTO,
-            BindingResult result){
-        try {
-            OrderDetail orderDetail = new OrderDetail();
-            orderDetail = orderDetailService.updateOrderDetail(id, orderDetailDTO);
-            return ResponseEntity.ok(ObjectResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKey.UPDATE_SUCCESSFULLY))
-                    .items(OrderDetailResponse.fromOrderDetail(orderDetail))
-                    .build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ObjectResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, e.getMessage()))
-                        .build());
-        }
+            BindingResult result) throws Exception {
+        OrderDetail orderDetail = new OrderDetail();
+        orderDetail = orderDetailService.updateOrderDetail(id, orderDetailDTO);
+        return ResponseEntity.ok(ObjectResponse.builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKey.UPDATE_SUCCESSFULLY))
+                .items(OrderDetailResponse.fromOrderDetail(orderDetail))
+                .build());
     }
+
     @DeleteMapping("/delete/{id}")
-    private ResponseEntity<MessageResponse> deleteOrderDetail(@PathVariable("id")long id){
-        try {
-            orderDetailService.deleteOrderDetail(id);
-            return ResponseEntity.ok(MessageResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKey.DELETE_SUCCESSFULLY))
-                    .build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(MessageResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR,e.getMessage()))
-                    .build());
-        }
+    private ResponseEntity<MessageResponse> deleteOrderDetail(@PathVariable("id") long id) throws Exception {
+        orderDetailService.deleteOrderDetail(id);
+        return ResponseEntity.ok(MessageResponse.builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKey.DELETE_SUCCESSFULLY))
+                .build());
     }
 }

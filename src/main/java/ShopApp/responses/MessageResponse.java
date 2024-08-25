@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 
 /**
  *
@@ -21,4 +22,6 @@ import lombok.NoArgsConstructor;
 public class MessageResponse {
     @JsonProperty("message")
     private String message;
+    
+    private HttpStatus status;
 }
