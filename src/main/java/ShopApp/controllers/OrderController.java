@@ -6,6 +6,7 @@ package ShopApp.controllers;
 
 import ShopApp.components.LocalizationUtils;
 import ShopApp.dtos.OrderDTO;
+import ShopApp.dtos.OrderUpdateDTO;
 import ShopApp.services.Order.IOrderService;
 import ShopApp.models.Order;
 import ShopApp.models.User;
@@ -123,7 +124,7 @@ public class OrderController {
     }
 
     @PutMapping("/update/{id}")
-    private ResponseEntity<?> updateOrder(@PathVariable("id") long id, @Valid @RequestBody OrderDTO orderDTO, BindingResult result) throws Exception {
+    private ResponseEntity<?> updateOrder(@PathVariable("id") long id, @Valid @RequestBody OrderUpdateDTO orderDTO, BindingResult result) throws Exception {
         Order order = orderService.updateOrder(id, orderDTO);
         return ResponseEntity.ok(ObjectResponse.builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKey.UPDATE_SUCCESSFULLY))

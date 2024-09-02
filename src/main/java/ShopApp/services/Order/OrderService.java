@@ -7,6 +7,7 @@ package ShopApp.services.Order;
 import ShopApp.components.LocalizationUtils;
 import ShopApp.dtos.CartItemDTO;
 import ShopApp.dtos.OrderDTO;
+import ShopApp.dtos.OrderUpdateDTO;
 import ShopApp.exception.DataNotFoudException;
 import ShopApp.models.Coupon;
 import ShopApp.models.Order;
@@ -79,7 +80,7 @@ public class OrderService implements IOrderService {
         order.setUser(user);
         order.setCoupon(coupon);
         order.setFullName(orderDTO.getFullName());
-        order.setEmail(orderDTO.getFullName());
+        order.setEmail(orderDTO.getEmail());
         order.setPhoneNumber(orderDTO.getPhoneNumber());
         order.setAddress(orderDTO.getAddress());
         order.setNote(orderDTO.getNote());
@@ -159,14 +160,15 @@ public class OrderService implements IOrderService {
 
     @Override
     @Transactional
-    public Order updateOrder(long id, OrderDTO orderDTO) throws Exception {
+    public Order updateOrder(long id, OrderUpdateDTO orderDTO) throws Exception {
         Order order = getOrderById(id);
         User user = userRepository.findById(orderDTO.getUserId())
                 .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
-
-        modelMapper.typeMap(OrderDTO.class, Order.class)
+        
+        modelMapper.typeMap(OrderUpdateDTO.class, Order.class)
                 .addMappings(mapper -> {
                     mapper.skip(Order::setId);
+                    mapper.skip(Order::setCoupon);
                     mapper.skip(Order::setOrderDate);
                 });
         modelMapper.map(orderDTO, order);

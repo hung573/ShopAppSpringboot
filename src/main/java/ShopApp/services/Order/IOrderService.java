@@ -5,6 +5,7 @@
 package ShopApp.services.Order;
 
 import ShopApp.dtos.OrderDTO;
+import ShopApp.dtos.OrderUpdateDTO;
 import ShopApp.models.Order;
 import ShopApp.responses.OrderResponse;
 import java.util.List;
@@ -20,7 +21,7 @@ public interface IOrderService {
     
     Order getOrderById(long id) throws Exception;
     
-    Order updateOrder(long id, OrderDTO orderDTO) throws Exception;
+    Order updateOrder(long id, OrderUpdateDTO orderDTO) throws Exception;
     
     void deleteOrder(long id) throws Exception;
     

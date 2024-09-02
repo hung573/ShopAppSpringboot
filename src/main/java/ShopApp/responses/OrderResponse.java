@@ -70,8 +70,8 @@ public class OrderResponse {
     @JsonProperty("payment_method")
     private String paymentMethod;
 
-    @JsonProperty("coupon_code")
-    private String couponCode;
+    @JsonProperty("coupon_id")
+    private Long couponId;
 
     @JsonProperty("order_details")
     @JsonManagedReference
@@ -96,7 +96,7 @@ public class OrderResponse {
                 .shippingDate(order.getShippingDate())
                 .trackingNumber(order.getTrackingNumber())
                 .paymentMethod(order.getPaymentMethod())
-                .couponCode(order.getCoupon().getCode())
+                .couponId(order.getCoupon().getId())
                 .orderDetails(
                         order.getOrderDetails() != null
                         ? order.getOrderDetails().stream()
