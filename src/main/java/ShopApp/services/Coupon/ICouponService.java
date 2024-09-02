@@ -17,7 +17,11 @@ public interface ICouponService {
     
     Coupon getCouponCode(String couponCode) throws Exception;
     
+    Coupon getConponId(Long id) throws Exception;
+    
     float calculateCouponValue(String couponCode, float totalAmount) throws Exception;
     
-    List<CouponConditionReponse> getAllCoupon() throws Exception;
+    List<CouponConditionReponse> getAllCouponConditions() throws Exception;
+    List<Coupon> getAllCoupon() throws Exception;
+
 }

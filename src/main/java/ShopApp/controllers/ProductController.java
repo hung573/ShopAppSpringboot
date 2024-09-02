@@ -23,6 +23,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.javafaker.Faker;
 import jakarta.validation.Valid;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -199,7 +200,7 @@ public class ProductController {
         List<Long> productIds = Arrays.stream(ids.split(","))
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
-        List<Product> products = productService.findProductsByIds(productIds);
+        List<ProductResponse> products = productService.findProductsByIds(productIds);
         return ResponseEntity.ok(products);
     }
 
@@ -208,7 +209,7 @@ public class ProductController {
     @PostMapping("/add")
     private ResponseEntity<?> addProduct(
             @Valid @RequestBody ProductDTO productDTO,
-            //            @ModelAttribute("files") List<MultipartFile> files,
+//            @ModelAttribute("files") List<MultipartFile> files,
             BindingResult result) throws Exception {
         if (result.hasErrors()) {
             List<String> errormessage = result.getFieldErrors()
@@ -293,19 +294,15 @@ public class ProductController {
     }
 
     @GetMapping("/images/{imageName}")
-    public ResponseEntity<?> viewImage(@PathVariable String imageName) {
-        try {
-            java.nio.file.Path imagePath = Paths.get("uploads/" + imageName);
-            UrlResource resource = new UrlResource(imagePath.toUri());
+    public ResponseEntity<?> viewImage(@PathVariable String imageName) throws MalformedURLException{
+        java.nio.file.Path imagePath = Paths.get("uploads/" + imageName);
+        UrlResource resource = new UrlResource(imagePath.toUri());
 
-            if (resource.exists()) {
-                return ResponseEntity.ok()
-                        .contentType(MediaType.IMAGE_JPEG)
-                        .body(resource);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
+        if (resource.exists()) {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_JPEG)
+                    .body(resource);
+        } else {
             return ResponseEntity.notFound().build();
         }
     }

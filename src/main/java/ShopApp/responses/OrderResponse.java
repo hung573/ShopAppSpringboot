@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.JoinColumn;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,10 +28,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class OrderResponse {
-    
+
     @JsonProperty("id")
     private Long id;
-    
+
     @JsonProperty("user_id")
     private Long userId;
 
@@ -38,14 +39,14 @@ public class OrderResponse {
     private String fullName;
 
     private String email;
-    
+
     @JsonProperty("phone_number")
     private String phoneNumber;
 
     private String address;
 
     private String note;
-    
+
     @JsonProperty("order_date")
     private Date orderDate;
 
@@ -53,27 +54,32 @@ public class OrderResponse {
 
     @JsonProperty("total_money")
     private Float totalMoney;
-    
+
     @JsonProperty("shipping_method")
     private String shippingMethod;
 
     @JsonProperty("shipping_address")
     private String shippingAddress;
-    
+
     @JsonProperty("shipping_date")
     private Date shippingDate;
-    
+
     @JsonProperty("tracking_number")
     private String trackingNumber;
-    
+
     @JsonProperty("payment_method")
     private String paymentMethod;
-    
+
+    @JsonProperty("coupon_code")
+    private String couponCode;
+
     @JsonProperty("order_details")
     @JsonManagedReference
+//    private List<OrderDetailResponse> orderDetails;
     private List<OrderDetailResponse> orderDetails;
-    
-    public static OrderResponse fromOrder(Order order){
+
+
+    public static OrderResponse fromOrder(Order order) {
         return OrderResponse.builder()
                 .id(order.getId())
                 .userId(order.getUser().getId())
@@ -90,10 +96,14 @@ public class OrderResponse {
                 .shippingDate(order.getShippingDate())
                 .trackingNumber(order.getTrackingNumber())
                 .paymentMethod(order.getPaymentMethod())
+                .couponCode(order.getCoupon().getCode())
                 .orderDetails(
-                        order.getOrderDetails().stream()
+                        order.getOrderDetails() != null
+                        ? order.getOrderDetails().stream()
                                 .map(OrderDetailResponse::fromOrderDetail)
                                 .collect(Collectors.toList())
+                        : new ArrayList<>()
+//                        order.getOrderDetails()
                 )
                 .build();
     }

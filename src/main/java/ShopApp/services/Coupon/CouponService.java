@@ -83,11 +83,22 @@ public class CouponService implements ICouponService{
     }
 
     @Override
-    public List<CouponConditionReponse> getAllCoupon() throws Exception{
+    public List<CouponConditionReponse> getAllCouponConditions() throws Exception{
         List<CouponCondition> conditions = couponConditionRepository.findAll();
         return conditions.stream()
                 .map(CouponConditionReponse::fromCouponConditionReponse)
                 .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<Coupon> getAllCoupon() throws Exception{
+        return couponRepository.findAll();
+    }
+
+    @Override
+    public Coupon getConponId(Long id) throws Exception {
+        return couponRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
     }
 
 

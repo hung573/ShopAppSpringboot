@@ -48,7 +48,7 @@ public class Comment extends BaseEntity{
     private User user;
     
     
-    @NotBlank
+    
     private String content;
     
     

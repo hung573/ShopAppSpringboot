@@ -5,6 +5,7 @@
 package ShopApp.repositories;
 
 import ShopApp.models.Product;
+import ShopApp.responses.ProductResponse;
 import java.util.List;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.JpaRepository;

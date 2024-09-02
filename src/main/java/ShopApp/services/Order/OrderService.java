@@ -8,11 +8,13 @@ import ShopApp.components.LocalizationUtils;
 import ShopApp.dtos.CartItemDTO;
 import ShopApp.dtos.OrderDTO;
 import ShopApp.exception.DataNotFoudException;
+import ShopApp.models.Coupon;
 import ShopApp.models.Order;
 import ShopApp.models.OrderDetail;
 import ShopApp.models.OrderStatus;
 import ShopApp.models.Product;
 import ShopApp.models.User;
+import ShopApp.repositories.CouponRepository;
 import ShopApp.repositories.OrderDetailRepository;
 import ShopApp.repositories.OrderRepository;
 import ShopApp.repositories.ProductRepository;
@@ -30,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.annotation.Around;
 import org.modelmapper.ModelMapper;
@@ -46,33 +49,45 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @RequiredArgsConstructor
-public class OrderService implements IOrderService{
+public class OrderService implements IOrderService {
+
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
     private final ProductService productService;
     private final OrderDetailRepository orderDetailRepository;
-    private final ModelMapper modelMapper; 
+    private final ModelMapper modelMapper;
     private final LocalizationUtils localizationUtils;
+    private final CouponRepository couponRepository;
+
     @Override
     @Transactional
-    public Order creteOrder(OrderDTO orderDTO) throws Exception{
+    public Order creteOrder(OrderDTO orderDTO) throws Exception {
         User user = userRepository.findById(orderDTO.getUserId())
+                .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
+        Coupon coupon = couponRepository.findById(orderDTO.getCouponId())
                 .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
         // convert Order DTO -> Order
         // dung thu thien ModelMapper
-        modelMapper.typeMap(OrderDTO.class, Order.class)
-                .addMappings(mapper -> mapper.skip(Order::setId));
+//        modelMapper.typeMap(OrderDTO.class, Order.class)
+//            .addMappings(mapper -> {
+//                // Bỏ qua việc ánh xạ các thuộc tính CouponId và UserId vào id
+//                mapper.skip(Order::setId);
+//            });
+
         Order order = new Order();
-        modelMapper.map(orderDTO, order);
+//        modelMapper.map(orderDTO, order);
         order.setUser(user);
+        order.setCoupon(coupon);
+        order.setFullName(orderDTO.getFullName());
+        order.setEmail(orderDTO.getFullName());
+        order.setPhoneNumber(orderDTO.getPhoneNumber());
+        order.setAddress(orderDTO.getAddress());
+        order.setNote(orderDTO.getNote());
         order.setOrderDate(new Date()); // thời gian hiện tại
         order.setStatus(OrderStatus.PENDING);
-        // shipping date phải lớn hơn ngày hơm nay
-//        LocalDate shippingDate = orderDTO.getShippingDate() == null
-//                ? LocalDate.now() : orderDTO.getShippingDate();
-//        if (shippingDate.isBefore(LocalDate.now())) {
-//            throw new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.ORDER_SHIPPINGDATE_INVALID));
-//        }
+        order.setTotalMoney(orderDTO.getTotalMoney());
+        order.setShippingMethod(orderDTO.getShippingMethod());
+        order.setShippingAddress(orderDTO.getShippingAddress());
         // Lấy ngày hiện tại
         LocalDate localDate = LocalDate.now();
         // Thêm 1 ngày
@@ -81,10 +96,11 @@ public class OrderService implements IOrderService{
         ZonedDateTime zonedDateTime = nextDay.atStartOfDay(ZoneId.systemDefault());
         Date shippingDate = Date.from(zonedDateTime.toInstant());
         order.setShippingDate(shippingDate);
+        order.setTrackingNumber("");
+        order.setPaymentMethod(orderDTO.getPaymentMethod());
         order.setActive(true);
-        order.setTotalMoney(orderDTO.getTotalMoney());
         orderRepository.save(order);
-        
+
         // Tạo danh sách các đối tượng OrderDetail từ cartItems
         List<OrderDetail> orderDetails = new ArrayList<>();
         for (CartItemDTO cartItemDTO : orderDTO.getCartItems()) {
@@ -105,7 +121,8 @@ public class OrderService implements IOrderService{
             // Các trường khác của OrderDetail nếu cần
             orderDetail.setPrice(product.getPrice());
             orderDetail.setTotalMoney(quantity * product.getPrice());
-            
+            orderDetail.setCoupon(coupon);
+
             // Thêm OrderDetail vào danh sách
             orderDetails.add(orderDetail);
         }
@@ -113,28 +130,28 @@ public class OrderService implements IOrderService{
         // Lưu danh sách OrderDetail vào cơ sở dữ liệu
         orderDetailRepository.saveAll(orderDetails);
         return order;
-    
+
     }
 
     @Override
-    public Order getOrderById(long id) throws Exception{
-        
+    public Order getOrderById(long id) throws Exception {
+
         String currentPhoneNumberUser = SecurityContextHolder.getContext().getAuthentication().getName();
-        
+
         User user = userRepository.findByPhoneNumber(currentPhoneNumberUser)
                 .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
-        
+
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
-        
+
         // Kiểm tra nếu user hiện tại là chủ sở hữu của order hoặc là admin
         if (!order.getUser().getId().equals(user.getId()) && !isCurrentUserAdmin()) {
             throw new AccessDeniedException(localizationUtils.getLocalizedMessage(MessageKey.ERORR));
         }
-        
+
         return order;
     }
-    
+
     private boolean isCurrentUserAdmin() {
         Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
         return authorities.stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
@@ -142,47 +159,47 @@ public class OrderService implements IOrderService{
 
     @Override
     @Transactional
-    public Order updateOrder(long id, OrderDTO orderDTO) throws Exception{
+    public Order updateOrder(long id, OrderDTO orderDTO) throws Exception {
         Order order = getOrderById(id);
         User user = userRepository.findById(orderDTO.getUserId())
                 .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
-        
+
         modelMapper.typeMap(OrderDTO.class, Order.class)
                 .addMappings(mapper -> {
-                mapper.skip(Order::setId);
-                mapper.skip(Order::setOrderDate);
+                    mapper.skip(Order::setId);
+                    mapper.skip(Order::setOrderDate);
                 });
         modelMapper.map(orderDTO, order);
         order.setUser(user);
         return orderRepository.save(order);
-        
+
     }
 
     @Override
     @Transactional
-    public void deleteOrder(long id) throws Exception{
+    public void deleteOrder(long id) throws Exception {
         Order order = getOrderById(id);
         order.setActive(false);
         orderRepository.save(order);
     }
 
     @Override
-    public List<Order> getAllByUserId(long user_id) throws Exception{
-        
+    public List<Order> getAllByUserId(long user_id) throws Exception {
+
         String currentPhoneNumberUser = SecurityContextHolder.getContext().getAuthentication().getName();
-        
+
         User user = userRepository.findByPhoneNumber(currentPhoneNumberUser)
                 .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
-        
+
         List<Order> orders = orderRepository.findByUserId(user_id);
-        
-        for(Order order : orders){
-           // Kiểm tra nếu user hiện tại là chủ sở hữu của order hoặc là admin
+
+        for (Order order : orders) {
+            // Kiểm tra nếu user hiện tại là chủ sở hữu của order hoặc là admin
             if (!order.getUser().getId().equals(user.getId()) && !isCurrentUserAdmin()) {
                 throw new AccessDeniedException(localizationUtils.getLocalizedMessage(MessageKey.ERORR));
-            } 
+            }
         }
-        
+
         return orders;
     }
 
@@ -198,5 +215,5 @@ public class OrderService implements IOrderService{
         pageOrders = orderRepository.searchOrders(keyword, pageRequest);
         return pageOrders.map(OrderResponse::fromOrder);
     }
-    
+
 }

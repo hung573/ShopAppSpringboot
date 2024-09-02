@@ -5,12 +5,15 @@
 package ShopApp.controllers;
 
 import ShopApp.components.LocalizationUtils;
+import ShopApp.models.Coupon;
 import ShopApp.responses.CouponConditionReponse;
 import ShopApp.responses.MessageResponse;
 import ShopApp.responses.ObjectResponse;
 import ShopApp.services.Coupon.CouponService;
 import ShopApp.utils.MessageKey;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,11 +51,28 @@ public class CouponController {
         }
     }
 
-    @GetMapping("/listCoupons")
-    private ResponseEntity<?> getAllCoupons() throws Exception {
-        List<CouponConditionReponse> AllCouponConditionReponses = couponService.getAllCoupon();
+    @GetMapping("/listCouponConditions")
+    private ResponseEntity<?> getAllCouponConditions() throws Exception {
+        List<CouponConditionReponse> AllCouponConditionReponses = couponService.getAllCouponConditions();
         return ResponseEntity.ok(ObjectResponse.builder()
                 .items(AllCouponConditionReponses)
+                .message("")
+                .build());
+    }
+    
+    @GetMapping("/listCoupons")
+    private ResponseEntity<?> getAllCoupons() throws Exception {
+        List<Coupon> AllCoupon = couponService.getAllCoupon();
+        return ResponseEntity.ok(ObjectResponse.builder()
+                .items(AllCoupon)
+                .message("")
+                .build());
+    }
+    
+    @GetMapping("/getCouponId")
+    private ResponseEntity<?> getCouponId( @RequestParam("couponId") Long id)throws Exception{
+        return ResponseEntity.ok(ObjectResponse.builder()
+                .items(couponService.getConponId(id))
                 .message("")
                 .build());
     }

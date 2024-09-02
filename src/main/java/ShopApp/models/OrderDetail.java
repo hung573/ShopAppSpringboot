@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -36,7 +37,7 @@ public class OrderDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne()
     @JoinColumn(name = "order_id")
     @JsonBackReference
     private Order order;
@@ -61,6 +62,6 @@ public class OrderDetail {
     
     @ManyToOne
     @JoinColumn(name = "coupon_id")
-    @JsonManagedReference
+    @JsonBackReference
     private Coupon coupon;
 }

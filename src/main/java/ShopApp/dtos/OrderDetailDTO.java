@@ -38,4 +38,7 @@ public class OrderDetailDTO {
     
     @NotBlank(message = "Màu sản phẩm không được để tróng")
     private String color;
+    
+    @JsonProperty("coupon_id")
+    private Long couponId;
 }

@@ -25,6 +25,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -161,9 +162,11 @@ public class ProductService implements IProductServiec{
     }
 
     @Override
-    public List<Product> findProductsByIds(List<Long> productIds) throws Exception{
-        return productRepository.findProductsByIds(productIds);
-
+    public List<ProductResponse> findProductsByIds(List<Long> productIds) throws Exception{
+        List<Product> products = productRepository.findProductsByIds(productIds);
+        return products.stream()
+                   .map(ProductResponse::fromProduct)
+                   .collect(Collectors.toList());
     }
 
     @Override

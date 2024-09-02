@@ -6,6 +6,7 @@ package ShopApp.dtos;
 
 import ShopApp.models.Product;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,6 +27,7 @@ public class CommentDTO {
     private  long userId;
     
     @JsonProperty("content")
+    @NotBlank(message = "Bạn chưa điền nội dung!")
     private  String content;
 
 }

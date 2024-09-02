@@ -15,6 +15,7 @@ import ShopApp.responses.ObjectResponse;
 import ShopApp.responses.OrderResponse;
 import ShopApp.services.Order.OrderService;
 import ShopApp.utils.MessageKey;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

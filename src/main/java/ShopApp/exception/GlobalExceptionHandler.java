@@ -8,6 +8,7 @@ import ShopApp.components.LocalizationUtils;
 import ShopApp.responses.MessageResponse;
 import ShopApp.responses.ObjectResponse;
 import ShopApp.utils.MessageKey;
+import java.net.MalformedURLException;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 
 /**
  *
@@ -37,5 +39,16 @@ public class GlobalExceptionHandler {
                         .build()
         );
     }
-
+    
+    @ExceptionHandler(MalformedURLException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<MessageResponse> handleGeneralNotFoundException(MalformedURLException exception){
+        return ResponseEntity.badRequest().body(
+                MessageResponse.builder()
+                        .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, exception.getMessage()))
+                        .status(HttpStatus.NOT_FOUND)
+                        .build()
+        );
+    }
+    
 }

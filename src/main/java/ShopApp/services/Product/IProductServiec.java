@@ -39,7 +39,7 @@ public interface IProductServiec {
     
     ProductImage createProductImage(long productId,ProductImageDTO productImageDTO) throws Exception;
     
-    List<Product> findProductsByIds(List<Long> productIds) throws Exception;
+    List<ProductResponse> findProductsByIds(List<Long> productIds) throws Exception;
     
     int totalPages(int limit) throws Exception;
     

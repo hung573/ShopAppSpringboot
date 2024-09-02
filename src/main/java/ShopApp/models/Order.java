@@ -4,6 +4,7 @@
  */
 package ShopApp.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -44,6 +45,11 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+    
+    @ManyToOne
+    @JoinColumn(name = "coupon_id")
+    @JsonBackReference
+    private Coupon coupon;
 
     @Column(name = "fullname", length = 100)
     private String fullName;
@@ -91,9 +97,6 @@ public class Order {
     @JsonManagedReference
     private List<OrderDetail> orderDetails;
     
-    @ManyToOne
-    @JoinColumn(name = "coupon_id")
-    @JsonManagedReference
-    private Coupon coupon;
+
     
 }

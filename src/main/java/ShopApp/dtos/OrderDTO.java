@@ -29,6 +29,9 @@ public class OrderDTO {
     @JsonProperty("user_id")
     private Long userId;
     
+    @JsonProperty("coupon_id")
+    private Long couponId;
+    
     @JsonProperty("fullname")
     @NotBlank(message = "Họ và tên không được để tróng")
     private String fullName;
@@ -67,4 +70,5 @@ public class OrderDTO {
     @JsonProperty("cart_items")
     private List<CartItemDTO> cartItems;
     
+
 }
