@@ -4,7 +4,8 @@
  */
 package ShopApp.responses;
 
-import java.util.List;
+import ShopApp.models.Payment;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,9 +19,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ListResponse<T> {
-    private String message;
-    private List<T> items;
-    private int page;
-    private int totalPages;
+public class PaymentResponse {
+    @JsonProperty("payment_name")
+    private String paymentName;
+    
+    public static PaymentResponse fromPayment(Payment payment){
+        return PaymentResponse.builder()
+                .paymentName(payment.getPaymentName())
+                .build();
+    }
 }

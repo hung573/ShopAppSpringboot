@@ -5,8 +5,11 @@
 package ShopApp.controllers;
 
 import ShopApp.components.LocalizationUtils;
+import ShopApp.components.converters.OrderMessageConverter;
 import ShopApp.dtos.OrderDTO;
 import ShopApp.dtos.OrderUpdateDTO;
+import ShopApp.dtos.sendEmail.SendEmailDTO;
+import ShopApp.dtos.sendEmail.ToDTO;
 import ShopApp.services.Order.IOrderService;
 import ShopApp.models.Order;
 import ShopApp.models.User;
@@ -15,7 +18,9 @@ import ShopApp.responses.MessageResponse;
 import ShopApp.responses.ObjectResponse;
 import ShopApp.responses.OrderResponse;
 import ShopApp.services.Order.OrderService;
+import ShopApp.services.SendEmail.SendEmailOrderService;
 import ShopApp.utils.MessageKey;
+import io.swagger.v3.oas.annotations.media.Content;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -26,6 +31,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -40,6 +46,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring5.SpringTemplateEngine;
 
 /**
  *
@@ -52,6 +60,7 @@ public class OrderController {
 
     private final OrderService orderService;
     private final LocalizationUtils localizationUtils;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @GetMapping("/get-order-by-keyword")
     private ResponseEntity<?> getAllOrder(
@@ -91,9 +100,13 @@ public class OrderController {
                     .build());
         }
         Order order = orderService.creteOrder(ortDTO);
+        
+        this.kafkaTemplate.setMessageConverter(new OrderMessageConverter());
+        this.kafkaTemplate.send("send-email-order-confrim", OrderResponse.fromOrder(order));//producer
+        
         return ResponseEntity.ok(ObjectResponse.builder()
-                .items(OrderResponse.fromOrder(order))
                 .message(localizationUtils.getLocalizedMessage(MessageKey.ADD_SUCCESSFULLY))
+                .items(OrderResponse.fromOrder(order))
                 .build());
     }
 

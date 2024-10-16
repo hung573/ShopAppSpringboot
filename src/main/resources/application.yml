@@ -25,6 +25,7 @@ spring:
         locations: classpath:/db/migration, classpath:/dev/db/migration
         baseline-on-migrate: true
         baseline-version: 0
+        
     data:
       redis:
         use-redis-cache: false
@@ -35,6 +36,29 @@ spring:
       basename: i18n/messages
       encoding: UTF-8
       default-locale: en
+      
+    kafka:
+      bootstrap-servers: ${KAFKA_BROKER_SERVER:localhost}:${KAFKA_BROKER_PORT:9092}
+
+      producer:
+        key-serializer: org.apache.kafka.common.serialization.StringSerializer
+        value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+        properties:
+          spring.json.type.mapping: 
+            order:ShopApp.models.Order,
+            category:ShopApp.models.Category
+
+      consumer:
+        auto-offset-reset: earliest
+        key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+        value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+        properties:
+          spring.json.type.mapping: 
+            order:ShopApp.models.Order,
+            category:ShopApp.models.Category
+          spring.json.trusted.packages: "*"
+    
+    
 api:
     prefix: /api/v1
     
@@ -63,5 +87,8 @@ management:
       exposure:
         #include: "health"
         include: "health, info"
+
+email:
+    apiKey: 
     
     

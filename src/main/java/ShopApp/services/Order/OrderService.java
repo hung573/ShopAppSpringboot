@@ -13,11 +13,13 @@ import ShopApp.models.Coupon;
 import ShopApp.models.Order;
 import ShopApp.models.OrderDetail;
 import ShopApp.models.OrderStatus;
+import ShopApp.models.Payment;
 import ShopApp.models.Product;
 import ShopApp.models.User;
 import ShopApp.repositories.CouponRepository;
 import ShopApp.repositories.OrderDetailRepository;
 import ShopApp.repositories.OrderRepository;
+import ShopApp.repositories.PaymentRepository;
 import ShopApp.repositories.ProductRepository;
 import ShopApp.repositories.UserRepository;
 import ShopApp.responses.OrderResponse;
@@ -59,14 +61,31 @@ public class OrderService implements IOrderService {
     private final ModelMapper modelMapper;
     private final LocalizationUtils localizationUtils;
     private final CouponRepository couponRepository;
+    private final PaymentRepository paymentRepository;
 
     @Override
     @Transactional
     public Order creteOrder(OrderDTO orderDTO) throws Exception {
+        Order order = new Order();
+        Coupon coupon = new Coupon();
         User user = userRepository.findById(orderDTO.getUserId())
                 .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
-        Coupon coupon = couponRepository.findById(orderDTO.getCouponId())
+        long couponId = orderDTO.getCouponId();
+        if (couponId != 0) {
+            coupon = couponRepository.findById(orderDTO.getCouponId())
                 .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
+            
+            if (!coupon.isActive()) {
+                throw new IllegalArgumentException("Coupon is not active");
+            }
+            order.setCoupon(coupon);
+        }
+        else{
+            order.setCoupon(null);
+        }
+        Payment payment = paymentRepository.findById(orderDTO.getPaymentId())
+                .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
+        
         // convert Order DTO -> Order
         // dung thu thien ModelMapper
 //        modelMapper.typeMap(OrderDTO.class, Order.class)
@@ -75,10 +94,8 @@ public class OrderService implements IOrderService {
 //                mapper.skip(Order::setId);
 //            });
 
-        Order order = new Order();
 //        modelMapper.map(orderDTO, order);
         order.setUser(user);
-        order.setCoupon(coupon);
         order.setFullName(orderDTO.getFullName());
         order.setEmail(orderDTO.getEmail());
         order.setPhoneNumber(orderDTO.getPhoneNumber());
@@ -99,8 +116,8 @@ public class OrderService implements IOrderService {
         order.setShippingDate(shippingDate);
         order.setTrackingNumber("");
         order.setPaymentMethod(orderDTO.getPaymentMethod());
+        order.setPayment(payment);
         order.setActive(true);
-        orderRepository.save(order);
 
         // Tạo danh sách các đối tượng OrderDetail từ cartItems
         List<OrderDetail> orderDetails = new ArrayList<>();
@@ -122,14 +139,24 @@ public class OrderService implements IOrderService {
             // Các trường khác của OrderDetail nếu cần
             orderDetail.setPrice(product.getPrice());
             orderDetail.setTotalMoney(quantity * product.getPrice());
-            orderDetail.setCoupon(coupon);
+            if (couponId != 0) {
+                if (!coupon.isActive()) {
+                    throw new IllegalArgumentException("Coupon is not active");
+                }
+                order.setCoupon(coupon);
+            }
+            else{
+                orderDetail.setCoupon(null);
+            }
 
             // Thêm OrderDetail vào danh sách
             orderDetails.add(orderDetail);
         }
-
+        order.setOrderDetails(orderDetails);
         // Lưu danh sách OrderDetail vào cơ sở dữ liệu
         orderDetailRepository.saveAll(orderDetails);
+        orderRepository.save(order);
+
         return order;
 
     }
@@ -216,6 +243,24 @@ public class OrderService implements IOrderService {
         Page<Order> pageOrders;
         pageOrders = orderRepository.searchOrders(keyword, pageRequest);
         return pageOrders.map(OrderResponse::fromOrder);
+    }
+
+    @Override
+    public OrderResponse getOrderResponseById(long id) throws Exception {
+        String currentPhoneNumberUser = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User user = userRepository.findByPhoneNumber(currentPhoneNumberUser)
+                .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
+
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.NOT_FOUND)));
+
+        // Kiểm tra nếu user hiện tại là chủ sở hữu của order hoặc là admin
+        if (!order.getUser().getId().equals(user.getId()) && !isCurrentUserAdmin()) {
+            throw new AccessDeniedException(localizationUtils.getLocalizedMessage(MessageKey.ERORR));
+        }
+
+        return OrderResponse.fromOrder(order);
     }
 
 }

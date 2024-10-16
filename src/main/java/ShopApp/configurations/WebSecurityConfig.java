@@ -160,8 +160,12 @@ public class WebSecurityConfig{
                             
                             //Coupons
                             .requestMatchers(GET,String.format("%s/coupons/**", apiPrefix)).permitAll()
+                            
+                            //Payments
+                            .requestMatchers(GET,String.format("%s/payments/**", apiPrefix)).permitAll()
 
                             .anyRequest().authenticated();
+
                 })
                 
                 .csrf(AbstractHttpConfigurer::disable);

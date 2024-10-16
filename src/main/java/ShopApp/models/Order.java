@@ -5,7 +5,9 @@
 package ShopApp.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -36,7 +38,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,11 +48,6 @@ public class Order {
     @JoinColumn(name = "user_id")
     private User user;
     
-    @ManyToOne
-    @JoinColumn(name = "coupon_id")
-    @JsonBackReference
-    private Coupon coupon;
-
     @Column(name = "fullname", length = 100)
     private String fullName;
 
@@ -97,6 +94,13 @@ public class Order {
     @JsonManagedReference
     private List<OrderDetail> orderDetails;
     
+    @ManyToOne
+    @JoinColumn(name = "coupon_id", nullable = true)
+    @JsonBackReference
+    private Coupon coupon = null;
 
-    
+    @ManyToOne
+    @JoinColumn(name = "payment_id")
+    @JsonBackReference
+    private Payment payment;
 }

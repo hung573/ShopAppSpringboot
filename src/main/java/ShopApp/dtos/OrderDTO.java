@@ -7,6 +7,7 @@ package ShopApp.dtos;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -66,6 +67,10 @@ public class OrderDTO {
     @JsonProperty("payment_method")
     @NotBlank(message = "Phương thức thanh toán không được để tróng")
     private String paymentMethod;
+    
+    @JsonProperty("payment_id")
+    @NotNull
+    private Long paymentId;
     
     @JsonProperty("cart_items")
     private List<CartItemDTO> cartItems;

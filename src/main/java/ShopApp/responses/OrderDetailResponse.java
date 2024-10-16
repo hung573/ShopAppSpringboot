@@ -6,6 +6,7 @@ package ShopApp.responses;
 
 import ShopApp.models.OrderDetail;
 import ShopApp.models.Product;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;

@@ -9,6 +9,7 @@ import ShopApp.models.Category;
 import ShopApp.responses.ListResponse;
 import ShopApp.services.Category.CategoryService;
 import ShopApp.components.LocalizationUtils;
+import ShopApp.components.converters.CategoryMessageConverter;
 import ShopApp.services.Category.ICategoryRedisService;
 import ShopApp.services.Category.ICategoryService;
 import ShopApp.responses.MessageResponse;
@@ -29,6 +30,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -56,6 +58,8 @@ public class CategoryController {
     private final CategoryService categoryServiec;
     private final LocalizationUtils localizationUtils;
     private final CategoryRedisService redisService;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+
 
     @GetMapping("")
     private ResponseEntity<ListResponse> getAllCategory(
@@ -111,6 +115,8 @@ public class CategoryController {
                     .build());
         }
         Category category = categoryServiec.createCategory(categoryDTO);
+        this.kafkaTemplate.send("insert-a-category", category);//producer
+        this.kafkaTemplate.setMessageConverter(new CategoryMessageConverter());
         return ResponseEntity.ok(ObjectResponse.builder()
                 .message("yes")
                 .items(category)

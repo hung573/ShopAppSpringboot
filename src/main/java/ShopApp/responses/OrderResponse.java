@@ -4,8 +4,10 @@
  */
 package ShopApp.responses;
 
+import ShopApp.models.Coupon;
 import ShopApp.models.Order;
 import ShopApp.models.OrderDetail;
+import ShopApp.models.Payment;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.JoinColumn;
@@ -71,11 +73,14 @@ public class OrderResponse {
     private String paymentMethod;
 
     @JsonProperty("coupon_id")
-    private Long couponId;
+//    private Long couponId;
+    private Coupon couponId;
+    
+    @JsonProperty("payment_id")
+    private Payment payment;
 
     @JsonProperty("order_details")
-    @JsonManagedReference
-//    private List<OrderDetailResponse> orderDetails;
+//    private List<OrderDetail> orderDetails;
     private List<OrderDetailResponse> orderDetails;
 
 
@@ -96,14 +101,26 @@ public class OrderResponse {
                 .shippingDate(order.getShippingDate())
                 .trackingNumber(order.getTrackingNumber())
                 .paymentMethod(order.getPaymentMethod())
-                .couponId(order.getCoupon().getId())
+//                .couponId(
+//                            order.getCoupon() != null 
+//                            ? order.getCoupon().getId() 
+//                            : null
+//                        )
+                .couponId(
+                            order.getCoupon() != null 
+                            ? order.getCoupon()
+                            : null
+                        )
+                .payment(order.getPayment())
                 .orderDetails(
-                        order.getOrderDetails() != null
-                        ? order.getOrderDetails().stream()
-                                .map(OrderDetailResponse::fromOrderDetail)
-                                .collect(Collectors.toList())
-                        : new ArrayList<>()
-//                        order.getOrderDetails()
+//                        order.getOrderDetails() != null
+//                        ? order.getOrderDetails().stream()
+//                                .map(OrderDetailResponse::fromOrderDetail)
+//                                .collect(Collectors.toList())
+//                        : new ArrayList<>()
+                        order.getOrderDetails().stream()
+                        .map(OrderDetailResponse::fromOrderDetail)
+                        .collect(Collectors.toList())
                 )
                 .build();
     }

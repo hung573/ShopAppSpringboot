@@ -21,6 +21,8 @@ public interface IOrderService {
     
     Order getOrderById(long id) throws Exception;
     
+    OrderResponse getOrderResponseById(long id) throws Exception;
+    
     Order updateOrder(long id, OrderUpdateDTO orderDTO) throws Exception;
     
     void deleteOrder(long id) throws Exception;

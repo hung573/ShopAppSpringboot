@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .email-container {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border: 1px solid #dddddd;
+    }
+    .email-header {
+      background-color: #4CAF50;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    .email-body {
+      padding: 20px;
+    }
+    .order-summary {
+      margin-top: 20px;
+    }
+    .order-summary table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .order-summary th, .order-summary td {
+      padding: 10px;
+      border: 1px solid #dddddd;
+      text-align: left;
+    }
+    .order-summary th {
+      background-color: #f2f2f2;
+    }
+    .total {
+      font-weight: bold;
+      color: #333333;
+    }
+    .footer {
+      text-align: center;
+      padding: 10px;
+      background-color: #f4f4f4;
+      color: #888888;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <div class="email-header">
+        <h1>Thank You for Your Order!</h1>
+    </div>
+    <div class="email-body">
+        <p>Dear <span th:text="${order.fullName}">Customer Name</span>,</p>
+        <p>We are pleased to inform you that your order has been successfully placed.</p>
+        <p><strong>Order ID:</strong> <span th:text="${order.id}">#123456</span></p>
+        <p><strong>Order Date:</strong> <span th:text="${order.orderDate}">2024-10-14</span></p>
+        <p><strong>Customer:</strong> <span th:text="${order.fullName}">Customer Name</span></p>
+        <p><strong>Phone Number:</strong> <span th:text="${order.phoneNumber}">Phone Number</span></p>
+        <p><strong>Shipping Address:</strong> <span th:text="${order.shippingAddress}">Shipping Address</span></p>
+        <p><strong>Coupon: </strong> <span th:text="${order.couponId != null ? order.couponId.code : 'Không dùng coupon'}"></span></p>
+
+        <div class="order-summary">
+          <h3>Order Summary</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Price</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="order_detail : ${order.orderDetails}">
+                <td th:text="${order_detail.product.name}">Product Name</td>
+                <td th:text="${order_detail.numberOfProducts}">1</td>
+                <td th:text="${#numbers.formatDecimal(order_detail.product.price, 1, 'POINT', 2, 'POINT')} + ' VND'">$0.00 VND</td>
+                <td th:text="${#numbers.formatDecimal(order_detail.product.price, 1, 'POINT', 2, 'POINT')} + ' VND'">$0.00 VND</td>
+                <td th:text="${#numbers.formatDecimal(order_detail.totalMoney, 1, 'POINT', 2, 'POINT')} + ' VND'">$0.00 VND</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="4" class="total">Total</td>
+                  <td th:text="${#numbers.formatDecimal(order.totalMoney, 1, 'POINT', 2, 'POINT')} + ' VND'">$0.00 VND</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <p>If you have any questions or concerns about your order, feel free to contact our customer support.</p>
+        <p>Thank you for shopping with us!</p>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 Your Company. All rights reserved.</p>
+        <p>1234 Your Street, Your City, Your Country</p>
+    </div>
+  </div>
+</body>
+</html>
