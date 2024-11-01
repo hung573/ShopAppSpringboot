@@ -74,7 +74,7 @@ public class ProductController {
     private final LocalizationUtils localizationUtils;
 
     @GetMapping("")
-    private ResponseEntity<ListResponse> getAllProduct(
+    public ResponseEntity<ListResponse> getAllProduct(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "0", name = "category_id") Long categoryId,
             @RequestParam(defaultValue = "0") int page,
@@ -128,7 +128,7 @@ public class ProductController {
     }
 
     @GetMapping("product-home")
-    private ResponseEntity<ListResponse> getAllProductIsActive(
+    public ResponseEntity<ListResponse> getAllProductIsActive(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "0", name = "category_id") Long categoryId,
             @RequestParam(defaultValue = "0") int page,
@@ -182,7 +182,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    private ResponseEntity<?> getIdProduct(@PathVariable("id") long idProduct) throws Exception {
+    public ResponseEntity<?> getIdProduct(@PathVariable("id") long idProduct) throws Exception {
         Product product = new Product();
         product = productService.getProductById(idProduct);
         return ResponseEntity.ok(ObjectResponse.builder()
@@ -207,7 +207,8 @@ public class ProductController {
     // thay doi cach upImg
 //    @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PostMapping("/add")
-    private ResponseEntity<?> addProduct(
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> addProduct(
             @Valid @RequestBody ProductDTO productDTO,
 //            @ModelAttribute("files") List<MultipartFile> files,
             BindingResult result) throws Exception {
@@ -308,12 +309,12 @@ public class ProductController {
     }
 
     // Ham kiem tra anh co đúng định dạng hay không
-    private boolean isImageFile(MultipartFile file) {
+    public boolean isImageFile(MultipartFile file) {
         String contentType = file.getContentType();
         return contentType != null && contentType.startsWith("image/");
     }
 
-    private String storeFile(MultipartFile fileIMG) throws IOException {
+    public String storeFile(MultipartFile fileIMG) throws IOException {
         String fileName = StringUtils.cleanPath(fileIMG.getOriginalFilename());
         // Them UUID vao truoc ten file de dam bao ten file la duy nhat
         String newFileName = UUID.randomUUID().toString() + "_" + fileName;
@@ -331,14 +332,16 @@ public class ProductController {
     }
 
     @PutMapping("/update/{id}")
-    private ResponseEntity<?> updateProduct(@PathVariable("id") long idProduct, @Valid @RequestBody ProductDTO productDTO) throws Exception {
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> updateProduct(@PathVariable("id") long idProduct, @Valid @RequestBody ProductDTO productDTO) throws Exception {
 
         Product updateProduct = productService.updateProduct(idProduct, productDTO);
         return ResponseEntity.ok(updateProduct);
     }
 
     @DeleteMapping("/delete/{id}/{active}")
-    private ResponseEntity<MessageResponse> deleteProduct(
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<MessageResponse> deleteProduct(
             @PathVariable("id") long idProduct,
             @PathVariable("active") int active) throws Exception {
         productService.deleteProduct(idProduct, active > 0);
@@ -349,7 +352,7 @@ public class ProductController {
     }
 
     @PostMapping("/genfakerProducts")
-    private ResponseEntity<?> genfakerProducts() {
+    public ResponseEntity<?> genfakerProducts() {
         Faker faker = new Faker();
         for (int i = 0; i < 50; i++) {
             try {

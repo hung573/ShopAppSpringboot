@@ -10,29 +10,20 @@ import ShopApp.responses.ListResponse;
 import ShopApp.services.Category.CategoryService;
 import ShopApp.components.LocalizationUtils;
 import ShopApp.components.converters.CategoryMessageConverter;
-import ShopApp.services.Category.ICategoryRedisService;
-import ShopApp.services.Category.ICategoryService;
 import ShopApp.responses.MessageResponse;
 import ShopApp.responses.ObjectResponse;
 import ShopApp.services.Category.CategoryRedisService;
 import ShopApp.utils.MessageKey;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Locale;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -44,7 +35,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.LocaleResolver;
 
 /**
  *
@@ -60,9 +50,9 @@ public class CategoryController {
     private final CategoryRedisService redisService;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-
+    
     @GetMapping("")
-    private ResponseEntity<ListResponse> getAllCategory(
+    public ResponseEntity<ListResponse> getAllCategory(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam("page") int page,
             @RequestParam("limit") int limit) throws JsonProcessingException {
@@ -93,7 +83,7 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    private ResponseEntity<?> getIdCategory(@PathVariable("id") long idCategory) throws Exception {
+    public ResponseEntity<?> getIdCategory(@PathVariable("id") long idCategory) throws Exception {
         Category category = categoryServiec.getCategoryById(idCategory);
         return ResponseEntity.ok(ObjectResponse.builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKey.GETID_SUCCESSFULLY))
@@ -102,7 +92,8 @@ public class CategoryController {
     }
 
     @PostMapping("/add")
-    private ResponseEntity<?> addCategory(
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> addCategory(
             @Valid @RequestBody CategoryDTO categoryDTO,
             BindingResult result) throws Exception {
         if (result.hasErrors()) {
@@ -122,9 +113,10 @@ public class CategoryController {
                 .items(category)
                 .build());
     }
-
+    
     @PutMapping("/update/{id}")
-    private ResponseEntity<?> updateCategory(
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> updateCategory(
             @PathVariable("id") long idCategory,
             @Valid @RequestBody CategoryDTO categoryDTO,
             BindingResult result) throws Exception {
@@ -139,7 +131,7 @@ public class CategoryController {
                             .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, errormessage.get(0)))
                             .build());
         }
-        Category category = categoryServiec.updateCategory(idCategory, categoryDTO);
+        Category category = this.categoryServiec.updateCategory(idCategory, categoryDTO);
         return ResponseEntity.ok(ObjectResponse.builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKey.UPDATE_SUCCESSFULLY))
                 .items(category)
@@ -147,7 +139,8 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
-    private ResponseEntity<MessageResponse> deleteCategory(
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<MessageResponse> deleteCategory(
             @PathVariable("id") long idCategory) throws Exception {
         categoryServiec.deleteCategory(idCategory);
         return ResponseEntity.ok(MessageResponse.builder()

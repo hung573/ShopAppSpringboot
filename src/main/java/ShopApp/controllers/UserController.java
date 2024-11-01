@@ -34,6 +34,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -64,7 +65,8 @@ public class UserController {
     private final TokenService tokenService;
 
     @GetMapping("")
-    private ResponseEntity<ListResponse> getAllUsers(
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<ListResponse> getAllUsers(
             @RequestParam(defaultValue = "", required = false) String keyword,
             @RequestParam("page") int page,
             @RequestParam("limit") int limit) {
@@ -90,7 +92,7 @@ public class UserController {
     }
 
     @PostMapping("/resigter")
-    private ResponseEntity<MessageResponse> resigter(@Valid @RequestBody UserDTO userDTO, BindingResult result) throws Exception {
+    public ResponseEntity<MessageResponse> resigter(@Valid @RequestBody UserDTO userDTO, BindingResult result) throws Exception {
         if (result.hasErrors()) {
             List<String> errormessage = result.getFieldErrors()
                     .stream()
@@ -115,7 +117,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    private ResponseEntity<LoginResponse> login(
+    public ResponseEntity<LoginResponse> login(
             @Valid @RequestBody UserLoginDTO userLoginDTO,
             BindingResult result,
             HttpServletRequest request) {
@@ -154,14 +156,15 @@ public class UserController {
         }
     }
 
-    private boolean isMobileDevice(String userAgent) {
+    public boolean isMobileDevice(String userAgent) {
         // Kiểm tra User-Agent header để xác định thiết bị di động
         // Ví dụ đơn giản:
         return userAgent.toLowerCase().contains("mobile");
     }
 
     @DeleteMapping("/delete/{id}/{acitve}")
-    private ResponseEntity<MessageResponse> DeleteUser(
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<MessageResponse> DeleteUser(
             @PathVariable("id") long id,
             @PathVariable("acitve") int active) throws Exception {
         userService.blockOrEnableUser(id, active > 0);
@@ -172,7 +175,8 @@ public class UserController {
     }
 
     @PutMapping("/admin/update/{id}")
-    private ResponseEntity<?> UpdateUserAdmin(@PathVariable("id") long id,
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> UpdateUserAdmin(@PathVariable("id") long id,
             @Valid @RequestBody AdminUpdateUserDTO userUpdateDTO,
             BindingResult result) throws Exception {
         if (result.hasErrors()) {
@@ -192,7 +196,8 @@ public class UserController {
     }
 
     @PutMapping("/details/{id}")
-    private ResponseEntity<?> UpdateUser(
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+    public ResponseEntity<?> UpdateUser(
             @PathVariable("id") long id,
             @RequestBody UserUpdateDTO userUpdateDTO,
             @RequestHeader("Authorization") String authorizationHeader) throws Exception {
@@ -214,7 +219,8 @@ public class UserController {
     }
 
     @PostMapping("/details")
-    private ResponseEntity<?> getDetailUser(@RequestHeader("Authorization") String authorizationHeader) throws Exception {
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+    public ResponseEntity<?> getDetailUser(@RequestHeader("Authorization") String authorizationHeader) throws Exception {
         String token = authorizationHeader.substring(7);
         User user = userService.getUserDetailFromToken(token);
         return ResponseEntity.ok(ObjectResponse.builder()
@@ -224,7 +230,8 @@ public class UserController {
     }
 
     @GetMapping("/admin/{id}")
-    private ResponseEntity<?> getDetailUserFormId(
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> getDetailUserFormId(
             @PathVariable("id") long idUser) throws Exception {
         User user = new User();
         user = userService.getUserDetailFromId(idUser);
@@ -235,7 +242,7 @@ public class UserController {
     }
 
     @PostMapping("/check")
-    private ResponseEntity<?> checkToken(@RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<?> checkToken(@RequestHeader("Authorization") String authorizationHeader) {
         String token = authorizationHeader.substring(7);
         if (tokenService.checktoken(token)) {
             return ResponseEntity.ok(MessageResponse.builder()

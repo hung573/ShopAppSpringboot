@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,13 +22,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.springframework.http.HttpMethod.*;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
 
 /**
  *
@@ -35,11 +31,11 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
  */
 
 @Configuration
-@EnableMethodSecurity
+//@EnableMethodSecurity
+@EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 @EnableWebMvc
 @RequiredArgsConstructor
-@EnableWebSecurity
-
 public class WebSecurityConfig{
     
     private final JwtTokenFiltern jwtTokenFiltern;
@@ -73,90 +69,27 @@ public class WebSecurityConfig{
                             "/webjars/swagger-ui/**",
                             "/swagger-ui/index.html"
 
-                            )
-                            .permitAll()
+                            ).permitAll()
+                            
                             //healthcheck
                             .requestMatchers(GET,String.format("%s/healthcheck/**", apiPrefix)).permitAll()
                             
                             //Categories
                             .requestMatchers(GET,String.format("%s/categories/**", apiPrefix)).permitAll()
-                            
-                            .requestMatchers(POST,String.format("%s/categories/**", apiPrefix)).hasAnyRole(Role.ADMIN)
 
-                            .requestMatchers(PUT,String.format("%s/categories/**", apiPrefix)).hasAnyRole( Role.ADMIN)
-
-                            .requestMatchers(DELETE,String.format("%s/categories/**", apiPrefix)).hasAnyRole( Role.ADMIN)
 
                             // Products
                             .requestMatchers(GET,String.format("%s/products/**", apiPrefix)).permitAll()
                             
                             .requestMatchers(GET,String.format("%s/products/images/**", apiPrefix)).permitAll()
 
-                            .requestMatchers(POST,String.format("%s/products/**", apiPrefix)).hasAnyRole( Role.ADMIN)
-
-                            .requestMatchers(PUT,String.format("%s/products/**", apiPrefix)).hasAnyRole( Role.ADMIN)
-                            
-                            .requestMatchers(DELETE,String.format("%s/products/**", apiPrefix)).hasAnyRole( Role.ADMIN)
                             
                             // ProductsIMG  
                             .requestMatchers(GET,String.format("%s/product-images/**", apiPrefix)).permitAll()
-                            
-                            .requestMatchers(DELETE,String.format("%s/product-images/delete/**", apiPrefix)).hasAnyRole(Role.ADMIN)
-
-                            
-                            // Users
-                            .requestMatchers(GET,String.format("%s/users/**", apiPrefix)).hasAnyRole(Role.ADMIN)
-                            
-                            .requestMatchers(POST,String.format("%s/users/check/**", apiPrefix)).permitAll()
-                            
-                            .requestMatchers(POST,String.format("%s/users/refreshToken/**", apiPrefix)).permitAll()
-
-                            .requestMatchers(PUT,String.format("%s/users/admin/**", apiPrefix)).hasAnyRole( Role.ADMIN)
-                            
-                            .requestMatchers(PUT,String.format("%s/users/details/**", apiPrefix)).permitAll()
-
-                            .requestMatchers(DELETE,String.format("%s/users/**", apiPrefix)).hasAnyRole( Role.ADMIN)
-                            
-                            .requestMatchers(POST,String.format("%s/users/details/**", apiPrefix)).permitAll()
-
-                            
-                            // Orders
-                            .requestMatchers(POST,String.format("%s/orders/**", apiPrefix)).hasAnyRole(Role.USER, Role.ADMIN)
-                            
-                            .requestMatchers(GET,String.format("%s/orders/user_order/**", apiPrefix)).permitAll()
-                            
-                            .requestMatchers(GET,String.format("%s/orders/order/**", apiPrefix)).permitAll()
-                            
-                            .requestMatchers(GET,String.format("%s/orders/get-order-by-keyword**", apiPrefix)).hasAnyRole(Role.ADMIN)
-
-                            .requestMatchers(PUT,String.format("%s/orders/**", apiPrefix)).hasAnyRole(Role.ADMIN)
-                            
-                            .requestMatchers(DELETE,String.format("%s/orders/**", apiPrefix)).hasAnyRole(Role.ADMIN)
-                            
-                            // OrderDetails
-                            .requestMatchers(GET,String.format("%s/order_details/**", apiPrefix)).permitAll()
-
-                            .requestMatchers(POST,String.format("%s/order_details/**", apiPrefix)).hasRole(Role.USER)
-
-                            .requestMatchers(PUT,String.format("%s/order_details/**", apiPrefix)).permitAll()
-                            
-                            .requestMatchers(DELETE,String.format("%s/order_details/**", apiPrefix)).permitAll()
 
                             // Roles
-                            .requestMatchers(GET,String.format("%s/roles/admin/**", apiPrefix)).hasAnyRole(Role.ADMIN)
+//                            .requestMatchers(GET,String.format("%s/roles/admin/**", apiPrefix)).hasAnyRole(Role.ADMIN)
                             .requestMatchers(GET,String.format("%s/roles/login/**", apiPrefix)).permitAll()
-                            
-                            // Comments
-                            .requestMatchers(POST,String.format("%s/comments/**", apiPrefix)).permitAll()
-                            .requestMatchers(PUT,String.format("%s/comments/**", apiPrefix)).hasAnyRole(Role.USER)
-                            .requestMatchers(GET,String.format("%s/comments/admin/**", apiPrefix)).hasAnyRole(Role.ADMIN)
-                            
-                            //Roles
-                            .requestMatchers(GET,String.format("%s/roles/**", apiPrefix)).hasAnyRole(Role.ADMIN)
-                            .requestMatchers(POST,String.format("%s/roles/**", apiPrefix)).hasAnyRole(Role.ADMIN)
-                            .requestMatchers(PUT,String.format("%s/roles/**", apiPrefix)).hasAnyRole(Role.ADMIN)
-                            .requestMatchers(DELETE,String.format("%s/roles/**", apiPrefix)).hasAnyRole(Role.ADMIN)
-
                             
                             //Coupons
                             .requestMatchers(GET,String.format("%s/coupons/**", apiPrefix)).permitAll()

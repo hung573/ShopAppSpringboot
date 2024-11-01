@@ -21,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -47,7 +48,8 @@ public class OrderDetailController {
     private final LocalizationUtils localizationUtils;
 
     @GetMapping("")
-    private ResponseEntity<ListResponse> getAllOrderDetails(@RequestParam("page") int page, @RequestParam("limit") int limit) {
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+    public ResponseEntity<ListResponse> getAllOrderDetails(@RequestParam("page") int page, @RequestParam("limit") int limit) {
         // Tạo Pageable từ page và limit
         PageRequest pageRequest = PageRequest.of(page, limit,
                 Sort.by("id").ascending());
@@ -69,7 +71,8 @@ public class OrderDetailController {
     }
 
     @PostMapping("/add")
-    private ResponseEntity<?> createOrderDetail(@Valid @RequestBody OrderDetailDTO orderDetailDTO, BindingResult result) throws Exception {
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> createOrderDetail(@Valid @RequestBody OrderDetailDTO orderDetailDTO, BindingResult result) throws Exception {
         if (result.hasErrors()) {
             List<String> errormessage = result.getFieldErrors()
                     .stream()
@@ -89,7 +92,8 @@ public class OrderDetailController {
     }
 
     @GetMapping("/{id}")
-    private ResponseEntity<?> getOrderDetailId(@Valid @PathVariable("id") long id) throws Exception {
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+    public ResponseEntity<?> getOrderDetailId(@Valid @PathVariable("id") long id) throws Exception {
         OrderDetail orderDetail = new OrderDetail();
         orderDetail = orderDetailService.getOrderDetailById(id);
         return ResponseEntity.ok(ObjectResponse.builder()
@@ -101,7 +105,8 @@ public class OrderDetailController {
 
     // Lay ds orderDetails tu id Order
     @GetMapping("/order/{order_id}")
-    private ResponseEntity<?> ListOrderDetails(@Valid @PathVariable("order_id") long orderId) {
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+    public ResponseEntity<?> ListOrderDetails(@Valid @PathVariable("order_id") long orderId) {
         List<OrderDetail> listOrderDetails = orderDetailService.getAllByOrderId(orderId);
         List<OrderDetailResponse> orderResponses = listOrderDetails
                 .stream()
@@ -113,7 +118,8 @@ public class OrderDetailController {
 
     // Update OrderDetail
     @PutMapping("/update/{id}")
-    private ResponseEntity<?> updateOrderDetail(
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+    public ResponseEntity<?> updateOrderDetail(
             @PathVariable("id") long id,
             @Valid @RequestBody OrderDetailDTO orderDetailDTO,
             BindingResult result) throws Exception {
@@ -126,7 +132,8 @@ public class OrderDetailController {
     }
 
     @DeleteMapping("/delete/{id}")
-    private ResponseEntity<MessageResponse> deleteOrderDetail(@PathVariable("id") long id) throws Exception {
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<MessageResponse> deleteOrderDetail(@PathVariable("id") long id) throws Exception {
         orderDetailService.deleteOrderDetail(id);
         return ResponseEntity.ok(MessageResponse.builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKey.DELETE_SUCCESSFULLY))

@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -46,7 +47,8 @@ public class RoleController {
     private final LocalizationUtils localizationUtils;
 
     @GetMapping("/admin")
-    private ResponseEntity<ListResponse> getAllAdminReole(@RequestParam("page") int page, @RequestParam("limit") int limit) {
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<ListResponse> getAllAdminReole(@RequestParam("page") int page, @RequestParam("limit") int limit) {
         // Tạo Pageable từ page và limit
         PageRequest pageRequest = PageRequest.of(page, limit,
                 Sort.by("id").ascending());
@@ -68,13 +70,14 @@ public class RoleController {
     }
 
     @GetMapping("/login")
-    private ResponseEntity<?> getAllRole() {
+    public ResponseEntity<?> getAllRole() {
         List<Role> listrole = roleService.getAllRole();
         return ResponseEntity.ok(listrole);
     }
 
     @PostMapping("/add")
-    private ResponseEntity<?> addRole(
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> addRole(
             @Valid @RequestBody RoleDTO roleDTO,
             BindingResult result) throws Exception {
         if (result.hasErrors()) {
@@ -94,7 +97,8 @@ public class RoleController {
     }
 
     @PutMapping("/update/{id}")
-    private ResponseEntity<?> updateRole(
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> updateRole(
             @PathVariable("id") long idRole,
             @Valid @RequestBody RoleDTO roleDTO,
             BindingResult result) throws Exception {
@@ -115,7 +119,8 @@ public class RoleController {
     }
 
     @DeleteMapping("/delete/{id}/{active}")
-    private ResponseEntity<?> deleteRole(
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> deleteRole(
             @PathVariable("id") long roleId,
             @PathVariable("active") int active) throws Exception {
         roleService.deleteRole(roleId, active > 0);

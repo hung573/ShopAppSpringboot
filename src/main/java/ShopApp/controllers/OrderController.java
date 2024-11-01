@@ -63,7 +63,8 @@ public class OrderController {
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @GetMapping("/get-order-by-keyword")
-    private ResponseEntity<?> getAllOrder(
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> getAllOrder(
             @RequestParam(defaultValue = "", required = false) String keyword,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit) throws Exception {
@@ -89,7 +90,8 @@ public class OrderController {
     }
 
     @PostMapping("/add")
-    private ResponseEntity<?> addOerder(@Valid @RequestBody OrderDTO ortDTO, BindingResult result) throws Exception {
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+    public ResponseEntity<?> addOerder(@Valid @RequestBody OrderDTO ortDTO, BindingResult result) throws Exception {
         if (result.hasErrors()) {
             List<String> errormessage = result.getFieldErrors()
                     .stream()
@@ -112,7 +114,8 @@ public class OrderController {
 
     //Lấy ra danh sách order từ user_id
     @GetMapping("/user_order/{user_id}")
-    private ResponseEntity<?> getUserIdMyOrder(@PathVariable("user_id") long idUser) throws Exception {
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+    public ResponseEntity<?> getUserIdMyOrder(@PathVariable("user_id") long idUser) throws Exception {
         //kiem tra user dang nhap
         User loginUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (loginUser.getId() != idUser) {
@@ -128,7 +131,8 @@ public class OrderController {
 
     // Lấy ra chi tiết 1 order từ danh sách
     @GetMapping("/order/{id}")
-    private ResponseEntity<?> getOrderId(@PathVariable("id") long id) throws Exception {
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+    public ResponseEntity<?> getOrderId(@PathVariable("id") long id) throws Exception {
         Order order = orderService.getOrderById(id);
         return ResponseEntity.ok(ObjectResponse.builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKey.GETID_SUCCESSFULLY))
@@ -137,7 +141,8 @@ public class OrderController {
     }
 
     @PutMapping("/update/{id}")
-    private ResponseEntity<?> updateOrder(@PathVariable("id") long id, @Valid @RequestBody OrderUpdateDTO orderDTO, BindingResult result) throws Exception {
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> updateOrder(@PathVariable("id") long id, @Valid @RequestBody OrderUpdateDTO orderDTO, BindingResult result) throws Exception {
         Order order = orderService.updateOrder(id, orderDTO);
         return ResponseEntity.ok(ObjectResponse.builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKey.UPDATE_SUCCESSFULLY))
@@ -147,7 +152,8 @@ public class OrderController {
 
     // thuc hien xoa mem => chuyen acti == false
     @DeleteMapping("/delete/{id}")
-    private ResponseEntity<MessageResponse> deleteOrder(@PathVariable("id") long id) throws Exception {
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<MessageResponse> deleteOrder(@PathVariable("id") long id) throws Exception {
         orderService.deleteOrder(id);
         return ResponseEntity.ok(MessageResponse.builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKey.DELETE1_SUCCESSFULLY, id))

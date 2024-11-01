@@ -24,6 +24,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -52,7 +53,8 @@ public class CommentController {
     private final LocalizationUtils localizationUtils;
 
     @PostMapping("/add")
-    private ResponseEntity<?> addComment(
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+    public ResponseEntity<?> addComment(
             @Valid @RequestBody CommentDTO commentDTO,
             BindingResult result) throws Exception {
         User loginUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -76,7 +78,7 @@ public class CommentController {
     }
 
     @GetMapping("/list")
-    private ResponseEntity<?> getAllCommentList() throws Exception {
+    public ResponseEntity<?> getAllCommentList() throws Exception {
         List<CommentResponse> comment = commentService.getAllCommentList();
         return ResponseEntity.ok(ListResponse.<CommentResponse>builder()
                 .items(comment)
@@ -86,7 +88,8 @@ public class CommentController {
     }
 
     @GetMapping("/admin")
-    private ResponseEntity<?> getAllCommentPage(
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> getAllCommentPage(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "0", name = "product_id") Long productId,
             @RequestParam(defaultValue = "0") int page,
@@ -114,7 +117,7 @@ public class CommentController {
     }
 
     @GetMapping("/by-product")
-    private ResponseEntity<?> getAllCommentByProductId(
+    public ResponseEntity<?> getAllCommentByProductId(
             @RequestParam(name = "id") long productId,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit) throws Exception {
@@ -133,7 +136,8 @@ public class CommentController {
     }
 
     @GetMapping("/by-user")
-    private ResponseEntity<?> getAllCommentByUserId(
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+    public ResponseEntity<?> getAllCommentByUserId(
             @RequestParam("user-id") long userId,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit) throws Exception {
@@ -157,7 +161,8 @@ public class CommentController {
     }
 
     @GetMapping("/by-user/by-product")
-    private ResponseEntity<?> getAllCommentByUserIdAndByProductId(
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+    public ResponseEntity<?> getAllCommentByUserIdAndByProductId(
             @RequestParam(name = "user-id") long userId,
             @RequestParam(name = "product-id") long productId,
             @RequestParam(defaultValue = "1") int page,
@@ -182,7 +187,8 @@ public class CommentController {
     }
 
     @PutMapping("update/{id}")
-    private ResponseEntity<?> updateCommentUser(
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_USER')")
+    public ResponseEntity<?> updateCommentUser(
             @PathVariable("id") long commentId,
             @RequestParam(name = "user-id") long userId,
             @RequestHeader("Authorization") String authorizationHeader,
@@ -210,7 +216,8 @@ public class CommentController {
     }
 
     @DeleteMapping("/delete/{id}")
-    private ResponseEntity<ObjectResponse> deleteComment(
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+    public ResponseEntity<ObjectResponse> deleteComment(
             @PathVariable("id") long commentId,
             @RequestParam(name = "user-id") long userId) throws Exception {
         //kiem tra user dang nhap

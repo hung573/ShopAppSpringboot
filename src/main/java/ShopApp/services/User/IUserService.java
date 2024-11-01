@@ -37,5 +37,7 @@ public interface IUserService {
     User getUserDetailFromId(long id) throws Exception;
     
     User getUserDetailsFromRefreshToken(String token) throws Exception;
+    
+    
 
 }

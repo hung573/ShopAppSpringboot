@@ -65,6 +65,7 @@ api:
 jwt:
     # 30day (30*24*60*60)
     expiration: 2592000  
+#    expiration: 120  
     expiration-refresh-token: 5184000 #60 days = 60 * 24 * 60 * 60
     secretKey: WGBtsEm/cGzeh2xfNitX7F5fTZpCHdy1wp60rTzJOpA=
 

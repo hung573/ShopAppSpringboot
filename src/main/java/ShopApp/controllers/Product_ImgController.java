@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,7 +41,7 @@ public class Product_ImgController {
     private final ProductService productService;
     
     @GetMapping("")
-    private ResponseEntity<ListResponse> getAllProduct_IMG( 
+    public ResponseEntity<ListResponse> getAllProduct_IMG( 
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int limit) throws JsonProcessingException, Exception{
@@ -84,6 +85,7 @@ public class Product_ImgController {
     }
     
     @DeleteMapping("/delete-file/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> delete(
             @PathVariable Long id
     ){

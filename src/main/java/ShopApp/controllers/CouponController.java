@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,7 +35,7 @@ public class CouponController {
     private final LocalizationUtils localizationUtils;
 
     @GetMapping("")
-    private ResponseEntity<ObjectResponse> calculateCouponValue(
+    public ResponseEntity<ObjectResponse> calculateCouponValue(
             @RequestParam("couponCode") String couponCode,
             @RequestParam("totalAmount") float totalAmount) {
         try {
@@ -52,7 +53,7 @@ public class CouponController {
     }
 
     @GetMapping("/listCouponConditions")
-    private ResponseEntity<?> getAllCouponConditions() throws Exception {
+    public ResponseEntity<?> getAllCouponConditions() throws Exception {
         List<CouponConditionReponse> AllCouponConditionReponses = couponService.getAllCouponConditions();
         return ResponseEntity.ok(ObjectResponse.builder()
                 .items(AllCouponConditionReponses)
@@ -61,7 +62,7 @@ public class CouponController {
     }
     
     @GetMapping("/listCoupons")
-    private ResponseEntity<?> getAllCoupons() throws Exception {
+    public ResponseEntity<?> getAllCoupons() throws Exception {
         List<Coupon> AllCoupon = couponService.getAllCoupon();
         return ResponseEntity.ok(ObjectResponse.builder()
                 .items(AllCoupon)
@@ -70,7 +71,7 @@ public class CouponController {
     }
     
     @GetMapping("/getCouponId")
-    private ResponseEntity<?> getCouponId( @RequestParam("couponId") Long id)throws Exception{
+    public ResponseEntity<?> getCouponId( @RequestParam("couponId") Long id)throws Exception{
         return ResponseEntity.ok(ObjectResponse.builder()
                 .items(couponService.getConponId(id))
                 .message("")

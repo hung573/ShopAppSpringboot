@@ -33,7 +33,7 @@ public class PaymentController {
     private final LocalizationUtils localizationUtils;
     
     @GetMapping("")
-    private ResponseEntity<ListResponse> getAllPayment() throws Exception{
+    public ResponseEntity<ListResponse> getAllPayment() throws Exception{
         List<Payment> listPayment = paymentService.getListPayment();
         ListResponse<Payment> listResponse = ListResponse.<Payment>builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKey.GETID_SUCCESSFULLY))
@@ -45,7 +45,7 @@ public class PaymentController {
     }
     
     @GetMapping("/{id}")
-    private ResponseEntity<ObjectResponse> getPaymentId(@PathVariable("id") long id) throws Exception{
+    public ResponseEntity<ObjectResponse> getPaymentId(@PathVariable("id") long id) throws Exception{
         ObjectResponse<PaymentResponse> objectResponse = ObjectResponse.<PaymentResponse>builder()
                 .items(PaymentResponse.fromPayment(paymentService.getPaymentById(id)))
                 .message(localizationUtils.getLocalizedMessage(MessageKey.GETID_SUCCESSFULLY))
