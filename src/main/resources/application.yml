@@ -2,72 +2,69 @@
 server:
   port: 8088
 spring:
-    datasource:
-      url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3307/ShopApp?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
-      driver-class-name: com.mysql.cj.jdbc.Driver
-      username: root
-      password: ${MYSQL_ROOT_PASSWORD:HunG1907@}
-    jpa:
-      show-sql: true
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3307/ShopApp?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: ${MYSQL_ROOT_PASSWORD:HunG1907@}
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+    properties:
       hibernate:
-        ddl-auto: none
+      dialect: org.hibernate.dialect.MySQL8Dialect
+      format_sql: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  #    aop:
+  #        proxy-target-class:
+  flyway:
+    locations: classpath:/db/migration, classpath:/dev/db/migration
+    baseline-on-migrate: true
+    baseline-version: 0
+
+  data:
+    redis:
+      use-redis-cache: false
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+  messages:
+    basename: i18n/messages
+    encoding: UTF-8
+    default-locale: en
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BROKER_SERVER:localhost}:${KAFKA_BROKER_PORT:9092}
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
-        hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
-        format_sql: true
-    servlet:
-        multipart:
-            max-file-size: 10MB
-            max-request-size: 10MB
-#    aop:
-#        proxy-target-class:
-    flyway:
-        locations: classpath:/db/migration, classpath:/dev/db/migration
-        baseline-on-migrate: true
-        baseline-version: 0
-        
-    data:
-      redis:
-        use-redis-cache: false
-        host: ${REDIS_HOST:localhost} 
-        port: ${REDIS_PORT:6379}  
-    
-    messages:
-      basename: i18n/messages
-      encoding: UTF-8
-      default-locale: en
-      
-    kafka:
-      bootstrap-servers: ${KAFKA_BROKER_SERVER:localhost}:${KAFKA_BROKER_PORT:9092}
+        spring.json.type.mapping: order:ShopApp.models.Order,
+          category:ShopApp.models.Category
 
-      producer:
-        key-serializer: org.apache.kafka.common.serialization.StringSerializer
-        value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-        properties:
-          spring.json.type.mapping: 
-            order:ShopApp.models.Order,
-            category:ShopApp.models.Category
+    consumer:
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.type.mapping: order:ShopApp.models.Order,
+          category:ShopApp.models.Category
+        spring.json.trusted.packages: "*"
 
-      consumer:
-        auto-offset-reset: earliest
-        key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-        value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-        properties:
-          spring.json.type.mapping: 
-            order:ShopApp.models.Order,
-            category:ShopApp.models.Category
-          spring.json.trusted.packages: "*"
-    
-    
 api:
-    prefix: /api/v1
-    
+  prefix: /api/v1
+
 jwt:
-    # 30day (30*24*60*60)
-    expiration: 2592000  
-#    expiration: 120  
-    expiration-refresh-token: 5184000 #60 days = 60 * 24 * 60 * 60
-    secretKey: WGBtsEm/cGzeh2xfNitX7F5fTZpCHdy1wp60rTzJOpA=
+  # 30day (30*24*60*60)
+  expiration: 2592000
+  #    expiration: 120
+  expiration-refresh-token: 5184000 #60 days = 60 * 24 * 60 * 60
+  secretKey: WGBtsEm/cGzeh2xfNitX7F5fTZpCHdy1wp60rTzJOpA=
 
 # swagger-ui custom path
 springdoc:
@@ -90,6 +87,4 @@ management:
         include: "health, info"
 
 email:
-    apiKey: 
-    
-    
+  apiKey:

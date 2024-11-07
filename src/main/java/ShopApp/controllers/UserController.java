@@ -21,6 +21,7 @@ import ShopApp.responses.ObjectResponse;
 import ShopApp.responses.UserResponse;
 import ShopApp.services.Token.TokenService;
 import ShopApp.utils.MessageKey;
+import ShopApp.utils.ValidationUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -102,6 +103,26 @@ public class UserController {
                     .message(localizationUtils.getLocalizedMessage(MessageKey.ERORR, errormessage.get(0)))
                     .build());
         }
+        
+        if (userDTO.getEmail() == null || userDTO.getEmail().trim().isBlank()) {
+            if (userDTO.getPhoneNumber() == null || userDTO.getPhoneNumber().isBlank()) {
+                return ResponseEntity.badRequest().body(MessageResponse.builder()
+                        .status(HttpStatus.BAD_REQUEST)
+                        .message("At least email or phone number is required")
+                        .build());
+            } else {
+                //phone number not blank
+                if (!ValidationUtils.isValidPhoneNumber(userDTO.getPhoneNumber())) {
+                    throw new Exception("Invalid phone number");
+                }
+            }
+        } else {
+            //Email not blank
+            if (!ValidationUtils.isValidEmail(userDTO.getEmail())) {
+                throw new Exception("Invalid email format");
+            }
+        }
+        
         if (!userDTO.getPassword().equals(userDTO.getRetypePassword())) {
             return ResponseEntity.badRequest().body(
                     MessageResponse.builder()
@@ -112,6 +133,7 @@ public class UserController {
         User user = userService.createUser(userDTO);
         return ResponseEntity.ok(MessageResponse.builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKey.RIGISTER_SUCCESSFULLY))
+                .status(HttpStatus.CREATED)
                 .build());
 
     }
@@ -133,13 +155,12 @@ public class UserController {
                                 .token("")
                                 .build());
             }
-            String token = userService.login(userLoginDTO.getPhoneNumber(), userLoginDTO.getPassword());
+            String token = userService.login(userLoginDTO);
             String userAgent = request.getHeader("User-Agent");
             User user = userService.getUserDetailFromToken(token);
             Token jwtToken = tokenService.addToken(user, token, isMobileDevice(userAgent));
             return ResponseEntity.ok(LoginResponse.builder()
-                    //                    .message(localizationUtils.getLocalizedMessage(MessageKey.LOGIN_SUCCESSFULLY))
-                    .message("successfully")
+                    .message(localizationUtils.getLocalizedMessage(MessageKey.LOGIN_SUCCESSFULLY))
                     .token(jwtToken.getToken())
                     .tokenType(jwtToken.getTokenType())
                     .refreshToken(jwtToken.getRefreshToken())

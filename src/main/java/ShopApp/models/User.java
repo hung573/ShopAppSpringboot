@@ -42,13 +42,16 @@ public class User extends BaseEntity implements UserDetails{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "fullname", length = 100)
+    @Column(name = "fullname")
     private String fullName;
 
-    @Column(name = "phone_number", length = 20, nullable = false)
+    @Column(name = "phone_number", length = 20)
     private String phoneNumber;
+    
+    @Column(name = "email")
+    private String email;
 
-    @Column(name = "address", length = 200)
+    @Column(name = "address")
     private String address;
 
     @Column(name = "password", length = 200, nullable = false)
@@ -85,7 +88,12 @@ public class User extends BaseEntity implements UserDetails{
 //  theo hệ thống spring security trường username là duy nhất.
     @Override
     public String getUsername() {
-        return phoneNumber;
+        if (phoneNumber != null && !phoneNumber.isEmpty()) {
+            return phoneNumber;
+        } else if (email != null && !email.isEmpty()) {
+            return email;
+        }
+        return "";
     }
     
 //  thời lượng đăng nhập

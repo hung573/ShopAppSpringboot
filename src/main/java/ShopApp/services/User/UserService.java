@@ -15,6 +15,7 @@ import ShopApp.models.User;
 import ShopApp.configurations.*;
 import ShopApp.controllers.UserController;
 import ShopApp.dtos.AdminUpdateUserDTO;
+import ShopApp.dtos.UserLoginDTO;
 import ShopApp.dtos.UserUpdateDTO;
 import ShopApp.models.Token;
 
@@ -23,6 +24,7 @@ import ShopApp.repositories.TokenRepository;
 import ShopApp.repositories.UserRepository;
 import ShopApp.responses.UserResponse;
 import ShopApp.utils.MessageKey;
+import static ShopApp.utils.ValidationUtils.isValidEmail;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.logging.Level;
@@ -61,14 +63,20 @@ public class UserService implements IUserService {
     public User createUser(UserDTO userDTO) throws Exception {
         User newUser = new User();
         String phone = userDTO.getPhoneNumber();
+        String email = userDTO.getEmail();
         if (userRepository.existsByPhoneNumber(phone)) {
             throw new DataIntegrityViolationException(localizationUtils.getLocalizedMessage(MessageKey.PHONE_NUMBER_EXITS));
         }
+        if (userRepository.existsByEmail(email)) {
+            throw new DataIntegrityViolationException(localizationUtils.getLocalizedMessage(MessageKey.EMAIL_EXITS));
+        }
+        
         long idrole_user = 2;
         Role role = roleService.getRoleByid(idrole_user);
         newUser = User.builder()
                 .fullName(userDTO.getFullName())
                 .phoneNumber(userDTO.getPhoneNumber())
+                .email(userDTO.getEmail())
                 .password(userDTO.getPassword())
                 .address(userDTO.getAddress())
                 .dateOfBirth(userDTO.getDateOfBirth())
@@ -89,28 +97,40 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public String login(String phoneNumber, String password) throws Exception {
-        Optional<User> optionalUser = userRepository.findByPhoneNumber(phoneNumber);
+    public String login(UserLoginDTO userLoginDTO) throws Exception {
+        Optional<User> optionalUser = Optional.empty();
+        String subject = null;
+        // Check if the user exists by phone number
+        if (userLoginDTO.getPhoneNumber() != null && !userLoginDTO.getPhoneNumber().isBlank()) {
+            optionalUser = userRepository.findByPhoneNumber(userLoginDTO.getPhoneNumber());
+            subject = userLoginDTO.getPhoneNumber();
+        }
+        // If the user is not found by phone number, check by email
+        if (optionalUser.isEmpty() && userLoginDTO.getEmail() != null) {
+            optionalUser = userRepository.findByEmail(userLoginDTO.getEmail());
+            subject = userLoginDTO.getEmail();
+        }
         if (optionalUser.isEmpty()) {
             throw new DataNotFoudException(localizationUtils.getLocalizedMessage(MessageKey.PASSWORD_USERNAME_ISCONNECT));
         }
 
 //      return optionalUser.get(); 
         User user = optionalUser.get();
+        
 //      check isActi Account
         if (user.isActive() == false) {
             throw new BadCredentialsException(localizationUtils.getLocalizedMessage(MessageKey.ACCOUNT_ISACTIVE));
         }
 //      checkpassword
         if (user.getFacebookAccountId() == 0 && user.getGoogleAccountId() == 0) {
-            if (!passwordEncoder.matches(password, user.getPassword())) {
+            if (!passwordEncoder.matches(userLoginDTO.getPassword(), user.getPassword())) {
                 throw new BadCredentialsException(localizationUtils.getLocalizedMessage(MessageKey.PASSWORD_USERNAME_ISCONNECT));
             }
         }
 
 //      auth java spring security
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                phoneNumber, password, user.getAuthorities());
+                subject, userLoginDTO.getPassword(), user.getAuthorities());
         authManager.authenticate(usernamePasswordAuthenticationToken);
         return jwtTokenUtil.generateToken(user);
     }
@@ -191,14 +211,13 @@ public class UserService implements IUserService {
         if (jwtTokenUtil.isTokenExpired(token)) {
             throw new Exception("Mời bạn đăng nhập lại.");
         }
-        String phoneNumber = jwtTokenUtil.extractPhoneNumber(token);
-        Optional<User> user = userRepository.findByPhoneNumber(phoneNumber);
-
-        if (user.isPresent()) {
-            return user.get();
-        } else {
-            throw new Exception("User không tồn tại");
+        String subject = jwtTokenUtil.extractPhoneNumberOrEmail(token);
+        Optional<User> user;
+        user = userRepository.findByPhoneNumber(subject);
+        if (user.isEmpty() && isValidEmail(subject)) {
+            user = userRepository.findByEmail(subject);
         }
+        return user.orElseThrow(() -> new Exception("User not found"));
 
     }
     

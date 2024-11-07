@@ -46,12 +46,13 @@ public class JwtTokenUtils {
 //      proberties => claims
         Map<String, Object> claims = new HashMap<>();
 //        this.generateSecretKey();
-        claims.put("phoneNumber", user.getPhoneNumber());
+        String subject = getSubject(user);
+        claims.put("subject", subject);
         claims.put("id", user.getId());
         try {
             String token = Jwts.builder()
                     .setClaims(claims)
-                    .setSubject(user.getPhoneNumber())
+                    .setSubject(subject)
                     .setExpiration(new Date(System.currentTimeMillis() + expiration * 1000L))
                     .signWith(getSigninKey(), SignatureAlgorithm.HS256)
                     .compact();
@@ -74,6 +75,16 @@ public class JwtTokenUtils {
         return secretKey;
     }
     
+    private static String getSubject(User user) {
+        // Determine subject identifier (phone number or email)
+        String subject = user.getPhoneNumber();
+        if (subject == null || subject.isBlank()) {
+            // If phone number is null or blank, use email as subject
+            subject = user.getEmail();
+        }
+        return subject;
+    }
+    
     // hàm này giải Claims để lấy các proberties
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
@@ -94,11 +105,11 @@ public class JwtTokenUtils {
         return expirationDate.before(new Date());
     }
     
-    public String extractPhoneNumber(String token) {
+    public String extractPhoneNumberOrEmail(String token) {
         return extractClaim(token, Claims::getSubject);
     }
     public boolean validateToken(String token, User userDetails) {
-        String phoneNumber = extractPhoneNumber(token);
+        String subject = extractClaim(token, Claims::getSubject);
         Token existingToken = tokenRepository.findByToken(token);
         if(existingToken == null ||
                     existingToken.isRevoked() == true ||
@@ -106,7 +117,7 @@ public class JwtTokenUtils {
             ) {
             return false;
         }
-        return (phoneNumber.equals(userDetails.getUsername()))
+        return (subject.equals(userDetails.getUsername()))
                 && !isTokenExpired(token);
     }
 }

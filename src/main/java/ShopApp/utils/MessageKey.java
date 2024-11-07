@@ -22,6 +22,8 @@ public class MessageKey {
     public static final String RIGISTER_FAILED="user.register.register_failed";
     
     public static final String PHONE_NUMBER_EXITS="user.register.phone_number_exist";
+    public static final String EMAIL_EXITS="user.register.email_exist";
+
     
     public static final String ORDER_SHIPPINGDATE_INVALID="order.shippingdate";
     

@@ -63,11 +63,11 @@ public class JwtTokenFiltern extends OncePerRequestFilter {
             }
 
             final String token = authHead.substring(7);
-            final String phoneNumber = (String) jwtTokenUtil.extractPhoneNumber(token);
+            final String subject = (String) jwtTokenUtil.extractPhoneNumberOrEmail(token);
 
-            if (phoneNumber != null
+            if (subject != null
                     && SecurityContextHolder.getContext().getAuthentication() == null) {
-                User user = (User) userDetailsService.loadUserByUsername(phoneNumber);
+                User user = (User) userDetailsService.loadUserByUsername(subject);
 
                 if (jwtTokenUtil.validateToken(token, user)) {
                     UsernamePasswordAuthenticationToken authenticationToken

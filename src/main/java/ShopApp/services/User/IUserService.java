@@ -6,6 +6,7 @@ package ShopApp.services.User;
 
 import ShopApp.dtos.UserDTO;
 import ShopApp.dtos.AdminUpdateUserDTO;
+import ShopApp.dtos.UserLoginDTO;
 import ShopApp.dtos.UserUpdateDTO;
 import ShopApp.exception.DataNotFoudException;
 import ShopApp.models.User;
@@ -24,7 +25,7 @@ public interface IUserService {
     
     User updateUser(long id, UserUpdateDTO userUpdateDTO) throws Exception;
     
-    String login(String phone, String password) throws Exception;
+    String login(UserLoginDTO userLoginDTO) throws Exception;
     
     Page<User> getAllUser(PageRequest pageRequest);
     

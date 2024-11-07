@@ -22,7 +22,10 @@ public interface UserRepository extends JpaRepository<User, Long>{
     
     boolean existsByPhoneNumber(String phoneNumBer); // kiem tra sdt co ton tai khong
     
+    boolean existsByEmail(String phoneNumBer); 
+    
     Optional<User> findByPhoneNumber(String phoneNumBer); // tim kiem user theo sdt
+    Optional<User> findByEmail(String email);
     
     @Query("SELECT u FROM User u WHERE "+
             "(:keyword IS NULL OR :keyword = '' "+

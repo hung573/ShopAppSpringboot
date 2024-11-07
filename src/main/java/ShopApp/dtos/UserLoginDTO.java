@@ -21,8 +21,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserLoginDTO {
     @JsonProperty("phone_number")
-    @NotEmpty(message = "Số điện thoại không được để tróng")
     private String phoneNumber;
+    
+    @JsonProperty("email")
+    private String email;
     
     @NotEmpty(message = "Password không được để tróng")
     private String password;

@@ -6,6 +6,7 @@ package ShopApp.configurations;
 
 import ShopApp.models.User;
 import ShopApp.repositories.UserRepository;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,10 +31,21 @@ public class SecurityConfig {
     // user's detail object
     @Bean
     public UserDetailsService userDetailsService(){
-        return phoneNumber -> {
-            User user = userRepository.findByPhoneNumber(phoneNumber)
-                    .orElseThrow(() -> new UsernameNotFoundException("Số điện thoại này hiện chưa được đăng ký !!!"));
-            return user;
+        return subject -> {
+            // Attempt to find user by phone number
+            Optional<User> userByPhoneNumber = userRepository.findByPhoneNumber(subject);
+            if (userByPhoneNumber.isPresent()) {
+                return userByPhoneNumber.get(); // Return UserDetails if found
+            }
+
+            // If user not found by phone number, attempt to find by email
+            Optional<User> userByEmail = userRepository.findByEmail(subject);
+            if (userByEmail.isPresent()) {
+                return userByEmail.get(); // Return UserDetails if found
+            }
+
+            // If user not found by either phone number or email, throw UsernameNotFoundException
+            throw new UsernameNotFoundException("User not found with subject: " + subject);
         };
     }
     

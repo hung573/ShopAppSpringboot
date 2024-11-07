@@ -30,8 +30,10 @@ public class UserDTO {
     private String fullName;
     
     @JsonProperty("phone_number")
-    @NotBlank(message = "Số điện thoại không được để tróng")
     private String phoneNumber;
+    
+    @JsonProperty("email")
+    private String email;
     
     @NotBlank(message = "Địa chỉ không được để tróng")
     private String address;
